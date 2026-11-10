@@ -1,0 +1,215 @@
+<body>
+
+  <div class="left-section">
+    <img src="assets/images/LoginBG.jpg" alt="Login Background" />
+    <div class="overlay">
+      <div class="info-box">
+        <h2>You're trying</h2>
+        <h3>ABS Systems Online Simple Start</h3>
+        <ul>
+          <li> Automatic data back-ups</li>
+          <li> Track income and expenses</li>
+          <li> Access data from all your devices</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-section">
+    <div class="form-container">
+      <h2>
+        <span class="highlight-blue">ABS</span>
+        <span class="highlight-yellow"> Systems</span>
+      </h2>
+      <p class="subtext">Create an ABS Systems Account</p>
+      <p class="note">One account connected to everything, including ABS Systems. <a href="/login" class="small-links">Sign In</a></p>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Email ID or Phone</label>
+          <input type="email" formControlName="email" placeholder="Enter Email ID or Phone" required
+            [ngClass]="{'invalid': submitted && registerForm.get('email')?.invalid}" />
+          <div *ngIf="submitted && registerForm.get('email')?.invalid" class="error">
+            Please enter a valid email address
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" formControlName="firstName" placeholder="Enter First name" required
+              [ngClass]="{'invalid': submitted && registerForm.get('firstName')?.invalid}" />
+            <div *ngIf="submitted && registerForm.get('firstName')?.invalid" class="error">
+              First name is required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Middle Name</label>
+            <input type="text" formControlName="middleName" placeholder="Enter Middle name" />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" formControlName="lastName" placeholder="Enter Last name" required
+              [ngClass]="{'invalid': submitted && registerForm.get('lastName')?.invalid}" />
+            <div *ngIf="submitted && registerForm.get('lastName')?.invalid" class="error">
+              Last name is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" formControlName="password" placeholder="Enter Password" required
+            [ngClass]="{'invalid': submitted && registerForm.get('password')?.invalid}" />
+          <div *ngIf="submitted && registerForm.get('password')?.invalid" class="error">
+            Password must be at least 8 characters long
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" formControlName="passwordConfirmation" placeholder="Confirm Password" required
+            [ngClass]="{'invalid': submitted && registerForm.hasError('mismatch')}" />
+          <div *ngIf="submitted && registerForm.hasError('mismatch')" class="error">
+            Passwords do not match
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Phone (recommended)</label>
+          <div class="phone-input">
+            <select formControlName="countryCode">
+              <option value="+91">+91</option>
+              <!-- Add other country codes as needed -->
+            </select>
+            <input type="tel" formControlName="phone" placeholder="Enter your phone number"
+              [ngClass]="{'invalid': submitted && registerForm.get('phone')?.invalid}" />
+          </div>
+          <div *ngIf="submitted && registerForm.get('phone')?.invalid" class="error">
+            Please enter a valid 10-digit phone number
+          </div>
+        </div>
+
+        <p class="info-text">
+          To protect your account, we’ll send a code to quickly verify it’s you. Standard call or SMS rates may apply.
+        </p>
+
+        <div class="checkbox-group">
+          <input type="checkbox" formControlName="marketingOptIn" />
+          <label>I’d like to receive helpful marketing emails and SMS from ABS Systems and its partners.</label>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <span>🔒</span>
+          <span>{{ isSubmitting ? 'Submitting...' : 'One more step' }}</span>
+        </button>
+
+        <p class="terms-text">
+          By selecting One more step, you agree to our
+          <a href="#" class="">Terms</a> and acknowledge our
+          <a href="#">Privacy Statement</a>.
+        </p>
+
+        <p class="recaptcha-text">
+          Invisible reCAPTCHA by Google
+          <a href="#">Privacy Policy</a> and
+          <a href="#">Terms of Use</a>.
+        </p>
+
+        <!-- <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div> -->
+      </form>
+      <!-- <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Email ID or Phone</label>
+          <input type="email" formControlName="email" placeholder="Enter Email ID or Phone" required />
+          <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="error">
+            Please enter a valid email address
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" formControlName="firstName" placeholder="Enter First name" required />
+            <div *ngIf="registerForm.get('firstName')?.touched && registerForm.get('firstName')?.invalid" class="error">
+              First name is required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Middle Name</label>
+            <input type="text" formControlName="middleName" placeholder="Enter Middle name" />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" formControlName="lastName" placeholder="Enter Last name" required />
+            <div *ngIf="registerForm.get('lastName')?.touched && registerForm.get('lastName')?.invalid" class="error">
+              Last name is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" formControlName="password" placeholder="Enter Password" required />
+          <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" class="error">
+            Password must be at least 8 characters long
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" formControlName="passwordConfirmation" placeholder="Confirm Password" required />
+          <div *ngIf="registerForm.hasError('mismatch') && registerForm.get('passwordConfirmation')?.touched"
+            class="error">
+            Passwords do not match
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Phone (recommended)</label>
+          <div class="phone-input">
+            <select formControlName="countryCode">
+              <option value="+91">+91</option>
+            </select>
+            <input type="tel" formControlName="phone" placeholder="Enter your phone number" />
+          </div>
+          <div *ngIf="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid" class="error">
+            Please enter a valid 10-digit phone number
+          </div>
+        </div>
+
+        <p class="info-text">
+          To protect your account, we’ll send a code to quickly verify it’s you. Standard call or SMS rates may apply.
+        </p>
+
+        <div class="checkbox-group">
+          <input type="checkbox" formControlName="marketingOptIn" />
+          <label>I’d like to receive helpful marketing emails and SMS from ABS Systems and its partners.</label>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting || registerForm.invalid">
+          <span>🔒</span>
+          <span>{{ isSubmitting ? 'Submitting...' : 'One more step' }}</span>
+        </button>
+
+        <p class="terms-text">
+          By selecting One more step, you agree to our
+          <a href="#">Terms</a> and acknowledge our
+          <a href="#">Privacy Statement</a>.
+        </p>
+
+        <p class="recaptcha-text">
+          Invisible reCAPTCHA by Google
+          <a href="#">Privacy Policy</a> and
+          <a href="#">Terms of Use</a>.
+        </p>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+      </form> -->
+    </div>
+  </div>
+
+</body>

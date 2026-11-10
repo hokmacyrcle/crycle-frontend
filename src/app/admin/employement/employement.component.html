@@ -1,0 +1,270 @@
+<div class="border border-gray-300 p-10 max-w-2xl mx-auto mt-2 space-y-6 bg-white shadow-lg">
+    <div class="px-6 pb-1 border-b border-gray-300">
+        <h2 class="text-sm font-semibold text-purple-800">Employment Details</h2>
+    </div>
+
+    <ng-template #loading>
+        <p class="text-center text-gray-500 py-4">Loading employee details...</p>
+    </ng-template>
+
+    <ng-container *ngIf="employee; else loading">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+            <!-- Employment Type -->
+            <div>
+
+                <p class="p-2 text-gray-600">
+                    The type you select affects your tax obligations.
+                    <a href="https://www.xero.com/central" target="_blank" class="text-blue-500 cursor-pointer">Check if
+                        your
+                        payee is an employee or contractor</a>
+                </p>
+                 <label class="block text-sm mb-1">Employee Type</label>
+                <div class="flex gap-2">
+                                   
+
+                    <label class="border border-gray-400 bg-gray-50 rounded p-4 flex-1 cursor-pointer">
+                        <input type="radio" formControlName="employment_type" value="Employee" class="mr-2" />
+                        <span class="text-sm">Employee</span>
+                        <p class="p-2 text-gray-500">An employee works in your business and is part of your business</p>
+                    </label>
+                    <label class="border border-gray-400 bg-gray-50 rounded p-4 flex-1 cursor-pointer">
+                        <input type="radio" formControlName="employment_type" value="Contractor" class="mr-2" />
+                        <span class="text-sm">Contractor</span>
+                        <p class="p-2 text-gray-500">A contractor runs their own business</p>
+                    </label>
+                </div>
+                <div *ngIf="employeeForm.get('employment_type')?.touched && employeeForm.get('employment_type')?.invalid"
+                    class="text-red-500 text-sm mt-1">
+                    Employment type is required.
+                </div>
+            </div>
+
+            <!-- Income Type -->
+            <div class="mt-4">
+
+                <p class="p-2 text-gray-600">
+                    The type you select affects the pay items that can be included in pay templates and payslips.
+                    <a href="https://www.xero.com/central" target="_blank" class="text-blue-500 cursor-pointer">Learn
+                        more about
+                        income types on Xero Central</a>
+                </p>
+
+                <label class="block text-sm mb-1">Income Type</label>
+                <select formControlName="income_type" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">Select income type</option>
+                    <option *ngFor="let income of incomeTypes" [value]="income.id">{{ income.name }}</option>
+                </select>
+
+
+                <div *ngIf="employeeForm.get('income_type')?.touched && employeeForm.get('income_type')?.invalid"
+                    class="text-red-500 text-sm mt-1">
+                    Income type is required.
+                </div>
+            </div>
+
+            <!-- Employment Basis -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Employment basis</label>
+                <select formControlName="employment_basis"
+                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">Select employment basis</option>
+                    <option *ngFor="let basis of employmentBasisList" [value]="basis.id">{{ basis.name }}</option>
+                </select>
+
+                <div *ngIf="employeeForm.get('employment_basis')?.touched && employeeForm.get('employment_basis')?.invalid"
+                    class="text-red-500 text-sm mt-1">
+                    Employment basis is required.
+                </div>
+            </div>
+
+            <!-- Start Date -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Start date</label>
+                <input type="date" formControlName="start_date"
+                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                <div *ngIf="employeeForm.get('start_date')?.touched && employeeForm.get('start_date')?.invalid"
+                    class="text-red-500 text-sm mt-1">
+                    Start date is required.
+                </div>
+            </div>
+
+            <!-- Classification -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Classification <span
+                        class="text-gray-400 text-xs">(optional)</span></label>
+                <input type="text" formControlName="classification"
+                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                    placeholder="Enter award classification" />
+            </div>
+
+            <!-- Pay Frequency -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Pay frequency</label>
+                <select formControlName="pay_frequency" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">Select pay frequency</option>
+                    <option *ngFor="let freq of payFrequencies" [value]="freq.id">{{ freq.name }}</option>
+                </select>
+
+                <div *ngIf="employeeForm.get('pay_frequency')?.touched && employeeForm.get('pay_frequency')?.invalid"
+                    class="text-red-500 text-sm mt-1">
+                    Pay frequency is required.
+                </div>
+            </div>
+
+            <!-- Employee Group -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Employee group <span
+                        class="text-gray-400 text-xs">(optional)</span></label>
+                <select formControlName="employee_group"
+                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">Select group</option>
+                    <option *ngFor="let group of employeeGroups" [value]="group.id">{{ group.name }}</option>
+                </select>
+
+            </div>
+
+            <!-- Holiday Group -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Holiday group <span
+                        class="text-gray-400 text-xs">(optional)</span></label>
+                <select formControlName="holiday_group" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">None</option>
+                    <option *ngFor="let holiday of holidayGroups" [value]="holiday.id">{{ holiday.name }}</option>
+                </select>
+
+                <label class="inline-flex items-center mt-2">
+                    <input type="checkbox" formControlName="include_holidays_in_payslips" class="mr-2" />
+                    <span class="text-sm">Include holidays in payslips</span>
+                </label>
+            </div>
+
+            <!-- Ordinary Earnings Rate -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Ordinary earnings rate</label>
+                <select formControlName="ordinary_earnings_rate"
+                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">Select earnings rate</option>
+                    <option *ngFor="let rate of ordinaryEarningsRates" [value]="rate.id">{{ rate.name }}</option>
+                </select>
+
+                <div *ngIf="employeeForm.get('ordinary_earnings_rate')?.touched && employeeForm.get('ordinary_earnings_rate')?.invalid"
+                    class="text-red-500 text-sm mt-1">
+                    Ordinary earnings rate is required.
+                </div>
+            </div>
+
+            <!-- Authorisation -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Authorisation <span
+                        class="text-gray-400 text-xs">(optional)</span></label>
+                <div class="mx-10 border">
+                    <label class="inline-flex items-center p-2">
+                        <input type="checkbox" formControlName="authorised_to_approve_leave" class="mr-2" />
+                        <span class="text-sm">Authorised to approve leave</span>
+                    </label><br>
+                    <label class="inline-flex items-center p-2">
+                        <input type="checkbox" formControlName="authorised_to_approve_timesheets" class="mr-2" />
+                        <span class="text-sm">Authorised to approve timesheets</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Superannuation Membership -->
+            <div class="mt-4">
+                <h4 class="text-sm">Superannuation memberships</h4>
+                <a href="javascript:void(0)" (click)="openModal()"
+                    class="text-blue-600 text-sm underline block mb-3 mt-1">
+                    + Add a superannuation membership
+                </a>
+                <div *ngFor="let m of memberships; let i = index"
+                    class="border border-gray-300 rounded-md p-4 flex justify-between items-center mb-2">
+                    <div>
+                        <p class="text-sm">{{ m.fund }}</p>
+                        <p class="text-xs text-gray-500">{{ m.number }}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" (click)="openModal(i)"
+                            class="text-sm border border-gray-300 px-2 py-1 rounded">Update</button>
+
+                        <!-- <button type="button" class="text-sm border border-gray-300 px-2 py-1 rounded">Update</button> -->
+                        <button type="button" (click)="deleteMembership(i)"
+                            class="text-sm text-red-600 px-2 py-1">Delete</button>
+                    </div>
+                </div>
+                <div *ngIf="memberships.length === 0" class="text-gray-500 text-sm">No superannuation memberships added.
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mt-4">
+                <label class="block text-sm mb-1">Notes <span class="text-gray-400 text-xs">(optional)</span></label>
+                <textarea formControlName="notes" class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                    placeholder="Enter notes"></textarea>
+            </div>
+
+            <!-- Submit -->
+            <div class="mt-5">
+                <button type="submit" class="px-4 py-2 bg-purple-700 text-white rounded disabled:bg-gray-400"
+                    mat-raised-button>
+                    <span *ngIf="!isLoading">update Employee</span>
+                    <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+                </button>
+            </div>
+            <!-- <div class="mt-5">
+                <button type="submit" [disabled]="employeeForm.invalid"
+                    class="px-4 py-2 bg-purple-700 text-white rounded disabled:bg-gray-400">Save</button>
+            </div> -->
+        </form>
+    </ng-container>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+    <div class="bg-white w-2/6 rounded shadow-lg relative p-6">
+        <div class="flex justify-between items-center border-b mb-3">
+            <h2 class="text-lg text-purple-800">Add a superannuation membership</h2>
+            <button (click)="closeModal()" class="text-red-600 text-3xl">&times;</button>
+        </div>
+        <form [formGroup]="membershipForm">
+            <label class="block text-sm font-medium mt-2">Superannuation fund</label>
+            <select formControlName="fund" class="w-full border rounded px-3 py-2 mb-2">
+                <option value="">Select fund</option>
+                <option value="HESTA">HESTA Super (HESTA)</option>
+                <option value="Australian Super">Australian Super</option>
+            </select>
+            <div *ngIf="membershipForm.get('fund')?.touched && membershipForm.get('fund')?.invalid"
+                class="text-red-500 text-sm mt-1">
+                Superannuation fund is required.
+            </div>
+            <label class="block text-sm font-medium">Member number</label>
+            <input type="text" formControlName="number" class="w-full border rounded px-3 py-2 mb-3" />
+            <div *ngIf="membershipForm.get('number')?.touched && membershipForm.get('number')?.invalid"
+                class="text-red-500 text-sm mt-1">
+                Member number is required.
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" (click)="closeModal()" class="px-4 py-2 border rounded">Cancel</button>
+                <button type="button" (click)="addMembership()" [disabled]="membershipForm.invalid"
+                    class="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400">
+                    {{ editingIndex !== null ? 'Update' : 'Add' }}
+                </button>
+
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- History Section -->
+<div class="w-full max-w-2xl mx-auto m-2 shadow-lg">
+    <div class="border rounded">
+        <button (click)="toggleHistory()"
+            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-t text-left">
+            <span class="font-medium text-purple-800">History</span>
+            <span [class.rotate-180]="showHistory" class="transition-transform">⌄</span>
+        </button>
+        <div *ngIf="showHistory" class="px-4 py-3 bg-white">
+            <p>No Data</p>
+        </div>
+    </div>
+</div>

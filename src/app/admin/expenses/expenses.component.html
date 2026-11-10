@@ -1,0 +1,102 @@
+<div class="ml-4">
+  <h1>Expenses</h1>
+</div>
+<div class="p-6 bg-gray-200">
+  <!-- Sales Section Header -->
+
+  <div class="flex items-center bg-black rounded-lg p-4 shadow-md mb-6">
+    <img
+      src="assets/images/Dashboard/logo.png"
+      alt="Logo"
+      class="w-16 h-16 rounded-lg"
+    />
+    <div class="ml-4">
+      <h1 class="text-xl font-semibold text-white">Expenses</h1>
+      <p class="text-gray-300 text-sm">Manage your Expense Operationss</p>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="bg-white rounded-lg shadow-md mb-6">
+    <nav class="flex space-x-8 px-6 py-4 border-b">
+      <button
+        (click)="setActiveTab('expenses')"
+        [ngClass]="{
+          'text-purple-600 border-b-2 border-purple-600':
+            activeTab === 'expenses',
+          'text-gray-500 hover:text-gray-700': activeTab !== 'expenses'
+        }"
+        class="py-2 px-1 text-sm font-medium transition-colors duration-200"
+      >
+        Expenses
+      </button>
+      <button
+        (click)="setActiveTab('Bills')"
+        [ngClass]="{
+          'text-purple-600 border-b-2 border-purple-600': activeTab === 'Bills',
+          'text-gray-500 hover:text-gray-700': activeTab !== 'Bills'
+        }"
+        class="py-2 px-1 text-sm font-medium transition-colors duration-200"
+      >
+        Bills
+      </button>
+      <button
+        (click)="setActiveTab('Purchase Orders')"
+        [ngClass]="{
+          'text-purple-600 border-b-2 border-purple-600':
+            activeTab === 'Purchase Orders',
+          'text-gray-500 hover:text-gray-700': activeTab !== 'Purchase Orders'
+        }"
+        class="py-2 px-1 text-sm font-medium transition-colors duration-200"
+      >
+        Purchase Orders
+      </button>
+      <button
+        (click)="setActiveTab('Suppliers')"
+        [ngClass]="{
+          'text-purple-600 border-b-2 border-purple-600':
+            activeTab === 'Suppliers',
+          'text-gray-500 hover:text-gray-700': activeTab !== 'Suppliers'
+        }"
+        class="py-2 px-1 text-sm font-medium transition-colors duration-200"
+      >
+        Suppliers
+      </button>
+      <button
+        (click)="setActiveTab('Mileage')"
+        [ngClass]="{
+          'text-purple-600 border-b-2 border-purple-600':
+            activeTab === 'Mileage',
+          'text-gray-500 hover:text-gray-700': activeTab !== 'Mileage'
+        }"
+        class="py-2 px-1 text-sm font-medium transition-colors duration-200"
+      >
+        Mileage
+      </button>
+    </nav>
+  </div>
+  <!-- Expenses Tab -->
+  <div *ngIf="activeTab === 'expenses'">
+    <app-expense-table></app-expense-table>
+  </div>
+
+  <!-- Bills Tab -->
+  <div *ngIf="activeTab === 'Bills'">
+    <app-quotes></app-quotes>
+  </div>
+
+  <!-- Purchase Orders Tab -->
+  <div *ngIf="activeTab === 'Purchase Orders'">
+    <app-getallinvoices Orders></app-getallinvoices>
+  </div>
+
+  <!-- Suppliers Tab -->
+  <div *ngIf="activeTab === 'Suppliers'">
+    <app-quotes></app-quotes>
+  </div>
+
+  <!-- Mileage Tab -->
+  <div *ngIf="activeTab === 'Mileage'">
+    <app-clients></app-clients>
+  </div>
+</div>

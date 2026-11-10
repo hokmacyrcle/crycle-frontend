@@ -1,0 +1,7 @@
+.tab-link {
+    @apply px-6 py-2 border bg-white text-black;
+}
+
+.active-tab {
+    @apply bg-purple-500 text-white;
+}

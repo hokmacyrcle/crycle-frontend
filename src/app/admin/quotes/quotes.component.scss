@@ -1,0 +1,63 @@
+// Quotes component styles
+.mat-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mat-header-cell {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.mat-cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.mat-row:hover {
+  background-color: #f9fafb;
+}
+
+// Status badges
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+// Filter styles
+.filter-section {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .filter-section {
+    padding: 12px;
+  }
+  
+  .mat-table {
+    display: none;
+  }
+}
+
+// Loading spinner
+.mat-spinner {
+  margin: 20px auto;
+}
+
+// Paginator
+.mat-paginator {
+  margin-top: 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}

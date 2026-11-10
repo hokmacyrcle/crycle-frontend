@@ -1,0 +1,615 @@
+<div class="min-h-screen bg-gray-100">
+    <!-- Header with Back Button and Edit Toggle -->
+    <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button (click)="goBack()"
+                    class="flex items-center text-gray-600 hover:text-gray-800 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Invoices
+                </button>
+                <div class="text-xl font-semibold text-gray-900">
+                    Invoice #{{ invoiceId }}
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div *ngIf="!isEditMode" class="text-sm text-gray-500">
+                    View Mode
+                </div>
+                <div *ngIf="isEditMode" class="text-sm text-orange-600 font-medium">
+                    Edit Mode
+                </div>
+                <button *ngIf="!isEditMode" (click)="toggleEditMode()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Edit Invoice
+                </button>
+                <button *ngIf="!isEditMode" (click)="openPaymentPopup()"
+                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                    Receive Payment
+                </button>
+                <button *ngIf="isEditMode" (click)="toggleEditMode()"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                    Cancel Edit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center min-h-96">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600">Loading invoice...</p>
+        </div>
+    </div>
+
+    <!-- Invoice Form -->
+    <form *ngIf="!isLoading" #invoiceForm="ngForm" (ngSubmit)="saveForm()" class="max-w-7xl mx-auto">
+        <!-- Error Message Display -->
+        <div *ngIf="showError" class="fixed top-4 right-4 z-50 max-w-md">
+            <div class="bg-red-50 border border-red-200 rounded-md p-4 shadow-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>{{ errorMessage }}</p>
+                            <div *ngIf="validationErrors && getValidationErrorKeys().length > 0" class="mt-2">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li *ngFor="let field of getValidationErrorKeys()" class="text-xs">
+                                        <strong>{{ field }}:</strong> {{ getFieldError(field) }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" (click)="hideError()"
+                                class="text-sm font-medium text-red-800 hover:text-red-600">
+                                Dismiss
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main id="invoice-form" class="p-6 bg-gray-200 pb-40">
+            <!-- Invoice Section -->
+            <div id="invoice-section">
+                <!-- Customer Information Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label for="customer-select" class="block text-sm font-medium">Customer (?)</label>
+                        <select id="customer-select" class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                            [(ngModel)]="formData.customer" name="customer" (ngModelChange)="onCustomerChange()"
+                            [disabled]="!isEditMode" required>
+                            <option value="" disabled>Select a customer</option>
+                            <option *ngFor="let contact of contacts" [value]="contact.id">{{ contact['Contact Name'] }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="customer-email" class="block text-sm font-medium">Customer email (?)</label>
+                        <input id="customer-email" type="text"
+                            class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                            [(ngModel)]="formData.customerEmail" name="customerEmail" [readonly]="!isEditMode"
+                            placeholder="Separate emails with a comma">
+                        <div class="mt-1 flex items-center gap-4">
+                            <a href="#" class="text-blue-600 text-sm hover:underline">Cc/Bcc</a>
+                            <label class="flex items-center gap-2 text-sm text-gray-600">
+                                <input type="checkbox" [(ngModel)]="formData.sendLater" name="sendLater"
+                                    [disabled]="!isEditMode">
+                                Send later
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Invoice Attachment -->
+                    <div *ngIf="invoiceAttachmentUrl" style="height: 120px; padding-bottom: 20px;">
+                        <h3>Invoice Attachment</h3>
+                        <div class="image-wrapper" (click)="openImageModal()">
+                            <img [src]="invoiceAttachmentUrl" alt="Invoice Image" class="invoice-attachment-img" />
+                            <div class="hover-eye-icon">
+                                <svg class="eye-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5
+                                     c4.477 0 8.268 2.943 9.542 7
+                                     -1.274 4.057-5.065 7-9.542 7
+                                     -4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="showImageModal"
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                        (click)="closeImageModal()">
+                        <div class="bg-white rounded-lg p-4 max-w-3xl w-full max-h-[80vh] overflow-auto"
+                            (click)="$event.stopPropagation()">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Invoice Attachment</h3>
+                                <button (click)="closeImageModal()" class="text-gray-500 hover:text-gray-700">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex justify-center">
+                                <img [src]="invoiceAttachmentUrl" alt="Invoice Image"
+                                    class="max-w-full max-h-[70vh] object-contain" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Address and Dates Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="md:col-span-1">
+                        <label for="billing-address" class="block text-sm font-medium">Billing address</label>
+                        <textarea id="billing-address" rows="4"
+                            class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm resize"
+                            [(ngModel)]="formData.billingAddress" name="billingAddress" [readonly]="!isEditMode"
+                            placeholder="Enter billing address"></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="terms" class="block text-sm font-medium">Terms (?)</label>
+                                <select id="terms" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+                                    [(ngModel)]="formData.terms" name="terms" [disabled]="!isEditMode" required>
+                                    <option value="" disabled>Select terms</option>
+                                    <option *ngFor="let term of paymentTerms" [value]="term.id">{{ term.text }}</option>
+                                </select>
+                                <div class="mt-1 text-sm text-gray-600">
+                                    <span class="text-blue-600 cursor-pointer hover:underline">Reminders Edit</span>
+                                    <span>1 reminder(s) on</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="invoice-date" class="block text-sm font-medium">Invoice date</label>
+                                <div class="relative">
+                                    <input id="invoice-date" type="date"
+                                        class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm pr-8"
+                                        [(ngModel)]="formData.invoiceDate" name="invoiceDate" [min]="getTodayDate()"
+                                        [readonly]="!isEditMode" required>
+                                    <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-12a2 2 0 00-2 2z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div class="mt-1">
+                                    <a href="#" class="text-blue-600 text-sm hover:underline">Create recurring invoice</a>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="due-date" class="block text-sm font-medium">Due date</label>
+                                <input id="due-date" type="date"
+                                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                                    [(ngModel)]="formData.dueDate" name="dueDate"
+                                    [min]="formData.invoiceDate || getTodayDate()" [readonly]="!isEditMode" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-12">#</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-48">
+                                Product/Service Name</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-48">
+                                Description</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider w-20">
+                                Quantity</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider w-24">
+                                Rate</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider w-24">
+                                Amount</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                                GST</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                                GST Amount</th>
+                            <th scope="col" class="relative px-4 py-3" *ngIf="isEditMode"><span class="sr-only">Delete</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-table-body" class="bg-white divide-y divide-gray-200">
+                        <tr *ngFor="let item of lineItems; let i = index" class="line-item">
+                            <td class="px-4 py-4 whitespace-nowrap w-12">{{ i + 1 }}</td>
+                            <td class="px-4 py-4 w-48">
+                                <div class="relative">
+                                    <input type="text"
+                                        class="w-full border-b p-1 focus:outline-none focus:border-blue-500 text-sm pr-6"
+                                        [(ngModel)]="item.productName" [name]="'productName' + i"
+                                        placeholder="Enter product/service name" (input)="onProductNameInput($event, i)"
+                                        (focus)="onProductNameFocus(i)" (blur)="onProductNameBlur(i)"
+                                        [readonly]="!isEditMode" [class.border-green-500]="item.productName === ''">
+                                    <svg class="absolute right-1 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                    <!-- Dropdown Suggestions -->
+                                    <div *ngIf="showProductSuggestions[i] && filteredProducts[i] && filteredProducts[i].length > 0"
+                                        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                                        <div *ngFor="let product of filteredProducts[i]"
+                                            class="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                            (click)="selectProduct(product.text, i)">
+                                            {{ product.text }}
+                                        </div>
+                                        <div *ngIf="item.productName && filteredProducts[i] && filteredProducts[i].length === 0"
+                                            class="px-3 py-2 text-gray-500 text-sm bg-gray-50">
+                                            Please make a valid entry.
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 w-48">
+                                <input type="text" class="w-full border-b p-1 focus:outline-none focus:border-blue-500"
+                                    [(ngModel)]="item.description" [name]="'description' + i"
+                                    placeholder="Enter description" [readonly]="!isEditMode">
+                            </td>
+                            <td class="px-4 py-4 w-20">
+                                <input type="number" min="0"
+                                    class="w-full border-b focus:outline-none focus:border-blue-500 text-right"
+                                    [(ngModel)]="item.quantity" [name]="'quantity' + i"
+                                    (ngModelChange)="updateCalculations()" [readonly]="!isEditMode" required>
+                            </td>
+                            <td class="px-4 py-4 w-24">
+                                <input type="number" min="0" step="0.01"
+                                    class="w-full border-b focus:outline-none focus:border-blue-500 text-right"
+                                    [(ngModel)]="item.rate" [name]="'rate' + i" (ngModelChange)="updateCalculations()"
+                                    [readonly]="!isEditMode" required>
+                            </td>
+                            <td class="px-4 py-4 w-24 text-right">
+                                <span class="text-sm font-medium">${{ (item.quantity * item.rate) | number:'1.2-2' }}</span>
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                                    [(ngModel)]="item.gst" [name]="'gst' + i" (ngModelChange)="updateCalculations()"
+                                    [disabled]="!isEditMode">
+                                    <option value="">0%</option>
+                                    <option value="5">5%</option>
+                                    <option value="10">10%</option>
+                                    <option value="15">15%</option>
+                                    <option value="20">20%</option>
+                                </select>
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="text-sm font-medium">${{ calculateGstAmount(item) | number:'1.2-2' }}</span>
+                            </td>
+                            <td class="px-4 py-4 text-center" *ngIf="isEditMode">
+                                <button type="button" (click)="deleteLine(i)"
+                                    class="text-red-600 hover:text-red-800 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Lines and Clear Lines Buttons -->
+            <div class="mt-6 flex space-x-4" *ngIf="isEditMode">
+                <button type="button" (click)="addLine()"
+                    class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Add lines
+                </button>
+                <button type="button" (click)="clearLines()"
+                    class="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    Clear all lines
+                </button>
+            </div>
+
+            <!-- Payment Summary Table -->
+            <div *ngIf="!isEditMode && paymentSummary && paymentSummary.payment_count > 0" class="mt-8">
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Payment Summary</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Payment Date</th>
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Method</th>
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Reference</th>
+                                <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider">Payment Amount</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Notes</th>
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Attachments</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr *ngFor="let payment of originalInvoiceData?.payments; let i = index">
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded flex items-center justify-center mr-2">
+                                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm text-gray-900">
+                                            Payment #{{ i + 1 }}
+                                            <span class="text-purple-600">({{ payment.date | date:'dd/MM/yyyy' }})</span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ payment.date | date:'dd/MM/yyyy' }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">{{ payment.method }}</span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                                    <span class="text-xs text-gray-600">{{ payment.reference || '-' }}</span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-green-600 text-right">
+                                    ${{ payment.amount | number:'1.2-2' }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <span class="text-xs">{{ payment.notes || '-' }}</span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-center">
+                                    <div *ngIf="payment.attachments && payment.attachments.length > 0"
+                                        class="flex flex-wrap gap-1 justify-center">
+                                        <div *ngFor="let attachment of getImageAttachments(payment.attachments)"
+                                            class="relative group cursor-pointer" (click)="openAttachment(attachment)">
+                                            <img [src]="getAttachmentUrl(attachment)" [alt]="attachment.filename"
+                                                class="w-8 h-8 object-cover rounded border border-gray-200 hover:opacity-90 transition-opacity"
+                                                [title]="attachment.filename" (error)="onImageError($event)">
+                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded flex items-center justify-center">
+                                                <svg class="h-3 w-3 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="getNonImageAttachments(payment.attachments).length > 0"
+                                            class="w-8 h-8 bg-gray-100 border border-gray-200 rounded flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                                            [title]="getNonImageAttachments(payment.attachments).length + ' document(s)'">
+                                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            <span class="text-xs font-medium text-gray-600 ml-1">{{ getNonImageAttachments(payment.attachments).length }}</span>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="!payment.attachments || payment.attachments.length === 0"
+                                        class="text-xs text-gray-400">
+                                        No attachments
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td colspan="5" class="px-4 py-3 text-sm font-medium text-gray-700 text-right">
+                                    Total Payments:
+                                </td>
+                                <td class="px-4 py-3 text-sm font-bold text-green-600 text-right">
+                                    ${{ totalPaid | number:'1.2-2' }}
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Message and Attachments Section -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Left Column: Message and Attachments -->
+                <div class="space-y-6">
+                    <div>
+                        <label for="message-on-statement" class="block text-sm font-medium text-gray-700 mb-2">Invoice Description</label>
+                        <textarea id="message-on-statement" rows="4"
+                            class="w-full p-3 rounded-lg border border-gray-300 shadow-sm resize"
+                            [(ngModel)]="formData.messageOnInvoice" name="messageOnInvoice" [readonly]="!isEditMode"
+                            placeholder="Enter description for this invoice"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Attachments</label>
+                        <p class="text-sm text-gray-500 mb-3">Maximum size: 20MB</p>
+                        <div *ngIf="isEditMode"
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white hover:border-gray-400 transition-colors"
+                            (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2h-5.586a1 1 0 01-.707-.293l-5.414-5.414a1 1 0 01-.293-.707V5a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                <div class="mb-3">
+                                    <label for="file-upload" class="text-blue-600 underline cursor-pointer hover:text-blue-700">
+                                        Upload a file
+                                    </label>
+                                    <span class="text-gray-600"> or drag and drop</span>
+                                </div>
+                                <p class="text-sm text-gray-500">PNG, JPG, GIF up to 20MB</p>
+                                <input id="file-upload" type="file" multiple class="hidden"
+                                    (change)="onFileSelected($event)" accept=".png,.jpg,.jpeg,.gif">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="#" class="text-blue-600 text-sm hover:underline">Show existing</a>
+                        </div>
+                        <div *ngIf="formData.attachments.length > 0" class="mt-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Attached Files:</h4>
+                            <div class="space-y-2">
+                                <div *ngFor="let file of formData.attachments; let i = index"
+                                    class="flex items-center justify-between p-2 bg-gray-50 rounded border">
+                                    <span class="text-sm text-gray-600 truncate">{{ file.name }}</span>
+                                    <button *ngIf="isEditMode" type="button" (click)="removeAttachment(i)"
+                                        class="text-red-500 hover:text-red-700 text-sm">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Invoice Attachments Display -->
+                    <div *ngIf="(originalInvoiceData?.attachments ?? []).length > 0" class="mt-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Invoice Attachments</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <div *ngFor="let attachment of getImageAttachments(originalInvoiceData?.attachments ?? [])"
+                                class="relative group cursor-pointer" (click)="openAttachment(attachment)">
+                                <img [src]="getAttachmentUrl(attachment)" [alt]="attachment.filename || 'Attachment'"
+                                    class="w-16 h-16 object-cover rounded border border-gray-200 hover:opacity-90 transition-opacity"
+                                    (error)="onImageError($event)">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded flex items-center justify-center">
+                                    <svg class="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div *ngIf="getNonImageAttachments(originalInvoiceData?.attachments ?? []).length > 0"
+                                class="w-16 h-16 bg-gray-100 border border-gray-200 rounded flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                                (click)="openNonImageAttachments(originalInvoiceData?.attachments ?? [])"
+                                [title]="getNonImageAttachments(originalInvoiceData?.attachments ?? []).length + ' document(s)'">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-xs font-medium text-gray-600 ml-1">{{
+                                    getNonImageAttachments(originalInvoiceData?.attachments ?? []).length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="showImageModal"
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                        (click)="closeImageModal()">
+                        <div class="bg-white rounded-lg p-4 max-w-3xl w-full max-h-[80vh] overflow-auto"
+                            (click)="$event.stopPropagation()">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Invoice Attachment</h3>
+                                <button (click)="closeImageModal()" class="text-gray-500 hover:text-gray-700">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex justify-center">
+                                <img [src]="selectedAttachmentUrl" alt="Invoice Image"
+                                    class="max-w-full max-h-[70vh] object-contain" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Financial Summary -->
+                <div class="space-y-4 w-full max-w-sm ml-auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Subtotal</span>
+                        <span class="text-lg font-bold text-gray-800">${{ subtotal | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2" *ngIf="isEditMode">
+                            <select id="discount-type" name="discountType" [(ngModel)]="formData.discountType"
+                                (ngModelChange)="onDiscountMethodChange()"
+                                class="border border-gray-300 rounded-md px-2 py-1 text-sm" required>
+                                <option value="percent">Discount percent</option>
+                                <option value="value">Discount value</option>
+                            </select>
+                            <input type="number" id="discount-value" min="0" step="0.01" name="discountValue"
+                                [(ngModel)]="formData.discountValue" (ngModelChange)="onDiscountValueChange()"
+                                class="border border-gray-300 rounded-md px-2 py-1 w-24 text-right text-sm"
+                                placeholder="0" [max]="formData.discountType === 'percent' ? 100 : subtotal"
+                                (blur)="validateDiscountInput()"
+                                [class.border-red-500]="formData.discountValue > 0 && ((formData.discountType === 'percent' && formData.discountValue > 100) || (formData.discountType === 'value' && formData.discountValue > subtotal))">
+                        </div>
+                        <div *ngIf="getFieldError('discount_type')" class="text-xs text-red-600 mt-1">
+                            {{ getFieldError('discount_type') }}
+                        </div>
+                        <div *ngIf="getFieldError('discount_value')" class="text-xs text-red-600 mt-1">
+                            {{ getFieldError('discount_value') }}
+                        </div>
+                        <div *ngIf="formData.discountValue > 0 && formData.discountType === 'percent' && formData.discountValue > 100"
+                            class="text-xs text-red-600 mt-1">
+                            Discount percentage cannot exceed 100%
+                        </div>
+                        <div *ngIf="formData.discountValue > 0 && formData.discountType === 'value' && formData.discountValue > subtotal"
+                            class="text-xs text-red-600 mt-1">
+                            Fixed discount cannot exceed subtotal
+                        </div>
+                        <div *ngIf="discountAmount > 0" class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Discount</span>
+                            <span class="text-lg font-semibold text-gray-800 text-red-600">-${{ discountAmount | number:'0.2-2' }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">GST Total</span>
+                        <span class="text-lg font-semibold text-gray-800">${{ getTotalGstAmount() | number:'1.2-2' }}</span>
+                    </div>
+                    <hr class="border-gray-300">
+                    <div class="flex items-center justify-between">
+                        <div class="text-lg font-semibold text-gray-800">Total</div>
+                        <div class="text-lg font-semibold text-gray-800">${{ total | number:'1.2-2' }}</div>
+                    </div>
+                    <div *ngIf="totalPaid > 0" class="flex items-center justify-between">
+                        <div class="text-sm font-medium text-gray-700">Amount Received</div>
+                        <div class="text-lg font-semibold text-green-600">${{ totalPaid | number:'1.2-2' }}</div>
+                    </div>
+                    <div class="pt-2 flex items-center justify-between">
+                        <div class="text-lg font-semibold text-gray-800">Balance due</div>
+                        <div class="text-3xl font-bold text-gray-800">${{ (balanceDue - totalPaid) | number:'1.2-2' }}</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-gray-700 bottom-0 right-0 p-4 bg-gray-800">
+            <div class="mx-auto flex justify-between items-center text-white">
+                <div class="text-sm text-gray-300">
+                    Invoice Status: <span class="font-medium">{{ originalInvoiceData?.invoice_status || 'Unknown' }}</span>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" (click)="goBack()"
+                        class="px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-300 hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button *ngIf="isEditMode" type="submit"
+                        class="px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Update Invoice
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </form>
+
+    <!-- Payment Popup -->
+    <app-payment-popup [invoiceId]="invoiceId" [invoiceAmount]="balanceDue"
+        [customerName]="originalInvoiceData?.customer?.name || 'Customer'" [totalPaid]="totalPaid"
+        [paymentSummary]="paymentSummary" [isVisible]="showPaymentPopup" (closePopup)="closePaymentPopup()"
+        (paymentRecorded)="onPaymentRecorded($event)">
+    </app-payment-popup>
+</div>

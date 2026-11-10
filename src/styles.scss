@@ -1,0 +1,378 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+// validation css 
+.form-control {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.is-invalid {
+    @apply border-red-500 focus:ring-red-500;
+}
+
+.invalid-feedback {
+    @apply text-red-600 text-sm mt-1;
+}
+
+.form-group {
+    @apply relative;
+}
+
+.options {
+    @apply flex justify-between items-center mb-4;
+}
+
+.submit-btn {
+    @apply w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50;
+}
+
+// .text-xs {
+//     @apply text-xs text-gray-600 mt-4;
+// }
+
+.small-links {
+    @apply text-sm text-blue-600 hover:underline mt-2;
+}
+
+.recaptcha {
+    @apply text-xs text-gray-600 mt-4;
+}
+
+.left-section {
+    @apply relative w-1/2;
+}
+
+.left-section img {
+    @apply w-full h-full object-cover;
+}
+
+.overlay {
+    @apply absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white;
+}
+
+.right-section {
+    @apply w-1/2 flex justify-center items-center;
+}
+
+.form-container {
+    @apply w-3/4 max-w-md;
+}
+
+.highlight-purple {
+    @apply text-purple-600;
+}
+
+.highlight-orange {
+    @apply text-orange-600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    outline: none;
+}
+
+
+
+
+.is-invalid {
+    @apply border-red-500 focus:ring-2 focus:ring-red-500;
+    /* Apply red border and ring on focus */
+}
+
+.invalid-feedback {
+    @apply text-red-600 text-sm mt-1;
+}
+
+.submit-btn {
+    @apply w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50;
+}
+
+
+
+.small-links {
+    @apply text-sm text-blue-600 hover:underline mt-2;
+}
+
+.recaptcha {
+    @apply text-xs text-gray-600 mt-4;
+}
+
+.left-section {
+    @apply relative w-1/2;
+}
+
+.left-section img {
+    @apply w-full h-full object-cover;
+}
+
+.overlay {
+    @apply absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white;
+}
+
+.right-section {
+    @apply w-1/2 flex justify-center items-center;
+}
+
+.form-container {
+    @apply w-3/4 max-w-md;
+}
+
+.highlight-purple {
+    @apply text-purple-600;
+}
+
+.highlight-orange {
+    @apply text-orange-600;
+}
+
+
+
+.is-invalid {
+    --tw-border-opacity: 1;
+    border-color: rgb(239 68 68 / var(--tw-border-opacity, 1)) !important;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+// updated form css and buttons
+
+
+
+.form-container {
+  max-width: 600px;
+  width: 100%;
+}
+
+/* Form Styling */
+.form-container h2 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.highlight-blue {
+  color: #1e3a8a;
+}
+
+.highlight-yellow {
+  color: #facc15;
+}
+
+.subtext {
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.note {
+  text-align: center;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.note a {
+  color: #2563eb;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.form-group input:focus {
+  border-color: #7e22ce;
+  outline: none;
+  box-shadow: 0 0 4px rgba(126, 34, 206, 0.5);
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 100px;
+}
+
+.info-text {
+  font-size: 12px;
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.submit-btn {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #1e40af;
+}
+
+.terms-text, .recaptcha-text {
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  margin-top: 15px;
+}
+
+.terms-text a,
+.recaptcha-text a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* ✅ Responsive Breakpoint */
+@media screen and (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  .left-section,
+  .right-section {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .overlay {
+    position: static;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .info-box {
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-row .form-group {
+    width: 100%;
+  }
+}
+
+
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select {
+  // width: 100%;
+  // padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  &.invalid {
+    border-color: red;
+  }
+}
+
+.phone-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.phone-input select {
+  width: 80px;
+}
+
+.checkbox-group {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.info-text, .terms-text, .recaptcha-text {
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.error {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.error-message {
+  color: red;
+  margin-top: 1rem;
+}
+
+
+
+// table css
+
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

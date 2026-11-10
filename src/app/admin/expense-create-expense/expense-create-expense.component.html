@@ -1,0 +1,1064 @@
+<div
+  class="h-full min-h-screen bg-gray-100 flex items-center justify-center px-4"
+>
+  <form
+    id="expense-form-wrapper"
+    #expenseForm="ngForm"
+    (ngSubmit)="saveExpense()"
+  >
+    <!-- Error Message Display -->
+    <div *ngIf="showError" class="fixed top-4 right-4 z-50 max-w-md">
+      <div class="bg-red-50 border border-red-200 rounded-md p-4 shadow-lg">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium text-red-800">Error</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <p>{{ errorMessage }}</p>
+              <div
+                *ngIf="validationErrors && getValidationErrorKeys().length > 0"
+                class="mt-2"
+              >
+                <ul class="list-disc pl-5 space-y-1">
+                  <li
+                    *ngFor="let field of getValidationErrorKeys()"
+                    class="text-xs"
+                  >
+                    <strong>{{ field }}:</strong> {{ getFieldError(field) }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button
+                type="button"
+                (click)="hideError()"
+                class="text-sm font-medium text-red-800 hover:text-red-600"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main id="expense-form" class="p-4 sm:p-6 bg-gray-50 min-h-screen">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-4">
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center"
+        >
+          <svg
+            class="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-purple-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          Expense
+        </h1>
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <!-- Settings Icon -->
+          <button
+            type="button"
+            class="text-purple-600 hover:text-purple-800 transition-colors"
+          >
+            <svg
+              class="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+            </svg>
+          </button>
+          <!-- Close Icon -->
+          <button
+            type="button"
+            (click)="closeExpense()"
+            class="text-gray-600 hover:text-gray-800 transition-colors close-btn"
+          >
+            <svg
+              class="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Expense Information Section -->
+      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+        <!-- First Row: Payee, Payment Account, Balance -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+          <div class="lg:col-span-1">
+            <label
+              for="payee-select"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Payee</label
+            >
+            <select
+              id="payee-select"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              [(ngModel)]="formData.payee_id"
+              name="payee_id"
+              (ngModelChange)="onPayeeChange()"
+              required
+            >
+              <option value="" disabled>Who did you pay?</option>
+              <option *ngFor="let payee of payees" [value]="payee.id">
+                {{ payee.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="lg:col-span-1">
+            <label
+              for="payment-account"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Payment account</label
+            >
+            <select
+              id="payment-account"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              [(ngModel)]="formData.paymentAccount"
+              name="paymentAccount"
+              required
+            >
+              <option value="" disabled>Select payment account</option>
+              <option
+                *ngFor="let account of paymentAccounts"
+                [value]="account.value"
+              >
+                {{ account.text }}
+              </option>
+            </select>
+          </div>
+
+          <div class="lg:col-span-1 text-right">
+            <span class="text-sm font-medium text-gray-500 block">AMOUNT</span>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-800">
+              A${{ total | number : "1.2-2" }}
+            </div>
+            <div class="text-sm text-gray-500 mt-1">
+              Balance: A${{ balance | number : "1.2-2" }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Row: Payment Details -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6"
+        >
+          <div>
+            <label
+              for="payment-date"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Payment Date</label
+            >
+            <input
+              id="payment-date"
+              type="date"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              [(ngModel)]="formData.paymentDate"
+              name="paymentDate"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="payment-method"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Payment Method</label
+            >
+            <select
+              id="payment-method"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              [(ngModel)]="formData.paymentMethod"
+              name="paymentMethod"
+            >
+              <option value="" disabled>Select payment method</option>
+              <option
+                *ngFor="let method of paymentMethods"
+                [value]="method.value"
+              >
+                {{ method.text }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="ref-no"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Ref no.</label
+            >
+            <input
+              id="ref-no"
+              type="text"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              [(ngModel)]="formData.refNo"
+              name="refNo"
+              placeholder="Enter reference number"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 gap-6 mb-6">
+        <!-- Content Section -->
+
+        <div>
+          <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+            <!-- Category Details Section -->
+            <div class="sm:col-span-2 lg:col-span-1">
+              <div
+                class="flex items-center justify-end text-sm text-gray-600 mb-2"
+              >
+                <span class="mr-2">Amounts are</span>
+                <select
+                  class="border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  [(ngModel)]="formData.taxInclusive"
+                  name="taxInclusive"
+                >
+                  <option [value]="true">Inclusive of Tax</option>
+                  <option [value]="false">Exclusive of Tax</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3
+                  class="text-lg font-medium text-gray-800 flex items-center cursor-pointer"
+                  (click)="toggleCategoryDetails()"
+                >
+                  <svg
+                    class="w-5 h-5 mr-2 text-purple-600 transition-transform"
+                    [class.rotate-180]="!showCategoryDetails"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                  Category details
+                </h3>
+                <button
+                  type="button"
+                  class="text-purple-600 hover:text-purple-800"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    ></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Categories Table with responsive design -->
+              <div
+                *ngIf="showCategoryDetails"
+                class="overflow-x-auto border border-gray-200 rounded-lg"
+              >
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8 sm:w-12"
+                      >
+                        #
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
+                      >
+                        Category
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32"
+                      >
+                        Description
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
+                      >
+                        Amount (AUD)
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-16"
+                      >
+                        GST
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Billable
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Markup %
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
+                      >
+                        Customer
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Class
+                      </th>
+                      <th scope="col" class="relative px-2 sm:px-4 py-3 w-12">
+                        <span class="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr
+                      *ngFor="let item of categoryItems; let i = index"
+                      class="hover:bg-gray-50"
+                    >
+                      <td
+                        class="px-2 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-600"
+                      >
+                        {{ i + 1 }}
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="text"
+                          class="w-full min-w-20 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-sm"
+                          [(ngModel)]="item.category"
+                          [name]="'category' + i"
+                          placeholder="Enter category"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="text"
+                          class="w-full min-w-32 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-sm"
+                          [(ngModel)]="item.description"
+                          [name]="'description' + i"
+                          placeholder="Enter description"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-20 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-right text-sm"
+                          [(ngModel)]="item.amount"
+                          [name]="'amount' + i"
+                          (ngModelChange)="calculateTotals()"
+                          placeholder="0.00"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4 text-center">
+                        <select
+                          [(ngModel)]="item.gst"
+                          [name]="'gst' + i"
+                          (ngModelChange)="calculateTotals()"
+                          class="min-w-16 border-0 border-b border-gray-300 bg-white p-1 focus:outline-none focus:border-purple-500 text-sm"
+                        >
+                          <option value="0">0%</option>
+                          <option value="5">5%</option>
+                          <option value="10">10%</option>
+                          <option value="12">12%</option>
+                          <option value="18">18%</option>
+                          <option value="28">28%</option>
+                        </select>
+                      </td>
+                      <td class="px-2 sm:px-4 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          [(ngModel)]="item.billable"
+                          [name]="'billable' + i"
+                          class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-16 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-center text-sm"
+                          [(ngModel)]="item.markupPercent"
+                          [name]="'markupPercent' + i"
+                          placeholder="0"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <select
+                          [(ngModel)]="item.customer"
+                          [name]="'customer' + i"
+                          class="min-w-24 border-0 border-b border-gray-300 bg-white p-1 focus:outline-none focus:border-purple-500 text-sm w-full"
+                        >
+                          <option value="">Select customer</option>
+                          <option
+                            *ngFor="let customer of customers"
+                            [value]="customer.id"
+                          >
+                            {{ customer.name }}
+                          </option>
+                        </select>
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <select
+                          [(ngModel)]="item.class"
+                          [name]="'class' + i"
+                          class="min-w-20 border-0 border-b border-gray-300 bg-white p-1 focus:outline-none focus:border-purple-500 text-sm w-full"
+                        >
+                          <option value="">Select class</option>
+                          <option *ngFor="let cls of classes" [value]="cls.id">
+                            {{ cls.name }}
+                          </option>
+                        </select>
+                      </td>
+                      <td class="px-2 sm:px-4 py-4 text-right">
+                        <button
+                          type="button"
+                          class="text-red-600 hover:text-red-900"
+                          (click)="deleteCategoryLine(i)"
+                        >
+                          <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Add/Clear Lines Buttons for Categories -->
+              <div
+                *ngIf="showCategoryDetails"
+                class="mt-4 flex flex-wrap justify-start items-center gap-2"
+              >
+                <button
+                  type="button"
+                  class="inline-flex items-center px-3 sm:px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 transition-colors"
+                  (click)="addCategoryLine()"
+                >
+                  Add lines
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center px-3 sm:px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 transition-colors"
+                  (click)="clearAllLines()"
+                >
+                  Clear all lines
+                </button>
+              </div>
+            </div>
+
+            <!-- Item Details Section  -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3
+                  class="text-lg font-medium text-gray-800 flex items-center cursor-pointer"
+                  (click)="toggleItemDetails()"
+                >
+                  <svg
+                    class="w-5 h-5 mr-2 text-purple-600 transition-transform"
+                    [class.rotate-180]="!showItemDetails"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                  Item details
+                </h3>
+              </div>
+
+              <!-- Item Details Table with responsive design -->
+              <div
+                *ngIf="showItemDetails"
+                class="overflow-x-auto border border-gray-200 rounded-lg"
+              >
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8 sm:w-12"
+                      >
+                        #
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32"
+                      >
+                        Product/Service
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32"
+                      >
+                        Description
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-16"
+                      >
+                        QTY
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Rate
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
+                      >
+                        Amount (AUD)
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-16"
+                      >
+                        GST
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Billable
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Markup %
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
+                      >
+                        Sales Amt
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
+                      >
+                        Customer
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20"
+                      >
+                        Class
+                      </th>
+                      <th scope="col" class="relative px-2 sm:px-4 py-3 w-12">
+                        <span class="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr
+                      *ngFor="let item of itemDetails; let i = index"
+                      class="hover:bg-gray-50"
+                    >
+                      <td
+                        class="px-2 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-600"
+                      >
+                        {{ i + 1 }}
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="text"
+                          class="w-full min-w-32 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-sm"
+                          [(ngModel)]="item.productService"
+                          [name]="'productService' + i"
+                          placeholder="Enter product/service"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="text"
+                          class="w-full min-w-32 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-sm"
+                          [(ngModel)]="item.description"
+                          [name]="'itemDescription' + i"
+                          placeholder="Enter description"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-16 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-center text-sm"
+                          [(ngModel)]="item.quantity"
+                          [name]="'quantity' + i"
+                          (ngModelChange)="calculateItemAmount(i)"
+                          placeholder="0"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-20 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-right text-sm"
+                          [(ngModel)]="item.rate"
+                          [name]="'rate' + i"
+                          (ngModelChange)="calculateItemAmount(i)"
+                          placeholder="0.00"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-24 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-right text-sm"
+                          [(ngModel)]="item.amount"
+                          [name]="'itemAmount' + i"
+                          [value]="item.amount"
+                          readonly
+                          placeholder="0.00"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4 text-center">
+                        <select
+                          [(ngModel)]="item.gst"
+                          [name]="'itemGst' + i"
+                          (ngModelChange)="calculateTotals()"
+                          class="min-w-16 border-0 border-b border-gray-300 bg-white p-1 focus:outline-none focus:border-purple-500 text-sm"
+                        >
+                          <option value="0">0%</option>
+                          <option value="5">5%</option>
+                          <option value="10">10%</option>
+                          <option value="12">12%</option>
+                          <option value="18">18%</option>
+                          <option value="28">28%</option>
+                        </select>
+                      </td>
+                      <td class="px-2 sm:px-4 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          [(ngModel)]="item.billable"
+                          [name]="'itemBillable' + i"
+                          class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-20 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-center text-sm"
+                          [(ngModel)]="item.markupPercent"
+                          [name]="'itemMarkupPercent' + i"
+                          (ngModelChange)="calculateSalesAmount(i)"
+                          placeholder="0"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-full min-w-24 border-0 border-b border-gray-300 p-1 focus:outline-none focus:border-purple-500 text-right text-sm"
+                          [(ngModel)]="item.salesAmount"
+                          [name]="'salesAmount' + i"
+                          [value]="item.salesAmount"
+                          readonly
+                          placeholder="0.00"
+                        />
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <select
+                          [(ngModel)]="item.customer"
+                          [name]="'itemCustomer' + i"
+                          class="min-w-24 border-0 border-b border-gray-300 bg-white p-1 focus:outline-none focus:border-purple-500 text-sm w-full"
+                        >
+                          <option value="">Select customer</option>
+                          <option
+                            *ngFor="let customer of customers"
+                            [value]="customer.id"
+                          >
+                            {{ customer.name }}
+                          </option>
+                        </select>
+                      </td>
+                      <td class="px-2 sm:px-4 py-4">
+                        <select
+                          [(ngModel)]="item.class"
+                          [name]="'itemClass' + i"
+                          class="min-w-20 border-0 border-b border-gray-300 bg-white p-1 focus:outline-none focus:border-purple-500 text-sm w-full"
+                        >
+                          <option value="">Select class</option>
+                          <option *ngFor="let cls of classes" [value]="cls.id">
+                            {{ cls.name }}
+                          </option>
+                        </select>
+                      </td>
+                      <td class="px-2 sm:px-4 py-4 text-right">
+                        <button
+                          type="button"
+                          class="text-red-600 hover:text-red-900"
+                          (click)="deleteItemLine(i)"
+                        >
+                          <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Add/Clear Lines Buttons for Items -->
+              <div
+                *ngIf="showItemDetails"
+                class="mt-4 flex flex-wrap justify-start items-center gap-2"
+              >
+                <button
+                  type="button"
+                  class="inline-flex items-center px-3 sm:px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 transition-colors"
+                  (click)="addItemLine()"
+                >
+                  Add lines
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center px-3 sm:px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 transition-colors"
+                  (click)="clearAllItemLines()"
+                >
+                  Clear all lines
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memo and Attachments Section -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Memo -->
+            <div class="bg-white rounded-lg shadow-sm sm:p-6">
+              <label
+                for="memo"
+                class="block text-sm font-medium text-gray-700 mb-2"
+                >Memo</label
+              >
+              <textarea
+                id="memo"
+                rows="4"
+                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                [(ngModel)]="formData.memo"
+                name="memo"
+                placeholder="Enter memo"
+              ></textarea>
+            </div>
+
+            <!-- Totals Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
+              <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <div class="space-y-4">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700"
+                      >Subtotal</span
+                    >
+                    <span class="text-lg font-semibold text-gray-800"
+                      >A${{ subtotal | number : "1.2-2" }}</span
+                    >
+                  </div>
+                  <div class="border-t pt-4">
+                    <div class="flex justify-between items-center">
+                      <span class="text-lg font-semibold text-gray-700"
+                        >Total</span
+                      >
+                      <span class="text-2xl font-bold text-gray-800"
+                        >A${{ total | number : "1.2-2" }}</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Attachments</label
+              >
+              <div
+                class="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors"
+                (dragover)="onDragOver($event)"
+                (drop)="onDrop($event)"
+              >
+                <div class="flex flex-col items-center">
+                  <svg
+                    class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                    ></path>
+                  </svg>
+                  <div class="mb-2">
+                    <label
+                      for="file-upload"
+                      class="text-purple-600 underline cursor-pointer hover:text-purple-700"
+                      >Add attachment</label
+                    >
+                  </div>
+                  <p class="text-xs text-gray-500">Max file size: 20 MB</p>
+                  <p
+                    class="text-xs text-purple-600 mt-2 cursor-pointer hover:underline"
+                    (click)="showExisting()"
+                  >
+                    Show existing
+                  </p>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    class="hidden"
+                    (change)="onFileSelected($event)"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt"
+                    multiple
+                  />
+                </div>
+              </div>
+
+              <!-- Attached Files List -->
+              <div *ngIf="formData.attachments.length > 0" class="mt-4">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">
+                  Attached Files:
+                </h4>
+                <div class="space-y-2">
+                  <div
+                    *ngFor="
+                      let attachment of formData.attachments;
+                      let i = index
+                    "
+                    class="flex items-center justify-between p-2 bg-gray-50 rounded border"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <svg
+                        class="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                        ></path>
+                      </svg>
+                      <span class="text-sm text-gray-600 truncate">{{
+                        attachment.name
+                      }}</span>
+                    </div>
+                    <button
+                      type="button"
+                      (click)="removeAttachment(i)"
+                      class="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Link -->
+      <div class="text-center mt-6">
+        <a href="#" class="text-purple-600 text-sm hover:underline">Privacy</a>
+      </div>
+
+      <!-- Footer with Action Buttons -->
+      <footer
+        class="bg-white border-t border-gray-200 p-3 sm:p-4 shadow-lg mt-6"
+      >
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto gap-3"
+        >
+          <button
+            type="button"
+            (click)="cancelExpense()"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <div
+            class="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto"
+          >
+            <button
+              type="button"
+              (click)="printExpense()"
+              class="px-4 sm:px-6 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 transition-colors"
+            >
+              Print
+            </button>
+            <button
+              type="button"
+              (click)="makeRecurring()"
+              class="px-4 sm:px-6 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 transition-colors"
+            >
+              Make recurring
+            </button>
+            <button
+              type="submit"
+              class="px-4 sm:px-6 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+            >
+              Save
+            </button>
+            <div class="relative">
+              <button
+                type="button"
+                (click)="toggleSaveDropdown()"
+                class="px-4 sm:px-6 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors flex items-center"
+              >
+                Save and close
+                <svg
+                  class="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </button>
+              <!-- Dropdown menu -->
+              <div
+                *ngIf="showSaveDropdown"
+                class="absolute right-0 bottom-full mb-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10"
+              >
+                <button
+                  type="button"
+                  (click)="saveAndClose()"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md"
+                >
+                  Save and close
+                </button>
+                <button
+                  type="button"
+                  (click)="saveAndNew()"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-md"
+                >
+                  Save and add new
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </form>
+</div>

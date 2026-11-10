@@ -1,0 +1,117 @@
+<div class="bg-gray-50 flex items-center justify-center">
+    <button type="button" (click)="onClose()" aria-label="Close"
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+        &#10005;
+    </button>
+    <div class="form-container w-full max-w-2xl bg-white shadow-md rounded-lg p-8">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-6">Add Company</h2>
+        <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+            <div class="form-group mb-4">
+                <label class="block mb-1">Company Name</label>
+                <input type="text" formControlName="company_name" placeholder="Enter company name" required [ngClass]="{
+            'invalid border-red-500': submitted && companyForm.get('company_name')?.invalid,
+            'border-gray-300': !submitted || !companyForm.get('company_name')?.invalid
+          }" class="w-full p-2 border rounded" />
+                <div *ngIf="submitted && companyForm.get('company_name')?.invalid"
+                    class="error text-red-600 text-sm mt-1">
+                    Company name is required
+                </div>
+                <div *ngIf="serverErrors['company_name']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['company_name'].join(' ') }}
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block mb-1">ABN (11 digits)</label>
+                <input type="text" formControlName="company_abn" placeholder="Enter ABN" [ngClass]="{ 'invalid border-red-500': submitted && companyForm.get('company_abn')?.invalid,
+            'border-gray-300': !submitted || !companyForm.get('company_abn')?.invalid }"
+                    class="w-full p-2 border rounded" />
+                <div *ngIf="submitted && companyForm.get('company_abn')?.invalid"
+                    class="error text-red-600 text-sm mt-1">
+                    Please enter a valid 11-digit ABN
+                </div>
+                <div *ngIf="serverErrors['company_abn']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['company_abn'].join(' ') }}
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block mb-1">ACN (9 digits)</label>
+                <input type="text" formControlName="company_acn" placeholder="Enter ACN" [ngClass]="{
+            'invalid border-red-500': submitted && companyForm.get('company_acn')?.invalid,
+            'border-gray-300': !submitted || !companyForm.get('company_acn')?.invalid
+          }" class="w-full p-2 border rounded" />
+                <div *ngIf="submitted && companyForm.get('company_acn')?.invalid"
+                    class="error text-red-600 text-sm mt-1">
+                    Please enter a valid 9-digit ACN
+                </div>
+                <div *ngIf="serverErrors['company_acn']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['company_acn'].join(' ') }}
+                </div>
+            </div>
+
+
+
+            <div class=" mb-4">
+                <label class="block mb-1 flex items-center space-x-2">
+                    <input type="checkbox" formControlName="gst_registered"
+                        class="mr-2 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                    <span class="text-gray-700">GST Registered</span>
+                </label>
+                <div *ngIf="serverErrors['gst_registered']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['gst_registered'].join(' ') }}
+                </div>
+            </div>
+
+
+            <div class="form-group mb-4">
+                <label class="block mb-1">GST Number</label>
+                <input type="text" formControlName="gst_number" placeholder="Enter GST number"
+                    class="w-full p-2 border border-gray-300 rounded" />
+                <div *ngIf="serverErrors['gst_number']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['gst_number'].join(' ') }}
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block mb-1">GST Registration Start Date</label>
+                <input type="date" formControlName="gst_registration_start_date"
+                    class="w-full p-2 border border-gray-300 rounded" />
+                <div *ngIf="serverErrors['gst_registration_start_date']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['gst_registration_start_date'].join(' ') }}
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block mb-1">Company Registration Date</label>
+                <input type="date" formControlName="company_registration_date"
+                    class="w-full p-2 border border-gray-300 rounded" />
+                <div *ngIf="serverErrors['company_registration_date']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['company_registration_date'].join(' ') }}
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block mb-1">Company Type</label>
+                <select formControlName="company_type" required [ngClass]="{
+            'invalid border-red-500': submitted && companyForm.get('company_type')?.invalid,
+            'border-gray-300': !submitted || !companyForm.get('company_type')?.invalid
+          }" class="w-full p-2 border rounded">
+                    <option value="" disabled>Select company type</option>
+                    <option *ngFor="let type of companyTypes" [value]="type">{{ type }}</option>
+                </select>
+                <div *ngIf="submitted && companyForm.get('company_type')?.invalid"
+                    class="error text-red-600 text-sm mt-1">
+                    Company type is required
+                </div>
+                <div *ngIf="serverErrors['company_type']" class="error text-red-600 text-sm mt-1">
+                    {{ serverErrors['company_type'].join(' ') }}
+                </div>
+            </div>
+            <button class="submit-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" color="primary"
+                type="submit" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Saving...' : 'Save' }}
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,235 @@
+<div [ngClass]="isDialog ? 'bg-gray-50 flex items-center justify-center' : 'bg-gray-50 min-h-screen w-full p-6'">
+    <!-- <div class="form-container w-full max-w-5xl bg-white shadow-md rounded-lg p-8 mx-auto"> -->
+    <!-- Close button -->
+    <div class="form-containers" [ngClass]="{ 'full-width': !isDialog }">
+        <button *ngIf="isDialog" type="button" (click)="onClose()" aria-label="Close"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+            &#10005;
+        </button>
+
+        <!-- <h2 class="text-2xl font-semibold text-gray-700 mb-6">Add Employee</h2> -->
+        <h1 style="text-align: center;">{{ isEditMode ? 'Update Employee' : 'Add Employee' }}</h1>
+
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+
+            <!-- Employee Basic Info -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">First Name</label>
+                    <input type="text" formControlName="emp_first_name" placeholder="Enter first name"
+                        class="w-full p-2 border rounded"
+                        [ngClass]="{ 'border-red-500': submitted && employeeForm.get('emp_first_name')?.invalid }" />
+                    <div class="text-red-500 text-sm mt-1"
+                        *ngIf="submitted && employeeForm.get('emp_first_name')?.errors?.['required']">
+                        First name is required.
+                    </div>
+                </div>
+                <div>
+                    <label class="block mb-1">Middle Name</label>
+                    <input type="text" formControlName="emp_middle_name" placeholder="Enter middle name"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Last Name</label>
+                    <input type="text" formControlName="emp_last_name" placeholder="Enter last name"
+                        class="w-full p-2 border rounded"
+                        [ngClass]="{ 'border-red-500': submitted && employeeForm.get('emp_last_name')?.invalid }" />
+                    <div class="text-red-500 text-sm mt-1"
+                        *ngIf="submitted && employeeForm.get('emp_last_name')?.errors?.['required']">
+                        Last name is required.
+                    </div>
+                </div>
+
+                <!-- <div>
+                    <label class="block mb-1">Last Name</label>
+                    <input type="text" formControlName="emp_last_name" placeholder="Enter last name"
+                        class="w-full p-2 border rounded"
+                        [ngClass]="{ 'border-red-500': submitted && employeeForm.get('emp_last_name')?.invalid }" />
+                </div> -->
+                <div>
+                    <label class="block mb-1">Gender</label>
+                    <select formControlName="emp_gender" class="w-full p-2 border rounded">
+                        <option value="">Select gender</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gender -->
+
+
+            <!-- Contact -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">Email</label>
+                    <input type="email" formControlName="emp_email_address" placeholder="Enter email"
+                        class="w-full p-2 border rounded"
+                        [ngClass]="{ 'border-red-500': submitted && employeeForm.get('emp_email_address')?.invalid }" />
+                    <div class="text-red-500 text-sm mt-1"
+                        *ngIf="submitted && employeeForm.get('emp_email_address')?.errors?.['required']">
+                        Email is required.
+                    </div>
+                    <div class="text-red-500 text-sm mt-1"
+                        *ngIf="submitted && employeeForm.get('emp_email_address')?.errors?.['email']">
+                        Enter a valid email address.
+                    </div>
+                </div>
+
+                <!-- <div>
+                    <label class="block mb-1">Email</label>
+                    <input type="email" formControlName="emp_email_address" placeholder="Enter email"
+                        class="w-full p-2 border rounded"
+                        [ngClass]="{ 'border-red-500': submitted && employeeForm.get('emp_email_address')?.invalid }" />
+                </div> -->
+                <div>
+                    <label class="block mb-1">Phone</label>
+                    <input type="text" formControlName="emp_phone_number" placeholder="Enter phone"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">Mobile</label>
+                    <input type="text" formControlName="emp_mobile_number" placeholder="Enter mobile"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Company ID</label>
+                    <input type="number" formControlName="emp_company_id" placeholder="Enter company ID"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <!-- Employment Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">Status</label>
+                    <input type="text" formControlName="emp_status" placeholder="Active / Resigned"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Designation ID</label>
+                    <input type="number" formControlName="emp_designation_id" placeholder="Enter designation ID"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">Start Date</label>
+                    <input type="date" formControlName="emp_start_date"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Resignation Date</label>
+                    <input type="date" formControlName="emp_resignation_date"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Last Working Date</label>
+                    <input type="date" formControlName="emp_last_working_date"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">Termination Date</label>
+                    <input type="date" formControlName="emp_termination_date"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Contract End Date</label>
+                    <input type="date" formControlName="emp_contract_end_date"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Visa Expiry Date</label>
+                    <input type="date" formControlName="emp_visa_expiry_date"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <!-- Work Authorization -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">TFN</label>
+                    <input type="text" formControlName="emp_tfn" placeholder="Enter TFN"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Work Authorization</label>
+                    <input type="text" formControlName="emp_work_authorization" placeholder="e.g., Permanent Resident"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Visa Subclass</label>
+                    <input type="text" formControlName="emp_visa_subclass" placeholder="Enter visa subclass"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block mb-1">Employment Type</label>
+                <select formControlName="emp_employment_type" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="">Select type</option>
+                    <option>Full Time</option>
+                    <option>Part Time</option>
+                    <option>Casual</option>
+                    <option>Contract</option>
+                </select>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-4">
+                <label class="block mb-1">Address Line 1</label>
+                <input type="text" formControlName="emp_address_line_1" placeholder="Address line 1"
+                    class="w-full p-2 border border-gray-300 rounded" />
+            </div>
+            <div class="mb-4">
+                <label class="block mb-1">Address Line 2</label>
+                <input type="text" formControlName="emp_address_line_2" placeholder="Address line 2"
+                    class="w-full p-2 border border-gray-300 rounded" />
+            </div>
+            <div class="mb-4">
+                <label class="block mb-1">Address Line 3</label>
+                <input type="text" formControlName="emp_address_line_3" placeholder="Address line 3"
+                    class="w-full p-2 border border-gray-300 rounded" />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">City</label>
+                    <input type="text" formControlName="emp_city" placeholder="City"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">State</label>
+                    <input type="text" formControlName="emp_state" placeholder="State"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block mb-1">Post Code</label>
+                    <input type="text" formControlName="emp_post_code" placeholder="Post code"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+                <div>
+                    <label class="block mb-1">Country</label>
+                    <input type="text" formControlName="emp_country" placeholder="Country"
+                        class="w-full p-2 border border-gray-300 rounded" />
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button class="submit-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit"
+                [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Saving...' : 'Save Employee' }}
+            </button>
+        </form>
+    </div>
+</div>

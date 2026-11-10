@@ -1,0 +1,162 @@
+<div id="tab-contacts" style="width: 100%;">
+
+    <!-- Search and Add Button Row -->
+    <div class="flex justify-between items-center flex-wrap gap-2 mb-4">
+        <!-- Search Bar -->
+        <mat-form-field appearance="fill" class="w-full sm:w-64">
+            <mat-label>Search Contacts</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search by name or email" [value]="searchTerm" />
+        </mat-form-field>
+
+        <!-- Add Employee Button -->
+        <button class="flex items-center px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700" routerLink="/admin/add-contact">
+            <img  src="assets/images/Dashboard/addlogo.png" alt="Add" class="size-[20px] mr-2" />
+            Add Contact
+        </button>
+    </div>
+
+
+
+
+
+    <!-- Table for Desktop -->
+    <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.id }}</td>
+        </ng-container>
+
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.name }}</td>
+        </ng-container>
+
+        <!-- Type -->
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.type }}</td>
+        </ng-container>
+
+        <!-- Email -->
+        <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.email }}</td>
+        </ng-container>
+
+        <!-- Phone -->
+        <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Phone</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.phone }}</td>
+        </ng-container>
+
+        <!-- Mobile -->
+        <ng-container matColumnDef="mobile">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.mobile }}</td>
+        </ng-container>
+
+        <!-- Company Name -->
+        <ng-container matColumnDef="company_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Company</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.company.name }}</td>
+        </ng-container>
+
+        <!-- Address -->
+        <ng-container matColumnDef="address">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.address }}</td>
+        </ng-container>
+
+        <!-- Category -->
+        <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.category }}</td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let contact">{{ contact.status }}</td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+            <td mat-cell *matCellDef="let contact" class="text-center">
+                <div class="flex gap-2 justify-center">
+                    <button class="text-blue-500 hover:text-blue-600" (click)="editContact(contact.id)">
+                        <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[18px]" />
+                    </button>
+                    <button class="text-red-500 hover:text-red-600" (click)="deleteContact(contact.id)">
+                        <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+                    </button>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <!-- Mobile View -->
+    <div class="block md:hidden">
+        <div *ngFor="let contact of dataSource.data"
+            class="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Name</span>
+                <span class="text-sm">{{ contact.name }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Type</span>
+                <span class="text-sm">{{ contact.type }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Email</span>
+                <span class="text-sm">{{ contact.email }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Phone</span>
+                <span class="text-sm">{{ contact.phone }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Mobile</span>
+                <span class="text-sm">{{ contact.mobile }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Company</span>
+                <span class="text-sm">{{ contact.company.name }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Address</span>
+                <span class="text-sm">{{ contact.address }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Category</span>
+                <span class="text-sm">{{ contact.category }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Status</span>
+                <span class="text-sm">{{ contact.status }}</span>
+            </div>
+            <div class="flex gap-4 justify-end pt-3 mt-2 border-t">
+                <button class="text-blue-500 hover:text-blue-600" (click)="editContact(contact.id)">
+                    <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[22px]" />
+                </button>
+                <button class="text-red-500 hover:text-red-600" (click)="deleteContact(contact.id)">
+                    <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="text-center py-4">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Paginator -->
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20]"
+        (page)="onPageChange($event)" showFirstLastButtons></mat-paginator>
+</div>

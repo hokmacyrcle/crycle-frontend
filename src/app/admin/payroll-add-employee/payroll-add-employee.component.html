@@ -1,0 +1,132 @@
+<div class="border shadow-lg bg-gray-100 p-0 m-0">
+    <div class=" bg-white w-full px-6 py-4 shadow border-b">
+        <a routerLink="../" class="text-blue-600 hover:underline">
+            ← Back to Employees
+        </a>
+        <h1 class="ml-6 text-lg font-semibold text-gray-800">Add New Employee</h1>
+    </div>
+    <form action="" class="bg-white shadow mt-2 w-full max-w-3xl mx-auto">
+        <div class="border-b flex">
+            <button class="px-6 py-3 text-sm font-medium text-purple-700">
+                Personal details
+            </button>
+        </div>
+        <div class="p-6">
+            <h2 class="text-base font-semibold mb-4">Basic information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-600">Title (optional)</label>
+                    <input type="text" class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">First name</label>
+                    <input type="text" class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Middle name (optional)</label>
+                    <input type="text" class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Last name</label>
+                    <input type="text" class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm text-gray-600">Date of birth</label>
+                <input type="date" class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm text-gray-600">Job title (optional)</label>
+                <input type="text" class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm text-gray-600 items-center">
+                    Gender
+                </label>
+                <select class="w-full border rounded px-3 py-2 mt-1 bg-white focus:ring-1 focus:ring-green-500">
+                    <option>Select gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <!-- contact informaton -->
+            <div>
+                <h2 class="text-base font-semibold mb-4 border-b pt-8 text-purple-700">Contact information</h2>
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-600">Address search</label>
+                    <input type="text" placeholder="Search for address"
+                        class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    <a href="#" class="text-blue-600 text-sm mt-1 inline-block">Enter address manually</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 items-center">
+                            Mobile number <span class="ml-1 text-gray-400" title="Enter employee's mobile">ℹ</span>
+                        </label>
+                        <input type="text"
+                            class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Phone number (optional)</label>
+                        <input type="text"
+                            class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-600 items-center">
+                        Email <span class="ml-1 text-gray-400" title="Required for communication">ℹ</span>
+                    </label>
+                    <input type="email"
+                        class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                </div>
+                <div class="mb-4">
+                    <label class="flex items-start">
+                        <input type="checkbox" class="mt-1 mr-2">
+                        <span class="text-sm text-gray-700">Invite employee to Xero Me</span>
+                    </label>
+                    <div class="bg-gray-50 border rounded p-3 mt-2 text-sm text-gray-600">
+                        Employees can use <span class="font-semibold">Xero Me</span> to view their pay slips,
+                        submit timesheets, leave requests,
+                        and manage expenses without accessing sensitive data.
+                        <a href="#" class="text-blue-600">Learn more about Xero Me</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div>
+                <h2 class="text-base font-semibold mb-4 border-b text-purple-700 pt-6">Emergency contact</h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-600">Name (optional)</label>
+                        <input type="text"
+                            class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Relationship (optional)</label>
+                        <input type="text"
+                            class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Phone number (optional)</label>
+                        <input type="text"
+                            class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Email (optional)</label>
+                        <input type="email"
+                            class="w-full border rounded px-3 py-2 mt-1 focus:ring-1 focus:ring-green-500" />
+                    </div>
+                    <div class="flex justify-end border-t p-2 gap-4">
+                        <button class="px-4 py-2 border rounded bg-white hover:bg-gray-50">Cancel</button>
+                        <button class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-700">Save</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+</div>

@@ -1,0 +1,22 @@
+<div class="p-4 bg-gray-100 text-purple-600 border-b-2">
+    <h1>Payroll settings</h1>
+</div>
+
+<div class="bg-gray-50 p-2 border-b flex items-center justify-center space-x-4">
+
+    <!-- Organisation tab -->
+    <a routerLink="organisation" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }"
+        class="tab-link" [ngClass]="{ 'active-tab': isDefaultActive }">
+        Organisation
+    </a>
+
+    <a routerLink="payfrequencis" routerLinkActive="active-tab" class="tab-link">Pay Frequencies</a>
+    <a routerLink="holidays" routerLinkActive="active-tab" class="tab-link">Holidays</a>
+    <a routerLink="payitems" routerLinkActive="active-tab" class="tab-link">Pay Items</a>
+    <a routerLink="superannuation" routerLinkActive="active-tab" class="tab-link">Superannuation</a>
+</div>
+
+<!-- Child components load honge yaha -->
+<div class="p-4">
+    <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,147 @@
+<router-outlet></router-outlet>
+
+<div *ngIf="!hasChild" class="p-6 bg-gray-50 items-center border shadow-md">
+    <h1 class="text-purple-600">Pay Employees</h1>
+
+
+    <div class="p-6">
+        <!-- Draft Pay Run -->
+        <h2 class="text-lg text-purple-700 mb-2">Draft Pay Run</h2>
+        <div class="bg-white border shadow-sm overflow-x-auto mb-6">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-100 text-gray-700 border-b">
+                    <tr>
+                        <th class="px-4 py-2">Frequency</th>
+                        <th class="px-4 py-2">Period</th>
+                        <th class="px-4 py-2">Payment Date</th>
+                        <th class="px-4 py-2">Wages</th>
+                        <th class="px-4 py-2">Tax</th>
+                        <th class="px-4 py-2">Super</th>
+                        <th class="px-4 py-2">Net Pay</th>
+                        <th class="px-4 py-2">STP Filing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b text-gray-600 hover:bg-gray-50 cursor-pointer"
+                        [routerLink]="['/admin/pay-employees-details']">
+                        <td class="px-4 py-2">{{ draftPayRun.frequency }}</td>
+                        <td class="px-4 py-2">{{ draftPayRun.period }}</td>
+                        <td class="px-4 py-2">{{ draftPayRun.paymentDate }}</td>
+                        <td class="px-4 py-2">{{ draftPayRun.wages | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">{{ draftPayRun.tax | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">{{ draftPayRun.super | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">{{ draftPayRun.netPay | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">
+                            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">
+                                {{ draftPayRun.status }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add Pay Run Button -->
+        <button class="mb-6 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-700" (click)="openModal()">
+            + Add Pay Run
+        </button>
+
+        <!-- Pay Run History -->
+        <h2 class="text-lg text-purple-600 mb-2">Pay Run History</h2>
+        <div class="bg-white border shadow-lg overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-100 border-b">
+                    <tr>
+                        <th class="px-4 py-2">Frequency</th>
+                        <th class="px-4 py-2">Period</th>
+                        <th class="px-4 py-2">Payment Date</th>
+                        <th class="px-4 py-2">Wages</th>
+                        <th class="px-4 py-2">Tax</th>
+                        <th class="px-4 py-2">Super</th>
+                        <th class="px-4 py-2">Net Pay</th>
+                        <th class="px-4 py-2">STP Filing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let run of payRunHistory" class="border-b hover:bg-gray-50 cursor-pointer"
+                        [routerLink]="['pay-employees-details']">
+                        <td class="px-4 py-2">{{ run.frequency }}</td>
+                        <td class="px-4 py-2">
+                            <span *ngIf="run.latest" class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded mr-2">
+                                Latest
+                            </span>
+                            {{ run.period }}
+                        </td>
+                        <td class="px-4 py-2">{{ run.paymentDate }}</td>
+                        <td class="px-4 py-2">{{ run.wages | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">{{ run.tax | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">{{ run.super | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">{{ run.netPay | number : '1.2-2' }}</td>
+                        <td class="px-4 py-2">
+                            <span [ngClass]="{
+                'bg-red-100 text-red-700': run.status === 'Overdue',
+                'bg-green-100 text-green-700': run.status === 'Filed'
+              }" class="text-xs px-2 py-1 rounded">
+                                {{ run.status }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <button class="absolute top-4 right-4 text-red-500 hover:text-red-700 text-3xl" (click)="closeModal()">
+                ✖
+            </button>
+            <h2 class="text-lg font-semibold mb-4">Add a Pay Run</h2>
+
+            <form class="space-y-4" (ngSubmit)="savePayRun()">
+                <!-- Pay Run Type -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Pay Run Type</label>
+                    <select [(ngModel)]="payRunType" name="payRunType" class="w-full border rounded px-3 py-2">
+                        <option value="fortnightly">
+                            Fortnightly Calendar : Fortnight ending 28 Aug 2025
+                        </option>
+                        <option value="weekly">Weekly Calendar: Week ending 28 Aug 2025</option>
+                        <option value="unscheduled">Unscheduled pay run</option>
+                    </select>
+                </div>
+
+                <!-- Extra Fields when Unscheduled selected -->
+                <div *ngIf="payRunType === 'unscheduled'" class="space-y-3 border p-3 rounded bg-gray-50">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Pay Period Start Date</label>
+                        <input type="date" name="startDate" [(ngModel)]="unscheduled.startDate"
+                            class="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Pay Period End Date</label>
+                        <input type="date" name="endDate" [(ngModel)]="unscheduled.endDate"
+                            class="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Payment Date</label>
+                        <input type="date" name="paymentDate" [(ngModel)]="unscheduled.paymentDate"
+                            class="w-full border rounded px-3 py-2" />
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button type="button" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        (click)="closeModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

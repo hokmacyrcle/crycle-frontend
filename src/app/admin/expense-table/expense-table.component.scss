@@ -1,0 +1,474 @@
+.expenses-container {
+
+  background-color: #f8fafc;
+  min-height: 100%;
+  max-width:100%;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  contain:layout style;
+
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-section h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #8b5cf6;
+  color: white;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-secondary {
+  background-color: #64748b;
+  color: white;
+  box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2);
+}
+
+.btn-secondary:hover {
+  background-color: #475569;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.material-icons {
+  font-size: 18px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+    /* Contain the table within viewport */
+  container-type: inline-size;
+
+
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+
+  max-height: 600px;
+  width: 100%;
+    /* Only scroll within this container */
+  //overscroll-behavior: contain;
+  position: relative;
+
+}
+
+.expenses-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1400px;
+}
+
+.expenses-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8fafc;
+}
+
+.expenses-table th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: #374151;
+  background: #f8fafc;
+  border-bottom: 2px solid #e5e7eb;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.expenses-table th:hover {
+  background: #f1f5f9;
+}
+
+.expenses-table th:first-child {
+  cursor: default;
+}
+
+.sort-indicator {
+  margin-left: 6px;
+  opacity: 0.3;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.sort-indicator.active {
+  opacity: 1;
+  color: #8b5cf6;
+  font-weight: bold;
+}
+
+.sort-indicator.desc {
+  transform: rotate(180deg);
+}
+
+.expenses-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
+}
+
+.expenses-table tbody tr {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.expenses-table tbody tr:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.expenses-table tbody tr.selected {
+  background-color: #ede9fe;
+  border-left: 4px solid #8b5cf6;
+}
+
+.expenses-table tbody tr.selected:hover {
+  background-color: #ddd6fe;
+}
+
+/* Column width classes - optimized for content */
+.col-select {
+  width: 60px;
+  text-align: center;
+}
+
+.col-type {
+  width: 90px;
+  font-weight: 500;
+}
+
+.col-no {
+  width: 130px;
+  font-family: 'Monaco', 'Roboto', monospace;
+  font-size: 13px;
+}
+
+.col-batch {
+  width: 90px;
+  font-family: 'Monaco', 'Roboto', monospace;
+  font-size: 13px;
+}
+
+.col-payee {
+  width: 200px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.col-class {
+  width: 110px;
+}
+
+.col-location {
+  width: 120px;
+}
+
+.col-status {
+  width: 110px;
+  text-align: center;
+}
+
+.col-method {
+  width: 130px;
+}
+
+.col-source {
+  width: 110px;
+}
+
+.col-category {
+  width: 180px;
+}
+
+.col-memo {
+  width: 250px;
+  max-width: 250px;
+  //font-style: italic;
+  color: #6b7280;
+}
+
+.col-due {
+  width: 120px;
+  font-family: 'Monaco', 'Roboto', monospace;
+  font-size: 13px;
+}
+
+.col-balance,
+.col-before-tax,
+.col-tax,
+.col-total {
+  width: 110px;
+  text-align: right;
+  font-family: 'Monaco', 'Roboto', monospace;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: inline-block;
+  min-width: 60px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.status-paid {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+  border-color: #22c55e;
+}
+
+.status-overdue {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  border-color: #ef4444;
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+  border-color: #f59e0b;
+}
+
+.status-draft {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #6b7280;
+  border-color: #9ca3af;
+}
+
+/* Negative balance styling */
+.negative {
+  color: #dc2626;
+  font-weight: 700;
+  background-color: #fee2e2;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Table footer */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #6b7280;
+  border-radius: 0 0 12px 12px;
+}
+
+.selection-info {
+  font-weight: 500;
+  color: #374151;
+}
+
+.pagination-info {
+  color: #9ca3af;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #8b5cf6;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+input[type="checkbox"]:indeterminate {
+  background-color: #8b5cf6;
+  border-color: #8b5cf6;
+}
+
+/* Custom scrollbar styling */
+.table-wrapper::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+  border-radius: 6px;
+  border: 2px solid #f1f5f9;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.table-wrapper::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .expenses-container {
+    padding: 16px;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-section h1 {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .action-buttons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .expenses-container {
+    padding: 12px;
+  }
+
+  .table-wrapper {
+    max-height: 500px;
+  }
+
+  .expenses-table th,
+  .expenses-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .col-memo {
+    width: 200px;
+    max-width: 200px;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    padding: 12px;
+  }
+}
+
+/* Additional styling for better UX */
+.expenses-table thead th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 3px solid #e2e8f0;
+}
+
+.expenses-table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.expenses-table tbody tr:nth-child(even):hover {
+  background-color: #f3f4f6;
+}
+
+/* Enhanced focus states */
+.expenses-table th:focus,
+.expenses-table td:focus,
+input[type="checkbox"]:focus {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* Loading state (for future use) */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+/* Row animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.expenses-table tbody tr {
+  animation: slideIn 0.3s ease-out;
+}

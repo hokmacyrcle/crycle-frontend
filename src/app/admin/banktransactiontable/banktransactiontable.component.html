@@ -1,0 +1,316 @@
+<div *ngIf="activeTab === 'bank_transactions'" id="tab-bank-transactions">
+  <div class="p-6">
+    <!-- Table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 border-b border-gray-300">
+            <th class="p-3 text-left"><input type="checkbox"></th>
+            <th class="p-3 text-left">DATE</th>
+            <th class="p-3 text-left">DESCRIPTION</th>
+            <th class="p-3 text-left">PAYEE</th>
+            <th class="p-3 text-left">CATEGORIZE OR MATCH</th>
+            <th class="p-3 text-left">SPENT</th>
+            <th class="p-3 text-left">RECEIVED</th>
+            <th class="p-3 text-left">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-200" [class.bg-gray-100]="selectedRow === i" *ngFor="let transaction of transactions; let i = index">
+            <td class="p-3"><input type="checkbox" (change)="toggleRowSelection(i)"></td>
+            <td class="p-3">{{ transaction.date }}</td>
+            <td class="p-3">{{ transaction.description }}</td>
+            <td class="p-3">{{ transaction.payee }}</td>
+            <td class="p-3">{{ transaction.categoryOrMatch }}</td>
+            <td class="p-3">{{ transaction.spent }}</td>
+            <td class="p-3">{{ transaction.received }}</td>
+            <td class="p-3 text-blue-500 font-semibold cursor-pointer" (click)="openAddModal(i)">Add</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Edit Account Modal (modal2) -->
+    <div *ngIf="activeModal === 'modal2'" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+      <div class="bg-white w-2/4 rounded shadow-lg p-5 relative">
+        <h2 class="text-lg font-semibold text-purple-700 mb-3">Edit Account</h2>
+        <button (click)="closeModal()" class="absolute top-2 right-2 text-red-500 text-3xl">&times;</button>
+        <div class="p-4 max-h-[70vh] overflow-y-auto">
+          <!-- Account Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Account name*</label>
+            <input type="text" [(ngModel)]="selectedAccountName" value="Cash and cash equivalents"
+              class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1">
+          </div>
+
+          <!-- Account Type and Detail Type -->
+          <div class="flex gap-4">
+            <div class="w-1/2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Account type*</label>
+              <select [(ngModel)]="selectedAccountType"
+                class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>Cash and cash equivalents</option>
+              </select>
+            </div>
+            <div class="w-1/2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Detail type*</label>
+              <select [(ngModel)]="selectedDetailType"
+                class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>Cash and cash equivalents</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Subaccount -->
+          <div class="flex items-center gap-2 mb-4">
+            <input type="checkbox" id="subaccount" [(ngModel)]="isSubaccount" class="w-4 h-4">
+            <label for="subaccount" class="text-sm text-gray-700">Make this a subaccount</label>
+          </div>
+
+          <!-- Default GST Code -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Default GST Code</label>
+            <select [(ngModel)]="selectedGSTCode"
+              class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1">
+              <option></option>
+            </select>
+          </div>
+
+          <!-- Currency -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+            <select [(ngModel)]="selectedCurrency"
+              class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1">
+              <option>AUD (Australian Dollar)</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <input type="text" [(ngModel)]="description"
+              class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1">
+          </div>
+
+          <!-- Batch Payments -->
+          <div class="flex items-center gap-2 mb-4">
+            <input type="checkbox" id="batchPayments" [(ngModel)]="batchPayments" class="w-4 h-4">
+            <label for="batchPayments" class="text-sm text-gray-700">I create batch payments for this account</label>
+          </div>
+
+          <!-- Connected to at -->
+          <div class="flex items-center gap-2 mb-4">
+            <input type="checkbox" id="disconnect" [(ngModel)]="disconnect" class="w-4 h-4">
+            <label for="disconnect" class="text-sm text-gray-700">Disconnect this account on save</label>
+          </div>
+
+          <!-- Balance -->
+          <div>
+            <p class="text-sm font-medium text-gray-700 mb-1">Balance:</p>
+            <p class="text-lg font-semibold">{{ balance | currency:'AUD' }}</p>
+          </div>
+
+          <!-- Balance Sheet -->
+          <div class="mt-4">
+            <p class="text-sm text-gray-600">Balance Sheet as of 05:25 PM IST, August 29, 2025</p>
+            <p class="text-sm text-gray-600">Active accounts as of 05:25 PM IST, August 29, 2025</p>
+            <select [(ngModel)]="selectedBalanceSheet"
+              class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1">
+              <option>Cash and cash equivalents</option>
+              <option>ComBank - Online Saver</option>
+              <option>Westpac - EveryBusiness</option>
+            </select>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex justify-end gap-3 mt-4">
+            <button (click)="closeModal()" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+            <button (click)="saveModal()" class="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Transaction Modal (modal3) -->
+<div *ngIf="activeModal === 'modal3'" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+  <div class="bg-white w-1/3 rounded shadow-lg p-5 relative">
+    <h2 class="text-lg font-semibold text-purple-700 mb-3">Add Transaction</h2>
+    <button (click)="closeModal()" class="absolute top-2 right-2 text-red-500 text-3xl">&times;</button>
+    <div class="p-4 max-h-[70vh] overflow-y-auto">
+      <div class="mb-4">
+        <input type="checkbox" id="categorize" [(ngModel)]="selectedAction.categorize" (change)="updateTransaction()" class="w-4 h-4 mr-2">
+        <label for="categorize" class="text-sm text-gray-700">Categorize</label>
+        <div *ngIf="selectedAction.categorize" class="mt-4 space-y-4">
+          <!-- Supplier/Customer/Project -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Supplier/Customer/Project</label>
+            <input type="text" [(ngModel)]="categorizeData.supplierCustomerProject" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <!-- Select Payee -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Select payee</label>
+            <select [(ngModel)]="categorizeData.payee" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Payee</option>
+              <option value="Coffee Place">Coffee Place</option>
+              <option value="Hicks Hardware">Hicks Hardware</option>
+              <option value="PG&E">PG&E</option>
+            </select>
+          </div>
+
+          <!-- Account * -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Account *</label>
+            <select [(ngModel)]="categorizeData.account" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Account</option>
+              <option value="Meals and Entertainment">Meals and Entertainment</option>
+              <option value="Product/Service">Product/Service</option>
+            </select>
+          </div>
+
+          <!-- Meals and Entertainment or Product/Service -->
+          <div *ngIf="categorizeData.account === 'Meals and Entertainment'">
+            <label class="block text-sm font-medium text-gray-700">Meals and Entertainment</label>
+            <input type="text" [(ngModel)]="categorizeData.mealsEntertainment" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div *ngIf="categorizeData.account === 'Product/Service'">
+            <label class="block text-sm font-medium text-gray-700">Select Product/Service</label>
+            <select [(ngModel)]="categorizeData.productService" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Product/Service</option>
+              <option value="Coffee">Coffee</option>
+              <option value="Hardware">Hardware</option>
+              <option value="Electricity">Electricity</option>
+            </select>
+          </div>
+
+          <!-- Customer/Project -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Customer/Project</label>
+            <select [(ngModel)]="categorizeData.customerProject" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Customer/Project</option>
+              <option value="Customer A">Customer A</option>
+              <option value="Project X">Project X</option>
+            </select>
+          </div>
+
+          <!-- Billable -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Billable</label>
+            <input type="checkbox" [(ngModel)]="categorizeData.billable" class="w-4 h-4">
+          </div>
+
+          <!-- GST * -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">GST *</label>
+            <select [(ngModel)]="categorizeData.gst" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Tax</option>
+              <option value="10%">10%</option>
+              <option value="0%">0%</option>
+            </select>
+          </div>
+
+          <!-- Class -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Class</label>
+            <select [(ngModel)]="categorizeData.class" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Class</option>
+              <option value="Class A">Class A</option>
+              <option value="Class B">Class B</option>
+            </select>
+          </div>
+
+          <!-- Memo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Memo</label>
+            <input type="text" [(ngModel)]="categorizeData.memo" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <!-- Bank Detail -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Bank Detail</label>
+            <input type="text" [(ngModel)]="categorizeData.bankDetail" value="Coffee Place, Street, Anytown" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+          </div>
+
+          <!-- Add Attachment -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Add Attachment</label>
+            <input type="file" (change)="onFileChange($event)" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <!-- Create a Rule -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Create a Rule</label>
+            <input type="checkbox" [(ngModel)]="categorizeData.createRule" class="w-4 h-4">
+          </div>
+
+          <!-- Exclude -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Exclude</label>
+            <input type="checkbox" [(ngModel)]="categorizeData.exclude" class="w-4 h-4">
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <input type="checkbox" id="recordAsTransfer" [(ngModel)]="selectedAction.recordAsTransfer" (change)="updateTransaction()" class="w-4 h-4 mr-2">
+        <label for="recordAsTransfer" class="text-sm text-gray-700">Record as transfer</label>
+        <div *ngIf="selectedAction.recordAsTransfer" class="mt-4 space-y-4">
+          <!-- Transferred to * -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Transferred to *</label>
+            <select [(ngModel)]="transferData.transferredTo" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Account</option>
+              <option value="Savings Account">Savings Account</option>
+              <option value="Checking Account">Checking Account</option>
+            </select>
+          </div>
+
+          <!-- Uncategorized Expense -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Uncategorised Expense</label>
+            <input type="text" [(ngModel)]="transferData.uncategorizedExpense" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <!-- Memo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Memo</label>
+            <input type="text" [(ngModel)]="transferData.memo" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <!-- Bank Detail -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Bank Detail</label>
+            <input type="text" [(ngModel)]="transferData.bankDetail" value="Supplies Depot, Anytown" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+          </div>
+
+          <!-- Add Attachment -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Add Attachment</label>
+            <input type="file" (change)="onFileChange($event)" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <!-- Create a Rule -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Create a Rule</label>
+            <input type="checkbox" [(ngModel)]="transferData.createRule" class="w-4 h-4">
+          </div>
+
+          <!-- Exclude -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Exclude</label>
+            <input type="checkbox" [(ngModel)]="transferData.exclude" class="w-4 h-4">
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <input type="checkbox" id="match" [(ngModel)]="selectedAction.match" (change)="updateTransaction()" class="w-4 h-4 mr-2">
+        <label for="match" class="text-sm text-gray-700">Match</label>
+      </div>
+      <div class="flex justify-end gap-3 mt-4">
+        <button (click)="closeModal()" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+        <button (click)="saveTransaction()" class="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</div>

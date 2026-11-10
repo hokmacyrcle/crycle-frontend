@@ -1,0 +1,254 @@
+<div class="w-full max-w-5xl mx-auto bg-white border rounded-lg shadow-sm p-4">
+    <form [formGroup]="openingBalanceForm" (ngSubmit)="onSubmit()">
+        <!-- Start Date -->
+        <div class="mb-6">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-lg font-semibold text-purple-700">Opening Balances</h2>
+                <a href="#" class="text-blue-600 text-sm hover:underline">Learn more about adding employee opening
+                    balances</a>
+            </div>
+
+            <!-- Info Blocks -->
+            <div class="p-4 border-b text-sm text-gray-700">
+                Add opening balances if you’re switching payroll software during the tax year.
+                The <span class="font-semibold">decision tool</span> can help you check if it’s required for this
+                employee.
+                <p (click)="openModal(1)" class="text-blue-600 ml-2 hover:underline">Opening balances decision tool</p>
+            </div>
+            <div class="p-4 border-b text-sm text-gray-700">
+                Opening balances may also need to be reported via STP. Check and update this in STP settings.
+                Note that the settings apply to all employees.
+                <a href="#" class="text-blue-600 ml-2 hover:underline">Opening balances reporting via STP</a>
+            </div>
+            <div class="p-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    James’s opening balances start date
+                </label>
+                <input type="date" formControlName="startDate"
+                    class="border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                    <p class="mt-2 text-gray-500">The start date would be the last payment date in the previous payroll system. If you’re unsure, check using the</p>
+                    <p (click)="openModal(1)" class="text-blue-600 hover:underline">opening balances decision tool</p>
+            </div>
+        </div>
+
+        <!-- Earnings -->
+        <div formArrayName="earnings" class="border-b p-6">
+            <h3 class="font-semibold mb-2 text-purple-700">Earnings</h3>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Earning type</p>
+                <p>Amount</p>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Ordinary Hours</p>
+                <input type="text" placeholder="amount" class="p-3 border">
+            </div>
+            <div *ngFor="let earn of earnings.controls; let i=index" [formGroupName]="i"
+                class="flex  items-center justify-between p-2">
+                <input type="text" formControlName="name" placeholder="Earning name"
+                    class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                <div class="flex items-center gap-2">
+                    <input type="text" formControlName="amount" placeholder="Amount"
+                        class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                    <button type="button" (click)="removeEarning(i)" class="text-red-500">✕</button>
+                </div>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Total Earning</p>
+                <input type="text" placeholder="Total amount" class="p-3 border">
+            </div>
+
+            <a href="#" (click)="addEarning(); $event.preventDefault()"
+                class="text-blue-600 text-sm hover:underline block mt-2">+ Earnings</a>
+        </div>
+
+        <div formArrayName="deductions" class="border-b p-6">
+            <h3 class="font-semibold mb-2 text-purple-700">Deductions</h3>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Deduction type</p>
+                <p>Amount</p>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Union Fees/Subscriptions</p>
+                <input type="text" placeholder="amount" class="p-3 border">
+            </div>
+            <div *ngFor="let ded of deductions.controls; let i=index" [formGroupName]="i"
+                class="flex  items-center justify-between p-2">
+                <input type="text" formControlName="name" placeholder="Deduction name"
+                    class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+
+                <div class="flex items-center gap-2">
+                    <input type="text" formControlName="amount" placeholder="Amount"
+                        class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                    <button type="button" (click)="removeDeduction(i)" class="text-red-500">✕</button>
+                </div>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Total Deductions</p>
+                <input type="text" placeholder="Total amount" class="p-3 border">
+            </div>
+
+            <a href="#" (click)="addDeduction(); $event.preventDefault()"
+                class="text-blue-600 text-sm hover:underline block mt-2">+ Deductions</a>
+        </div>
+        <div formArrayName="leave" class="border-b p-6">
+            <h3 class="font-semibold mb-2 text-purple-700">Paid Leave</h3>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Leave type</p>
+                <p>Amount</p>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Union Fees/Subscriptions</p>
+                <input type="text" placeholder="amount" class="p-3 border">
+            </div>
+            <div *ngFor="let ded of leave.controls; let i=index" [formGroupName]="i"
+                class="flex  items-center justify-between p-2 gap-2">
+                <input type="text" formControlName="name" placeholder="Leave name"
+                    class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+
+                <div class="flex items-center gap-2">
+                    <input type="text" formControlName="amount" placeholder="Amount"
+                        class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                    <button type="button" (click)="removeLeave(i)" class="text-red-500">✕</button>
+                </div>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Total Paid Leave</p>
+                <input type="text" placeholder="Total amount" class="p-3 border">
+            </div>
+
+            <a href="#" (click)="addLeave(); $event.preventDefault()"
+                class="text-blue-600 text-sm hover:underline block mt-2">+ Paid Leave</a>
+        </div>
+
+        <div class="p-4 border-b">
+            <h3 class="font-semibold mb-2 text-purple-700">Tax</h3>
+            <div class="flex items-center justify-between p-2">
+                <span>Total tax</span>
+                <input type="text" value="4000.00"
+                    class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+            </div>
+        </div>
+
+        <div formArrayName="reimbursements" class="border-b p-6">
+            <h3 class="font-semibold mb-2 text-purple-700">Reimbursements</h3>
+            <div *ngFor="let ded of reimbursements.controls; let i=index" [formGroupName]="i"
+                class="flex  items-center justify-between p-2 gap-2">
+                <input type="text" formControlName="name" placeholder="Reimbursements name"
+                    class="w-52 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+
+                <div class="flex items-center gap-2">
+                    <input type="text" formControlName="amount" placeholder="Amount"
+                        class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                    <button type="button" (click)="removeReimbursements(i)" class="text-red-500">✕</button>
+                </div>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Reimbursements</p>
+                <input type="text" placeholder="Total amount" class="p-3 border">
+            </div>
+            <a href="#" (click)="addReimbursements(); $event.preventDefault()"
+                class="text-blue-600 text-sm hover:underline block mt-2">+ Reimbursements</a>
+        </div>
+        <!-- Superannuations -->
+        <div formArrayName="superannuations" class="mb-6 border-b pb-4">
+            <h3 class="font-semibold mb-2 text-purple-700">Superannuations</h3>
+
+            <div *ngFor="let sup of superannuations.controls; let i=index" [formGroupName]="i"
+                class="grid grid-cols-3 gap-4 items-center mb-2">
+                <input type="text" formControlName="name" placeholder="Superannuations name"
+                    class="w-52 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                <input type="text" formControlName="name" placeholder="Superannuations name"
+                    class="w-52 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+
+                <div class="flex items-center gap-2">
+                    <input type="text" formControlName="amount" placeholder="Amount"
+                        class="w-40 border rounded px-3 py-2 text-sm focus:ring focus:ring-blue-200">
+                    <button type="button" (click)="removeSuper(i)" class="text-red-500">✕</button>
+                </div>
+            </div>
+            <div class="items-center flex justify-between p-2 border-b">
+                <p>Superannuations</p>
+                <input type="text" placeholder="Total amount" class="p-3 border">
+            </div>
+
+            <a href="#" (click)="addSuper(); $event.preventDefault()"
+                class="text-blue-600 text-sm hover:underline block mt-2">+ Superannuations</a>
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="flex justify-end gap-3">
+            <button type="button" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100">Cancel</button>
+            <button type="submit" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-700">Save</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- Modal -->
+<div *ngIf="modal1" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+    <div class="bg-white w-[400px] rounded shadow-lg p-6 relative">
+
+        <!-- Header -->
+        <h2 class="text-lg font-semibold text-purple-700 mb-4">
+            Opening balances decision tool
+        </h2>
+        <button (click)="closeModal(1)" class="absolute top-2 right-2 text-red-500 text-3xl">
+            &times;
+        </button>
+
+        <!-- Tax Year Selection -->
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            In which tax year do you start paying James in Xero Payroll?
+        </label>
+        <select [(ngModel)]="selectedTax"
+            class="w-full border rounded-md px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-500">
+            <option value="">Please select a tax year</option>
+            <option value="2026">2026/27</option>
+            <option value="2025">2025/26</option>
+            <option value="2024">2024/25</option>
+        </select>
+
+        <!-- Conditional Section -->
+        <div *ngIf="selectedTax">
+
+            <!-- Last Payment Date -->
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                When was James’s last payment date (in the previous payroll software)?
+            </label>
+            <input [(ngModel)]="selectedDate" type="date" class="w-full border rounded px-3 py-2 mb-3">
+
+            <div class="flex items-center gap-2 mb-4">
+                <input type="checkbox" [(ngModel)]="notApplicable" (change)="toggleDate()" />
+                <p class="text-sm">Not Applicable</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="p-3 border rounded text-gray-600 mb-3">
+                <p>Opening balances is required for James</p>
+                <p>
+                    The start date of opening balances should be
+                    <span class="font-semibold">20 August 2025</span>.
+                    This is the same as the last payment date in the previous payroll system.
+                </p>
+            </div>
+
+            <!-- Note -->
+            <p class="text-sm text-gray-600 mb-3">
+                Please note that this decision tool doesn’t save the result or the information entered.
+            </p>
+
+            <!-- Buttons -->
+            <div class="flex justify-end gap-3">
+                <button (click)="closeModal(1)" class="px-4 py-2 bg-gray-200 text-gray-700 rounded">
+                    Close
+                </button>
+                <button
+                    class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-700">
+                    Apply start date
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

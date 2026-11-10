@@ -1,0 +1,491 @@
+<div id="tab-clients" style="width: 100%">
+  <!-- Search Bar -->
+
+  <div class="flex justify-between items-center flex-wrap gap-2 mb-4">
+    <div class="ml-4">
+      <h1>Expenses</h1>
+    </div>
+
+    <div class="flex justify-between items-center flex-wrap gap-2 mb-4">
+      <button
+        class="flex items-center px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-purple-700"
+        routerLink="/admin/addinvoice"
+      >
+        Give Feedback
+      </button>
+
+      <button
+        class="flex items-center px-4 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-purple-700"
+        routerLink="/admin/addinvoice"
+      >
+        Pay Bills
+      </button>
+
+      <!-- Add Employee Button -->
+
+      <button
+        class="flex items-center px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700"
+        [matMenuTriggerFor]="transactionMenu"
+      >
+        <img
+          src="assets/images/Dashboard/addlogo.png"
+          alt="Add"
+          class="size-[20px] mr-2"
+        />
+        New Transaction
+      </button>
+
+      <mat-menu
+        #transactionMenu="matMenu"
+        xPosition="before"
+        yPosition="below"
+        [overlapTrigger]="false"
+      >
+        <button mat-menu-item (click)="navigateTo('/app-getallinvoices')">
+          <mat-icon>receipt</mat-icon>
+          <span>Time Activity</span>
+        </button>
+
+        <button mat-menu-item [routerLink]="'/admin/expense-create-bill'">
+          <mat-icon>money_off</mat-icon>
+          <span>Bill</span>
+
+        </button>
+
+        <button mat-menu-item [routerLink]="'/admin/expense-create-expense'">
+          <mat-icon>payment</mat-icon>
+          <span>Expense</span>
+        </button>
+
+        <button mat-menu-item [routerLink]="'/admin/expense-create-cheque'">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Cheque</span>
+        </button>
+
+        <button mat-menu-item [routerLink]="'/admin/expense-create-purchase-order'">
+          <mat-icon>list_alt</mat-icon>
+          <span>Purchase Order</span>
+        </button>
+
+        <button mat-menu-item [routerLink]="'/admin/expense-create-supplier-credit'">
+          <mat-icon>check_circle</mat-icon>
+          <span>Supplier Credit</span>
+        </button>
+
+        <button mat-menu-item (click)="navigateTo('/admin/addtransfer')">
+          <mat-icon>swap_horiz</mat-icon>
+          <span>Credit Card Credit</span>
+        </button>
+
+        <button mat-menu-item (click)="navigateTo('/admin/addtransfer')">
+          <mat-icon>swap_horiz</mat-icon>
+          <span>Pay Down Credit Card</span>
+        </button>
+
+        <button mat-menu-item (click)="navigateTo('/admin/addtransfer')">
+          <mat-icon>swap_horiz</mat-icon>
+          <span>Import Bills</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <div class="bg-gray-100 rounded-lg shadow-md mb-4 p-4">
+    <!--Search and Filters-->
+
+    <!-- Filters Section -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <!-- Status Filter -->
+      <div>
+        <label
+          for="status-filter"
+          class="block text-sm font-medium text-gray-700 mb-2"
+          >Status</label
+        >
+        <select
+          id="status-filter"
+          class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="All">All Quotes</option>
+          <option value="Pending">Pending</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Closed">Closed</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+
+      <!-- Date Filter -->
+      <div>
+        <label
+          for="date-filter"
+          class="block text-sm font-medium text-gray-700 mb-2"
+          >Date Range</label
+        >
+        <select
+          id="date-filter"
+          class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="Last 7 days">Last 7 days</option>
+          <option value="Last 30 days">Last 30 days</option>
+          <option value="Last 3 months">Last 3 months</option>
+          <option value="Last 6 months">Last 6 months</option>
+          <option value="Last 12 months">Last 12 months</option>
+          <option value="This year">This year</option>
+          <option value="Last year">Last year</option>
+        </select>
+      </div>
+
+      <!-- Sort By -->
+      <div>
+        <label
+          for="sort-by"
+          class="block text-sm font-medium text-gray-700 mb-2"
+          >Sort By</label
+        >
+        <select
+          id="sort-by"
+          class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="quote_date">Quote Date</option>
+          <option value="contact_name">Customer Name</option>
+          <option value="amount">Total Amount</option>
+          <option value="status">Status</option>
+          <option value="valid_until">Valid Until</option>
+        </select>
+      </div>
+
+      <!-- Sort Order -->
+      <div>
+        <label
+          for="sort-order"
+          class="block text-sm font-medium text-gray-700 mb-2"
+          >Sort Order</label
+        >
+        <select
+          id="sort-order"
+          class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Search and Options -->
+    <div class="flex justify-between items-center mb-4">
+      <!-- Search Bar - Left Side -->
+      <mat-form-field appearance="fill" class="w-full sm:w-64">
+        <mat-label>Search Expenses</mat-label>
+        <input
+          matInput
+          placeholder="Search by customer name, company, or reference number"
+        />
+      </mat-form-field>
+
+      <!-- Action Icons - Right Side -->
+      <div class="flex items-center gap-4 ml-4">
+        <!-- Export to Excel -->
+        <button
+          mat-icon-button
+          matTooltip="Export to Excel"
+          class="text-gray-500 hover:text-gray-700"
+        >
+          <mat-icon>file_download</mat-icon>
+        </button>
+
+        <!-- Print -->
+        <button
+          mat-icon-button
+          matTooltip="Print"
+          class="text-gray-500 hover:text-gray-700"
+        >
+          <mat-icon>print</mat-icon>
+        </button>
+
+        <!-- Settings -->
+        <button
+          mat-icon-button
+          matTooltip="Settings"
+          class="text-gray-500 hover:text-gray-700"
+        >
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--Here comes the table-->
+
+  <!--The dummy data table-->
+</div>
+
+
+<!-- table here too-->
+<div class="table-container">
+  <div class="table-wrapper">
+    <table class="expenses-table">
+      <thead>
+        <tr>
+          <th class="col-select">
+            <input
+              type="checkbox"
+              [checked]="isAllSelected()"
+              [indeterminate]="isPartialSelection()"
+              (change)="masterToggle()"
+            />
+          </th>
+
+          <th class="col-due" (click)="sortBy('date')">
+            Date
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'date',
+                desc: sortColumn === 'date' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+
+          <th class="col-type" (click)="sortBy('type')">
+            Type
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'type',
+                desc: sortColumn === 'type' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-no" (click)="sortBy('no')">
+            No.
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'no',
+                desc: sortColumn === 'no' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-batch" (click)="sortBy('batchNo')">
+            Batch No.
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'batchNo',
+                desc: sortColumn === 'batchNo' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-payee" (click)="sortBy('payee')">
+            Payee
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'payee',
+                desc: sortColumn === 'payee' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-class" (click)="sortBy('class')">
+            Class
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'class',
+                desc: sortColumn === 'class' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-location" (click)="sortBy('location')">
+            Location
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'location',
+                desc: sortColumn === 'location' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-status" (click)="sortBy('status')">
+            Status
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'status',
+                desc: sortColumn === 'status' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-method" (click)="sortBy('method')">
+            Method
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'method',
+                desc: sortColumn === 'method' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-source" (click)="sortBy('source')">
+            Source
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'source',
+                desc: sortColumn === 'source' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-category" (click)="sortBy('category')">
+            Category
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'category',
+                desc: sortColumn === 'category' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-memo">Memo</th>
+          <th class="col-due" (click)="sortBy('dueDate')">
+            Due Date
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'dueDate',
+                desc: sortColumn === 'dueDate' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-balance" (click)="sortBy('balance')">
+            Balance
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'balance',
+                desc: sortColumn === 'balance' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-before-tax" (click)="sortBy('totalBeforeTax')">
+            Before Tax
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'totalBeforeTax',
+                desc:
+                  sortColumn === 'totalBeforeTax' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-tax" (click)="sortBy('salesTax')">
+            Sales Tax
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'salesTax',
+                desc: sortColumn === 'salesTax' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+          <th class="col-total" (click)="sortBy('total')">
+            Total
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'total',
+                desc: sortColumn === 'total' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+           <th class="col-action" (click)="sortBy('action')">
+            Action
+            <span
+              class="sort-indicator"
+              [ngClass]="{
+                active: sortColumn === 'action',
+                desc: sortColumn === 'action' && sortDirection === 'desc'
+              }"
+              >↑</span
+            >
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let transaction of transactions"
+          [class.selected]="isSelected(transaction)"
+          (click)="toggleSelection(transaction, $event)"
+        >
+          <td class="col-select">
+            <input
+              type="checkbox"
+              [checked]="isSelected(transaction)"
+              (click)="$event.stopPropagation()"
+              (change)="toggleSelection(transaction, $event)"
+            />
+          </td>
+          <td class="col-date">{{ formatDate(transaction.date) }}</td>
+          <td class="col-type">{{ transaction.type }}</td>
+          <td class="col-no">{{ transaction.no }}</td>
+          <td class="col-batch">{{ transaction.batchNo }}</td>
+          <td class="col-payee">{{ transaction.payee }}</td>
+          <td class="col-class">{{ transaction.class }}</td>
+          <td class="col-location">{{ transaction.location }}</td>
+          <td class="col-status">
+            <span
+              class="status-badge"
+              [ngClass]="'status-' + transaction.status.toLowerCase()"
+            >
+              {{ transaction.status }}
+            </span>
+          </td>
+          <td class="col-method">{{ transaction.method }}</td>
+          <td class="col-source">{{ transaction.source }}</td>
+          <td class="col-category">{{ transaction.category }}</td>
+          <td class="col-memo" [title]="transaction.memo">
+            {{ transaction.memo }}
+          </td>
+          <td class="col-due">{{ formatDate(transaction.dueDate) }}</td>
+          <td
+            class="col-balance"
+            [ngClass]="{ negative: transaction.balance < 0 }"
+          >
+            {{ formatCurrency(transaction.balance) }}
+          </td>
+          <td class="col-before-tax">
+            {{ formatCurrency(transaction.totalBeforeTax) }}
+          </td>
+          <td class="col-tax">{{ formatCurrency(transaction.salesTax) }}</td>
+          <td class="col-total">{{ formatCurrency(transaction.total) }}</td>
+          <td class="col-action">{{ (transaction.action) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Table Footer -->
+<div class="table-footer">
+  <div class="selection-info">
+    {{ selectedTransactions.length }} of {{ transactions.length }} items
+    selected
+  </div>
+  <div class="pagination-info">Showing {{ transactions.length }} entries</div>
+</div>

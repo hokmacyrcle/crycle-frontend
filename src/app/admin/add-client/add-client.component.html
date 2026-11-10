@@ -1,0 +1,87 @@
+
+
+
+<div class=" bg-gray-50 flex items-center justify-center">
+  <button type="button" (click)="onClose()" aria-label="Close"
+    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+    &#10005; <!-- Unicode multiplication "×" symbol -->
+  </button>
+  <div class="form-container w-full max-w-2xl bg-white shadow-md rounded-lg p-8">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Add Client</h2>
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">Company Name</label>
+        <input type="text" formControlName="company_name" placeholder="Enter company name" required [ngClass]="{
+            'invalid border-red-500': submitted && clientForm.get('company_name')?.invalid,
+            'border-gray-300': !submitted || !clientForm.get('company_name')?.invalid
+          }" class="w-full p-2 border rounded" />
+        <div *ngIf="submitted && clientForm.get('company_name')?.invalid" class="error text-red-600 text-sm mt-1">
+          Company name is required
+        </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">Email</label>
+        <input type="email" formControlName="email" placeholder="Enter email address" required [ngClass]="{
+            'invalid border-red-500': submitted && clientForm.get('email')?.invalid,
+            'border-gray-300': !submitted || !clientForm.get('email')?.invalid
+          }" class="w-full p-2 border rounded" />
+        <div *ngIf="submitted && clientForm.get('email')?.invalid" class="error text-red-600 text-sm mt-1">
+          Please enter a valid email address
+        </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">Phone (10 digits)</label>
+        <input type="tel" formControlName="phone" placeholder="Enter phone number" [ngClass]="{
+            'invalid border-red-500': submitted && clientForm.get('phone')?.invalid,
+            'border-gray-300': !submitted || !clientForm.get('phone')?.invalid
+          }" class="w-full p-2 border rounded" />
+        <div *ngIf="submitted && clientForm.get('phone')?.invalid" class="error text-red-600 text-sm mt-1">
+          Please enter a valid 10-digit phone number
+        </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">Website</label>
+        <input type="text" formControlName="website" placeholder="Enter website"
+          class="w-full p-2 border border-gray-300 rounded" />
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">VAT Number</label>
+        <input type="text" formControlName="vat_number" placeholder="Enter VAT number"
+          class="w-full p-2 border border-gray-300 rounded" />
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">GST Number</label>
+        <input type="text" formControlName="gst_number" placeholder="Enter GST number"
+          class="w-full p-2 border border-gray-300 rounded" />
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">Address</label>
+        <input type="text" formControlName="address" placeholder="Enter address"
+          class="w-full p-2 border border-gray-300 rounded" />
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1">Status</label>
+        <input type="text" formControlName="status" placeholder="Enter status (e.g. active)"
+          class="w-full p-2 border border-gray-300 rounded" />
+      </div>
+
+      <!-- <button type="submit" class="submit-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Add Client
+      </button> -->
+
+      <button class="submit-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" color="primary" type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Saving...' : 'Save' }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<br /><br /><br /><br />

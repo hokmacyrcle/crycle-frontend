@@ -1,0 +1,216 @@
+Absolutely! Here's a **ready-to-use documentation** file (in markdown format) for your Angular 16 project setup. You can paste this into a `README.md` file or convert it to PDF for internal use or sharing.
+
+---
+
+# 📘 Angular 16 Project Setup & API Integration Documentation
+
+---
+
+## 📂 Project Overview
+
+This Angular 16 project was initialized using the Angular CLI and includes components for user authentication (`Login`, `Register`) and a `Home` module. API communication is handled through environment configuration for scalable environment management.
+
+---
+
+## ✅ Project Initialization
+
+### 🔧 Angular CLI Project Setup
+
+```bash
+ng new ProjectName
+```
+
+* **Routing**: Enabled
+* **Styling**: CSS / SCSS (choose one)
+* **Angular Version**: 16.x
+
+---
+
+## 🧩 Module & Component Structure
+
+### 🏠 Home Module & Component
+
+```bash
+ng generate module home --routing
+ng generate component home/home
+```
+
+### 🔐 Authentication Components
+
+```bash
+ng generate component login
+ng generate component register
+```
+
+* `LoginComponent` handles user login form
+* `RegisterComponent` handles new user registration
+
+---
+
+## 🌐 Environment Configuration
+
+Centralized API URL configuration using Angular’s environment system.
+
+### 📁 `src/environments/environment.ts`
+
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'https://dev.example.com/api'
+};
+```
+
+### 📁 `src/environments/environment.prod.ts`
+
+```ts
+export const environment = {
+  production: true,
+  apiUrl: 'https://prod.example.com/api'
+};
+```
+
+### 📦 Angular.json Replacement
+
+```json
+"fileReplacements": [
+  {
+    "replace": "src/environments/environment.ts",
+    "with": "src/environments/environment.prod.ts"
+  }
+]
+```
+
+---
+
+## 🔧 Creating and Using a Service (Login API)
+
+### 📁 Generate Auth Service
+
+```bash
+ng generate service services/auth
+```
+
+### 📄 `auth.service.ts`
+
+```ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private apiUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient) {}
+
+  login(data: { email: string, password: string }) {
+    return this.http.post(`${this.apiUrl}/auth/login`, data);
+  }
+
+  register(data: any) {
+    return this.http.post(`${this.apiUrl}/auth/register`, data);
+  }
+}
+```
+
+---
+
+## 🔐 Using the Service in Components
+
+### 📄 `login.component.ts`
+
+```ts
+import { Component } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+  constructor(private authService: AuthService) {}
+
+  loginUser() {
+    const credentials = { email: 'test@example.com', password: '123456' };
+
+    this.authService.login(credentials).subscribe(
+      res => console.log('Login Success:', res),
+      err => console.error('Login Failed:', err)
+    );
+  }
+}
+```
+
+---
+
+## 📁 Folder Structure (Suggested)
+
+```
+src/
+├── app/
+│   ├── home/
+│   │   ├── home.component.ts
+│   │   ├── home.module.ts
+│   ├── login/
+│   │   ├── login.component.ts
+│   ├── register/
+│   │   ├── register.component.ts
+│   ├── services/
+│   │   ├── auth.service.ts
+├── environments/
+│   ├── environment.ts
+│   ├── environment.prod.ts
+```
+
+---
+
+## 🚀 Running the Project
+
+### For Development:
+
+```bash
+ng serve
+```
+
+### For Production Build:
+
+```bash
+ng build --configuration production
+```
+
+---
+
+## 📦 Dependencies
+
+Make sure the following dependencies are installed (installed automatically with Angular 16):
+
+* `@angular/core`
+* `@angular/common`
+* `@angular/router`
+* `@angular/forms`
+* `@angular/http` or `HttpClientModule` (used for API calls)
+
+---
+
+## 🔚 Summary
+
+| Feature                      | Status       |
+| ---------------------------- | ------------ |
+| Angular CLI Project          | ✅ Done       |
+| Home + Auth Components       | ✅ Done       |
+| API URL via Environment      | ✅ Done       |
+| AuthService (Login/Register) | ✅ Done       |
+| Angular Routing              | ✅ Configured |
+
+---
+
+Would you like this exported as:
+
+* ✅ PDF
+* ✅ `.docx` (Word)
+* ✅ GitHub-style `README.md`
+
+Let me know your preferred format and I’ll generate it for you.

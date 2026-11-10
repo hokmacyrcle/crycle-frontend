@@ -1,0 +1,240 @@
+<!-- Main Section -->
+<main class="p-4 sm:p-6 flex-1 overflow-y-auto">
+    <!-- Dashboard Section -->
+    <section *ngIf="activeSection === 'dashboard'" class="content-section">
+        <!-- max-w-7xl mx-auto px-2 sm:px-4 py-6 -->
+        <div class="overflow-y: auto;">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                <div class="flex flex-wrap gap-x-4 gap-y-2 sm:gap-x-6 border-b w-full md:max-w-md">
+                    <button *ngFor="let tab of dashboardTabs" (click)="setActiveTab(tab.id)"
+                        class="tab-btn pb-2 text-sm font-medium border-b-2"
+                        [ngClass]="{'text-purple-600 border-purple-600': activeTab === tab.id, 'text-gray-500 hover:text-purple-600 hover:border-purple-600': activeTab !== tab.id}">
+                        {{ tab.label }}
+                    </button>
+                </div>
+                <div class="flex flex-wrap justify-start md:justify-end items-center gap-2">
+                    <button
+                        class="flex items-center px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-200">
+                        <img src="assets/images/Dashboard/importlogo.png" alt="Import" class="size-[20px]" /> Import
+                        Employees
+                    </button>
+                    <button
+                        class="flex items-center px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                        (click)="openAddEmployeeDialog()">
+                        <img src="assets/images/Dashboard/addlogo.png" alt="Add" class="size-[20px]" /> Add Employee
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div *ngIf="activeTab === 'overview'" id="tab-overview">
+                <h2 class="text-xl font-bold mb-4">📊 Overview</h2>
+                <p class="text-gray-600">This is the content for the overview tab. You can display dashboard stats,
+                    charts,
+                    or summary info here.</p>
+            </div>
+
+            <!-- Clients Tab  class="mat-elevation-z8 w-full rounded-lg overflow-hidden"-->
+            <div *ngIf="activeTab === 'clients'" id="tab-clients" style="width: 100%;">
+                <div class="flex justify-end ">
+
+
+                    <mat-form-field appearance="fill" class="w-full sm:w-64">
+                        <mat-label>Search Employees</mat-label>
+                        <input matInput (keyup)="applyFilter($event)"
+                            placeholder="Search by company name, email, or phone" value="{{searchTerm}}">
+                    </mat-form-field>
+
+                </div>
+
+                <table mat-table [dataSource]="dataSource" matSort
+                    class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+
+                    <!-- Employee ID Column -->
+                    <ng-container matColumnDef="emp_id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_id }}</td>
+                    </ng-container>
+
+                    <!-- First Name Column -->
+                    <ng-container matColumnDef="emp_first_name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>First Name</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_first_name }}</td>
+                    </ng-container>
+
+                    <!-- Middle Name Column -->
+                    <ng-container matColumnDef="emp_middle_name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Middle Name</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_middle_name }}</td>
+                    </ng-container>
+
+                    <!-- Last Name Column -->
+                    <ng-container matColumnDef="emp_last_name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_last_name }}</td>
+                    </ng-container>
+
+                    <!-- Email Address Column -->
+                    <ng-container matColumnDef="emp_email_address">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Email Address</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_email_address }}</td>
+                    </ng-container>
+
+                    <!-- Phone Number Column -->
+                    <ng-container matColumnDef="emp_phone_number">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Phone Number</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_phone_number }}</td>
+                    </ng-container>
+
+                    <!-- Status Column -->
+                    <ng-container matColumnDef="emp_status">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                        <td mat-cell *matCellDef="let employee">{{ employee.emp_status }}</td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+                        <td mat-cell *matCellDef="let employee" class="text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button class="text-green-500 hover:text-green-600"
+                                    (click)="editEmployee(employee.emp_id)">
+                                    <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[18px]" />
+                                </button>
+                                <button class="text-red-500 hover:text-red-600"
+                                    (click)="deleteEmployee(employee.emp_id)">
+                                    <img src="assets/images/Dashboard/deletelogo.png" alt="Delete"
+                                        class="size-[35px]" />
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+                <div *ngIf="!loading && dataSource.data.length === 0" class="text-center py-4 text-red-500">
+                    {{ errorMessage || 'No employees found.' }}
+                </div>
+
+
+                <!-- Client Tab open in Phone  -->
+                <div class="block md:hidden">
+                    <div *ngFor="let employee of dataSource.data"
+                        class="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <!-- <span class="text-sm font-semibold text-gray-600">ID</span> -->
+                            <!-- <span class="text-sm font-medium">{{ employee?.emp_id }}</span> -->
+                        </div>
+                        <!-- <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">Company</span>
+              <span class="text-sm font-medium text-right">{{ employee.emp_email_address }}</span>
+            </div> -->
+                        <!-- <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">Email</span>
+              <span class="text-sm text-blue-600 truncate text-right">{{ employee.emp_email_address }}</span>
+            </div> -->
+                        <!-- <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">Phone</span>
+              <span class="text-sm font-medium text-right">{{ employee.emp_mobile_number }}</span>
+            </div> -->
+                        <!-- <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">Website</span>
+              <span class="text-sm font-medium text-right">{{ employee.website }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">VAT Number</span>
+              <span class="text-sm font-medium text-right">{{ employee.vat_number }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">GST Number</span>
+              <span class="text-sm font-medium text-right">{{ employee.gst_number }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b">
+              <span class="text-sm font-semibold text-gray-600">Address</span>
+              <span class="text-sm font-medium text-right">{{ employee.address }}</span>
+            </div> -->
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-sm font-semibold text-gray-600">Status</span>
+                            <!-- <mat-slide-toggle color="primary" [checked]="employee.emp_status === 'active'"
+                (change)="toggleEmployeeStatus(employee.employee_id, employee.emp_status)" aria-label="Toggle Client Status">
+              </mat-slide-toggle> -->
+                        </div>
+                        <div class="flex gap-4 justify-end pt-3 mt-2 border-t">
+                            <!-- <button class="text-green-500 hover:text-green-600" (click)="editEmployee(employee.emp_id)">
+                <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[22px]" />
+              </button> -->
+                            <!-- <button class="text-red-500 hover:text-red-600" (click)="deleteEmployee(employee.emp_id)">
+                <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+              </button> -->
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="loading" class="text-center py-4">
+                    <mat-spinner diameter="40"></mat-spinner>
+                </div>
+
+                <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20]"
+                    (page)="onPageChange($event)" showFirstLastButtons>
+                </mat-paginator>
+            </div>
+
+            <!-- Contacts Tab -->
+            <div *ngIf="activeTab === 'contacts'" id="tab-contacts">
+                <h2 class="text-xl font-bold mb-4">📞 Contacts</h2>
+                <p class="text-gray-600">This is the content for the contacts tab. You can display customer or client
+                    contact information here.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banking Section -->
+    <section *ngIf="activeSection === 'banking'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Banking</h2>
+        <p>Banking transactions and summaries.</p>
+    </section>
+
+    <!-- Expenses Section -->
+    <section *ngIf="activeSection === 'expenses'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Expenses</h2>
+        <p>Manage your daily expenses and categories.</p>
+    </section>
+
+    <!-- Sales Section -->
+    <section *ngIf="activeSection === 'sales'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Sales</h2>
+        <p>Track product sales and customer analytics.</p>
+    </section>
+
+    <!-- Projects Section -->
+    <section *ngIf="activeSection === 'projects'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Projects</h2>
+        <p>Manage and overview your projects.</p>
+    </section>
+
+    <!-- Workers Section -->
+    <section *ngIf="activeSection === 'workers'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Workers</h2>
+        <p>All workers, roles and schedules listed here.</p>
+    </section>
+
+    <!-- Reports Section -->
+    <section *ngIf="activeSection === 'reports'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Reports</h2>
+        <p>View, export, and share reports easily.</p>
+    </section>
+
+    <!-- Taxes Section -->
+
+    <section *ngIf="activeSection === 'taxes'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">Taxes</h2>
+        <p>Tax filing, status, and deductions summary.</p>
+    </section>
+
+    <!-- My Account Section -->
+    <section *ngIf="activeSection === 'account'" class="content-section">
+        <h2 class="text-2xl font-bold mb-4">My Account</h2>
+        <p>Edit your account details, password, and preferences.</p>
+    </section>
+</main>

@@ -1,0 +1,147 @@
+<main class="p-4 sm:p-6 flex-1 overflow-y-auto">
+    <section *ngIf="activeSection === 'dashboard'" class="content-section">
+        <div class="overflow-y-auto">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                <div class="flex flex-wrap gap-x-4 gap-y-2 sm:gap-x-6 border-b w-full md:max-w-md">
+                    <button *ngFor="let tab of dashboardTabs" (click)="setActiveTab(tab.id)"
+                        class="tab-btn pb-2 text-sm font-medium border-b-2"
+                        [ngClass]="{'text-purple-600 border-purple-600': activeTab === tab.id, 'text-gray-500 hover:text-purple-600 hover:border-purple-600': activeTab !== tab.id}">
+                        {{ tab.label }}
+                    </button>
+                </div>
+                <div class="flex flex-wrap justify-start md:justify-end items-center gap-2">
+                    <button
+                        class="flex items-center px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                        (click)="openAddCompanyDialog()">
+                        <img src="assets/images/Dashboard/addlogo.png" alt="Add" class="size-[20px]" /> Add Company
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="activeTab === 'companies'" id="tab-companies" style="width: 100%;">
+                <div class="flex justify-end">
+                    <mat-form-field appearance="fill" class="w-full sm:w-64">
+                        <mat-label>Search Companies</mat-label>
+                        <input matInput (keyup)="applyFilter($event)" placeholder="Search by company name or ABN"
+                            value="{{searchTerm}}">
+                    </mat-form-field>
+                </div>
+
+                <table mat-table [dataSource]="dataSource" matSort
+                    class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+                    <ng-container matColumnDef="company_id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                        <td mat-cell *matCellDef="let company">{{ company.company_id }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="company_name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Company Name</th>
+                        <td mat-cell *matCellDef="let company" class="font-medium">{{ company.company_name }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="company_abn">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>ABN</th>
+                        <td mat-cell *matCellDef="let company">{{ company.company_abn }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="company_acn">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>ACN</th>
+                        <td mat-cell *matCellDef="let company">{{ company.company_acn }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="gst_number">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>GST Number</th>
+                        <td mat-cell *matCellDef="let company">{{ company.gst_number || 'N/A' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="company_type">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+                        <td mat-cell *matCellDef="let company">{{ company.company_type }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="address">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+                        <td mat-cell *matCellDef="let company">{{ getPrimaryAddress(company.locations) }}</td>
+                    </ng-container>
+                    <!-- <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let company">
+              <mat-slide-toggle color="primary" [checked]="company.location_status === 'active'"
+                (change)="toggleCompanyStatus(company.company_id, company.location_status)" aria-label="Toggle Company Status">
+              </mat-slide-toggle>
+            </td>
+          </ng-container> -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+                        <td mat-cell *matCellDef="let company" class="text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button class="text-green-500 hover:text-green-600"
+                                    (click)="editCompany(company.company_id)">
+                                    <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[18px]" />
+                                </button>
+                                <button class="text-red-500 hover:text-red-600"
+                                    (click)="deleteCompany(company.company_id)">
+                                    <img src="assets/images/Dashboard/deletelogo.png" alt="Delete"
+                                        class="size-[35px]" />
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+                <div *ngIf="!loading && dataSource.data.length === 0" class="text-center py-4">
+                    <p class="text-gray-600 text-lg">No clients found.</p>
+                </div>
+
+                <!-- Mobile View -->
+                <div class="block md:hidden">
+                    <div *ngFor="let company of dataSource.data"
+                        class="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">ID</span>
+                            <span class="text-sm font-medium">{{ company.company_id }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">Company</span>
+                            <span class="text-sm font-medium text-right">{{ company.company_name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">ABN</span>
+                            <span class="text-sm font-medium text-right">{{ company.company_abn }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">ACN</span>
+                            <span class="text-sm font-medium text-right">{{ company.company_acn }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">GST Number</span>
+                            <span class="text-sm font-medium text-right">{{ company.gst_number || 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">Type</span>
+                            <span class="text-sm font-medium text-right">{{ company.company_type }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-sm font-semibold text-gray-600">Address</span>
+                            <span class="text-sm font-medium text-right">{{ getPrimaryAddress(company.locations)
+                                }}</span>
+                        </div>
+
+                        <div class="flex gap-4 justify-end pt-3 mt-2 border-t">
+                            <button class="text-green-500 hover:text-green-600"
+                                (click)="editCompany(company.company_id)">
+                                <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[22px]" />
+                            </button>
+                            <button class="text-red-500 hover:text-red-600" (click)="deleteCompany(company.company_id)">
+                                <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="loading" class="text-center py-4">
+                    <mat-spinner diameter="40"></mat-spinner>
+                </div>
+
+                <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20]"
+                    (page)="onPageChange($event)" showFirstLastButtons>
+                </mat-paginator>
+            </div>
+        </div>
+    </section>
+</main>

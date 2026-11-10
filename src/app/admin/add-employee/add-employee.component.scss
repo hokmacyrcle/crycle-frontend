@@ -1,0 +1,21 @@
+
+
+.full-width.form-container {
+  max-width: 100% !important;
+  margin: 10px;
+}
+
+
+
+.form-container {
+  
+    padding: 50px;
+}
+
+
+.form-containers {
+    padding: 35px;
+      max-height: 100vh !important;        /* max height relative to viewport */
+  overflow-y: auto !important;  
+  width: 100%;
+}

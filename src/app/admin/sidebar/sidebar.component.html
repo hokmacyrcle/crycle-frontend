@@ -1,0 +1,14 @@
+<!-- sidebar.component.html -->
+<aside id="sidebar" class="bg-white w-[130px] space-y-1 shadow-lg absolute md:relative md:translate-x-0"
+     [ngClass]="{'-translate-x-full': !isSidebarOpen, 'translate-x-0': isSidebarOpen}"
+     [ngStyle]="{'transition': 'transform 300ms ease-in-out', 'z-index': isSidebarOpen ? '20' : 'auto'}">
+     <div *ngFor="let menu of menuItems" [routerLink]="menu.route"
+          class="menu-item relative flex flex-col border-b text-center items-center py-3 hover:text-purple-500 cursor-pointer"
+          [ngClass]="{'text-purple-500': activeSection === menu.section}" (click)="setActiveSection(menu.section)">
+          <img [src]="menu.icon" class="w-10 h-10 mb-1" [alt]="menu.label" />
+          <span class="text-sm font-medium">{{ menu.label }}</span>
+          <img src="assets/images/Dashboard/clicked.png" alt="Active"
+               class="active-indicator size-[22px] absolute bottom-0 right-0"
+               [ngClass]="{'hidden': activeSection !== menu.section}" />
+     </div>
+</aside>

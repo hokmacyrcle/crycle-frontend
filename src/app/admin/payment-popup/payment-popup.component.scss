@@ -1,0 +1,210 @@
+// Payment Popup Component Styles
+
+.payment-popup {
+  // Modal backdrop animation
+  .backdrop {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  // Modal content animation
+  .modal-content {
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Form field focus states
+.form-field:focus-within {
+  .input-field {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+// Payment summary styling
+.payment-summary {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  
+  .summary-row {
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+  }
+}
+
+// Button states
+.btn-primary {
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+// Loading spinner
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+  
+  .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Error state styling
+.error-state {
+  .error-icon {
+    animation: shake 0.5s ease-in-out;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// File attachment styling
+.file-attachments {
+  .drag-drop-zone {
+    transition: all 0.2s ease;
+    
+    &.drag-over {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+      transform: scale(1.02);
+    }
+    
+    &:hover {
+      border-color: #60a5fa;
+      background-color: #f8fafc;
+    }
+  }
+  
+  .file-list {
+    .file-item {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: #f1f5f9;
+        transform: translateX(2px);
+      }
+      
+      .remove-btn {
+        opacity: 0.6;
+        transition: opacity 0.2s ease;
+        
+        &:hover {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+  
+  .upload-icon {
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// File type icons
+.file-icon {
+  &.pdf { color: #dc2626; }
+  &.doc, &.docx { color: #2563eb; }
+  &.jpg, &.jpeg, &.png { color: #059669; }
+  &.txt { color: #6b7280; }
+}
+
+// Existing attachments styling
+.existing-attachments {
+  .attachment-item {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #f1f5f9;
+      transform: translateX(2px);
+    }
+    
+    .file-icon {
+      transition: color 0.2s ease;
+    }
+    
+    .action-buttons {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+  
+  .preview-button {
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+  
+  .download-button {
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Image preview enhancement
+.image-preview {
+  cursor: pointer;
+  
+  &:hover {
+    filter: brightness(1.1);
+  }
+}

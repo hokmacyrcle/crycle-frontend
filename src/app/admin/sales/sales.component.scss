@@ -1,0 +1,42 @@
+// Sales component styles
+.sales-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.tab-button {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.quick-link-card {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.overdue-item {
+  transition: background-color 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: #f9fafb;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .tab-nav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .tab-button {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+}

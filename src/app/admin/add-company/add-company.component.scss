@@ -1,0 +1,5 @@
+.form-container {
+  max-height: 100vh !important;        /* max height relative to viewport */
+  overflow-y: auto !important;        /* enable vertical scroll if needed */
+  box-sizing: border-box;  /* include padding in height */
+}

@@ -1,0 +1,33 @@
+<div class="h-screen flex flex-col">
+
+  <app-navbar class="fixed top-0 left-0 w-full z-50" (toggleSidebar)="toggleSidebar()"></app-navbar>
+
+  <div class="flex flex-1 pt-16">
+
+    <app-sidebar [isSidebarOpen]="isSidebarOpen" [activeSection]="activeSection"
+      (sectionChange)="setActiveSection($event)" class=" bg-white border-r"></app-sidebar>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+
+      <nav class="bg-white p-4 flex items-center shadow">
+        <button (click)="toggleSidebar()" class="md:hidden text-2xl text-gray-600 mr-3">
+          ☰
+        </button>
+
+        <div class="flex items-center bg-black rounded-lg p-3 shadow-md mr-4">
+          <img src="assets/images/Dashboard/logo.png" alt="Logo" class="w-12 h-12 rounded-lg" />
+        </div>
+
+        <div>
+          <h1 class="text-xl font-semibold">Accounting</h1>
+          <p class="text-gray-400 text-sm">Company details goes here</p>
+        </div>
+      </nav>
+
+      <div class="p-4 flex-1">
+        <router-outlet></router-outlet>
+      </div>
+
+    </div>
+  </div>
+</div>

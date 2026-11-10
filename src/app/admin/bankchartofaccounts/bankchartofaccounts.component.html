@@ -1,0 +1,126 @@
+<div class="relative w-full">
+    <!-- Add Rule Button -->
+    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4" (click)="openCreateRuleForm()">
+        ADD NEW ACCOUNT
+    </button>
+
+    <div class="table-container">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+            </ng-container>
+
+            <!-- Account Type Column -->
+            <ng-container matColumnDef="accountType">
+                <th mat-header-cell *matHeaderCellDef>Account Type</th>
+                <td mat-cell *matCellDef="let element">{{ element.accountType }}</td>
+            </ng-container>
+
+            <!-- Detail Type Column -->
+            <ng-container matColumnDef="detailType">
+                <th mat-header-cell *matHeaderCellDef>Detail Type</th>
+                <td mat-cell *matCellDef="let element">{{ element.detailType }}</td>
+            </ng-container>
+
+            <!-- Currency Column -->
+            <ng-container matColumnDef="currency">
+                <th mat-header-cell *matHeaderCellDef>Currency</th>
+                <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+            </ng-container>
+
+            <!-- GST Rate Column -->
+            <ng-container matColumnDef="gstRate">
+                <th mat-header-cell *matHeaderCellDef>GST Rate</th>
+                <td mat-cell *matCellDef="let element">{{ element.gstRate }}</td>
+            </ng-container>
+
+            <!-- QuickBooks Balance Column -->
+            <ng-container matColumnDef="quickBooksBalance">
+                <th mat-header-cell *matHeaderCellDef>QuickBooks Balance</th>
+                <td mat-cell *matCellDef="let element">{{ element.quickBooksBalance }}</td>
+            </ng-container>
+
+            <!-- Bank Balance Column -->
+            <ng-container matColumnDef="bankBalance">
+                <th mat-header-cell *matHeaderCellDef>Bank Balance</th>
+                <td mat-cell *matCellDef="let element">{{ element.bankBalance }}</td>
+            </ng-container>
+
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Action</th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-raised-button color="primary" (click)="performAction(element)">Action</button>
+                </td>
+            </ng-container>
+
+            <!-- Header and Row Definitions -->
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Paginator -->
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </div>
+
+    <div *ngIf="showCreateRuleForm"
+        class="fixed top-0 right-0 h-full w-1/3 bg-white shadow-lg transform transition-transform duration-300 ease-in-out"
+        [ngClass]="{'translate-x-0': showCreateRuleForm, 'translate-x-full': !showCreateRuleForm}">
+        <div class="p-4">
+            <h3 class="text-lg font-bold mb-2">New account</h3>
+            <div class="max-h-full overflow-y-auto" style="height: calc(100vh - 2rem);">
+                <form>
+                    <div class="mb-4">
+                        <label for="accountName" class="block text-sm font-medium text-gray-700">Account name *</label>
+                        <input id="accountName" type="text" [(ngModel)]="newRule.accountName" name="accountName"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2" required />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Account type *</label>
+                        <select [(ngModel)]="newRule.accountType" name="accountType"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="">Select account type</option>
+                            <option value="Cash and cash equivalents">Cash and cash equivalents</option>
+                            <option value="Accounts receivable (A/R)">Accounts receivable (A/R)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Detail type *</label>
+                        <select [(ngModel)]="newRule.detailType" name="detailType"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="">Select detail type</option>
+                            <option value="BAL">BAL</option>
+                            <option value="Accounts Receivable (A/R)">Accounts Receivable (A/R)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Make this a subaccount</label>
+                        <input type="checkbox" [(ngModel)]="newRule.isSubaccount" name="isSubaccount" class="mt-1" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <input id="description" type="text" [(ngModel)]="newRule.description" name="description"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                            (click)="closeCreateRuleForm()">
+                            Cancel
+                        </button>
+                        <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                            (click)="saveRule()">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

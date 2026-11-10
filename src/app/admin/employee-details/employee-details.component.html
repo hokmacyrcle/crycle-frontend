@@ -1,0 +1,199 @@
+<div class="md:max-w-3xl mx-auto w-full pt-6 border border-gray-300 p-8 bg-white shadow-lg">
+    <!-- Personal Details -->
+    <div class="px-6 pb-1 border-b border-gray-300">
+        <h2 class="text-sm font-semibold text-purple-800">Personal Details</h2>
+    </div>
+    <!-- Data facth form api -->
+    <ng-container *ngIf="employeeForm; else loading">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="p-4">
+
+            <!-- Profile -->
+            <div class="flex flex-col items-center mb-6">
+                <div
+                    class="w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center text-lg font-semibold text-white mb-2">
+                    {{ employeeForm.get('emp_first_name')?.value?.charAt(0) }}
+                    {{ employeeForm.get('emp_last_name')?.value?.charAt(0) }}
+                </div>
+                <div class="avatar-upload">
+                    <div class="avatar-preview">
+                        <img *ngIf="profilePicUrl && !profilePicFile" [src]="profilePicUrl" alt="Profile Pics" />
+                        <span *ngIf="!profilePicUrl && !profilePicFile">
+                            {{ employeeForm.get('emp_first_name')?.value?.[0] }}{{
+                            employeeForm.get('emp_last_name')?.value?.[0] }}
+                        </span>
+                    </div>
+                    <label class="upload-label">
+                        Upload Photo
+                        <input
+                            class="text-blue-600 text-sm border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 cursor-pointer"
+                            type="file" (change)="onFileChange($event)" />
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- Basic Info -->
+            <h3 class="text-sm font-semibold mb-4 text-purple-800">Basic Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Title (optional)</label>
+                    <input type="text" formControlName="emp_title" class="w-full border rounded px-2 py-1.5" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">First Name *</label>
+                    <input type="text" formControlName="emp_first_name" class="w-full border rounded px-2 py-1.5" />
+                    <small class="text-red-500"
+                        *ngIf="employeeForm.get('emp_first_name')?.invalid && employeeForm.get('emp_first_name')?.touched">
+                        First name is required
+                    </small>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Middle Name (optional)</label>
+                    <input type="text" formControlName="emp_middle_name" class="w-full border rounded px-2 py-1.5" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Last Name *</label>
+                    <input type="text" formControlName="emp_last_name" class="w-full border rounded px-2 py-1.5" />
+                    <small class="text-red-500"
+                        *ngIf="employeeForm.get('emp_last_name')?.invalid && employeeForm.get('emp_last_name')?.touched">
+                        Last name is required
+                    </small>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Date of Birth</label>
+                <input type="date" formControlName="emp_date_of_birth" class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Job Title (optional)</label>
+                <input type="text" formControlName="emp_job_title" class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Gender *</label>
+                <select formControlName="emp_gender" class="w-full border rounded px-2 py-1.5">
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Contact Info -->
+            <h3 class="text-sm font-semibold mb-2 mt-6 text-purple-800">Contact Information</h3>
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Address Search</label>
+                <input type="text" formControlName="emp_address_line_1" class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Address Line 1</label>
+                <input type="search" formControlName="emp_address_search" class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Address Line 2</label>
+                <input type="text" formControlName="emp_address_line_2" class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">City</label>
+                <input type="text" formControlName="emp_city" class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">State</label>
+                    <input type="text" formControlName="emp_state" class="w-full border rounded px-2 py-1.5" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Postcode</label>
+                    <input type="text" formControlName="emp_post_code" class="w-full border rounded px-2 py-1.5" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Mobile Number</label>
+                    <input type="text" formControlName="emp_mobile_number" class="w-full border rounded px-2 py-1.5" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Phone Number</label>
+                    <input type="text" formControlName="emp_phone_number" class="w-full border rounded px-2 py-1.5" />
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs text-gray-600 mb-1">Email</label>
+                <input type="email" formControlName="emp_email_address" class="w-full border rounded px-2 py-1.5" />
+            </div>
+            <div class="flex mb-2 text-gray-600 gap-2">
+                <input type="checkbox" formControlName="emp_xero_me_invitation">
+                <label>Invite employee to xero Me</label>
+            </div>
+
+
+            <!-- Emergency Contact -->
+            <h3 class="text-sm font-semibold mb-2 mt-6 text-purple-800">Emergency Contact</h3>
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Name (optional)</label>
+                <input type="text" formControlName="emp_emergency_contact_name"
+                    class="w-full border rounded px-2 py-1.5" />
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Relationship (optional)</label>
+                <input type="text" formControlName="emp_emergency_contact_relationship"
+                    class="w-full border rounded px-2 py-1.5" />
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Phone (optional)</label>
+                <input type="text" formControlName="emp_emergency_contact_phone"
+                    class="w-full border rounded px-2 py-1.5" />
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs text-gray-600 mb-1">Email (optional)</label>
+                <input type="email" formControlName="emp_emergency_contact_email"
+                    class="w-full border rounded px-2 py-1.5" />
+            </div>
+
+            <!-- Action buttons -->
+            <div class="border-t border-gray-300 pt-4 flex justify-between items-center">
+                <button type="button" class="text-red-600 text-sm hover:underline">Delete</button>
+                <div class="space-x-2">
+                    <button type="button"
+                        class="text-sm border border-gray-300 rounded px-4 py-1.5 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" [disabled]="employeeForm.invalid"
+                        class="text-sm bg-purple-500 text-white rounded px-4 py-1.5 hover:bg-purple-800 disabled:bg-gray-400">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </ng-container>
+
+    <!-- Loading Template -->
+    <ng-template #loading>
+        <p class="text-center text-gray-500 py-4">Loading employee details...</p>
+    </ng-template>
+</div>
+
+
+<!-- History Section -->
+<div class="w-full max-w-3xl mx-auto mt-4 shadow-lg">
+    <div class="border rounded">
+        <button (click)="toggleHistory()"
+            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-t text-left">
+            <span class="font-medium text-purple-800">History</span>
+            <span [class.rotate-180]="showHistory" class="icon transition-transform duration-300">⌃</span>
+        </button>
+
+        <div *ngIf="showHistory" class="px-4 py-3 bg-white">
+            <p class="text-gray-500 text-sm">No history available yet.</p>
+        </div>
+    </div>
+</div>

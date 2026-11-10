@@ -1,0 +1,88 @@
+<div class="flex items-center justify-between px-10 py-4 border shadow-sm bg-gray-100">
+    <h2 class="text-lg font-semibold text-purple-600">Payroll history</h2>
+
+    <!-- Export button -->
+    <div class="relative" (clickOutside)="showExport = false"> 
+        <button (click)="toggleExportMenu()"
+            class="px-6 py-2 bg-purple-500 shadow text-white rounded hover:bg-purple-600">
+            Export
+        </button>
+
+        <!-- Dropdown menu -->
+        <div *ngIf="showExport" class="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-50">
+            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                 PDF
+            </button>
+            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                 Excel
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="p-6 border">
+    <div class="flex items-center justify-between p-6">
+        <div>
+            <label class="block text-sm text-gray-600">Start date</label>
+            <input type="date" class="border rounded px-3 py-2 w-48" [(ngModel)]="filters.startDate" />
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600">End date</label>
+            <input type="date" class="border rounded px-3 py-2 w-48" [(ngModel)]="filters.endDate" />
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600">User</label>
+            <select class="border rounded px-3 py-2 w-48" [(ngModel)]="filters.user">
+                <option>All users</option>
+                <option *ngFor="let u of users">{{u}}</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600">Employee</label>
+            <select class="border rounded px-3 py-2 w-48" [(ngModel)]="filters.employee">
+                <option>All employees</option>
+                <option *ngFor="let e of employees">{{e}}</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600">Type</label>
+            <select class="border rounded px-3 py-2 w-48" [(ngModel)]="filters.type">
+                <option>All types</option>
+                <option *ngFor="let t of types">{{t}}</option>
+            </select>
+        </div>
+
+    </div>
+    <div class="flex gap-2 p-6 justify-end">
+        <button class="px-4 py-2 border rounded text-gray-600">Reset filters</button>
+        <button class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-700">Apply</button>
+    </div>
+    <div class="border shadow overflow-x-auto">
+        <div class="flex p-2 mx-3 gap-3">
+            <p class="text-base w-52">Showing 33 results</p>
+            <input type="search" placeholder="Search in Results" class="border p-2 w-full">
+        </div>
+        <table class="w-full text-sm text-left border-collapse">
+            <thead class="bg-gray-100 text-gray-500 border-b">
+                <tr>
+                    <th class="px-4 py-2">Date (Time zone AEST)</th>
+                    <th class="px-4 py-2">User</th>
+                    <th class="px-4 py-2">Employee</th>
+                    <th class="px-4 py-2">Type</th>
+                    <th class="px-4 py-2">Item</th>
+                    <th class="px-4 py-2">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let record of payrollHistory" class="border-b hover:bg-gray-50 text-gray-600">
+                    <td class="px-4 py-2">{{record.date}}</td>
+                    <td class="px-4 py-2">{{record.user}}</td>
+                    <td class="px-4 py-2">{{record.employee}}</td>
+                    <td class="px-4 py-2">{{record.type}}</td>
+                    <td class="px-4 py-2">{{record.item}}</td>
+                    <td class="px-4 py-2 text-gray-600">{{record.detail}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

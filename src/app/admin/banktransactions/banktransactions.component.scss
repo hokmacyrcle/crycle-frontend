@@ -1,0 +1,28 @@
+
+
+.relative.w-\[300px\].bg-gray-200.rounded.shadow {
+    position: static;
+}
+
+.modal-content {
+    max-height: 70vh; /* Sets the maximum height to 70% of the viewport height */
+    overflow-y: auto; /* Enables vertical scrolling when content overflows */
+
+    /* Optional: Customize scrollbar for webkit browsers */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+}

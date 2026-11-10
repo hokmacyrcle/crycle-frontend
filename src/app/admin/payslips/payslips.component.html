@@ -1,0 +1,72 @@
+<div class="w-full max-w-4xl space-y-6 mx-auto mt-3">
+
+    <!-- Payslip History -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-purple-800 mb-4">Payslip History</h2>
+
+        <table class="w-full text-sm text-left border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100 text-gray-500 uppercase text-xs">
+                <tr>
+                    <th class="px-4 py-3">Period</th>
+                    <th class="px-4 py-3">Payment Date</th>
+                    <th class="px-4 py-3">Total Pay</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let payslip of payslips" class="border-b">
+                    <td class="px-4 py-3">{{ payslip.period }}</td>
+                    <td class="px-4 py-3">{{ payslip.paymentDate }}</td>
+                    <td class="px-4 py-3">{{ payslip.totalPay }}</td>
+                    <td class="px-4 py-3 text-blue-600 cursor-pointer" (click)="downloadPayslip(payslip)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                        </svg>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- History Section -->
+<div class="w-full max-w-4xl mx-auto m-2 shadow-lg">
+    <div class="border rounded">
+        <button (click)="toggleHistory()"
+            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-t text-left">
+            <span class="font-medium text-purple-800">History</span>
+            <span [class.rotate-180]="showHistory" class="icon transition-transform duration-300">⌄</span>
+        </button>
+
+        <div *ngIf="showHistory" class="px-4 py-3 bg-white">
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left">
+                    <thead class="bg-white border-b border-gray-300">
+                        <tr>
+                            <th class="px-4 py-2 font-medium text-gray-600">Date (Time zone AEST)</th>
+                            <th class="px-4 py-2 font-medium text-gray-600">User</th>
+                            <th class="px-4 py-2 font-medium text-gray-600">Item</th>
+                            <th class="px-4 py-2 font-medium text-gray-600">Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="px-4 py-2 whitespace-nowrap">21 Aug 2025 7:29 pm</td>
+                            <td class="px-4 py-2 whitespace-nowrap">Rakesh Chandra T</td>
+                            <td class="px-4 py-2 whitespace-nowrap">Contact information</td>
+                            <td class="px-4 py-2">
+                                <span class="block">Added address:</span>
+                                <span class="block">'address lines' – 123 Main St</span>
+                                <span class="block">'suburb' – St. Kilda</span>
+                                <span class="block">'state' – Victoria</span>
+                                <span class="block">'postcode' – 3182</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

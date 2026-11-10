@@ -1,0 +1,172 @@
+<div class="right-section p-4 bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class=" w-full max-w-6xl bg-white shadow-md rounded-lg p-8">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Update Company</h2>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="text-center text-gray-500">
+      Loading company data...
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!isLoading" [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+      <!-- Company Details -->
+      <div class="section mb-6">
+        <h3 class="text-lg font-semibold text-gray-600 mb-4">Company Details</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label>Company Name</label>
+            <input type="text" formControlName="company_name" placeholder="Enter company name" required
+              class="w-full border p-2 rounded"
+              [ngClass]="{ 'border-red-500': submitted && companyForm.get('company_name')?.invalid }" />
+            <div *ngIf="submitted && companyForm.get('company_name')?.invalid" class="text-red-500 text-sm">
+              Company name is required
+            </div>
+          </div>
+
+          <div>
+            <label>ABN</label>
+            <input type="text" formControlName="company_abn" placeholder="Enter ABN" required
+              class="w-full border p-2 rounded"
+              [ngClass]="{ 'border-red-500': submitted && companyForm.get('company_abn')?.invalid }" />
+            <div *ngIf="submitted && companyForm.get('company_abn')?.invalid" class="text-red-500 text-sm">
+              ABN is required
+            </div>
+          </div>
+
+          <div>
+            <label>ACN</label>
+            <input type="text" formControlName="company_acn" placeholder="Enter ACN" required
+              class="w-full border p-2 rounded"
+              [ngClass]="{ 'border-red-500': submitted && companyForm.get('company_acn')?.invalid }" />
+            <div *ngIf="submitted && companyForm.get('company_acn')?.invalid" class="text-red-500 text-sm">
+              ACN is required
+            </div>
+          </div>
+
+          <div class="col-span-1 flex items-center space-x-2">
+            <input type="checkbox" formControlName="gst_registered" class="form-checkbox" />
+            <label>GST Registered</label>
+          </div>
+
+          <div>
+            <label>GST Number</label>
+            <input type="text" formControlName="gst_number" placeholder="Enter GST number"
+              class="w-full border p-2 rounded" />
+          </div>
+
+          <div>
+            <label>GST Registration Date</label>
+            <input type="date" formControlName="gst_registration_start_date" class="w-full border p-2 rounded" />
+          </div>
+
+          <div>
+            <label>Company Registration Date</label>
+            <input type="date" formControlName="company_registration_date" class="w-full border p-2 rounded" />
+          </div>
+
+          <div>
+            <label>Company Type</label>
+            <select formControlName="company_type" class="w-full border p-2 rounded">
+              <option value="Subscriber">Subscriber</option>
+              <option value="Client">Client</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locations -->
+      <div class="locations-section mb-6" *ngIf="isFormArrayReady && locations?.length && locations.length > 0"
+        formArrayName="locations">
+        <h3 class="text-lg font-semibold text-gray-600 mb-4">Locations</h3>
+
+        <div *ngFor="let location of locations.controls; let i = index" [formGroupName]="i"
+          class="location-group mb-4 p-4 border rounded">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label>Address Line 1(Map search)</label>
+              <input type="text" formControlName="address_line_1" placeholder="Enter address line 1"
+                class="w-full border p-2 rounded"
+                [ngClass]="{ 'border-red-500': submitted && location.get('address_line_1')?.invalid }" />
+              <div *ngIf="submitted && location.get('address_line_1')?.invalid" class="text-red-500 text-sm">
+                Address Line 1 is required
+              </div>
+            </div>
+
+            <div>
+              <label>Address Line 2</label>
+              <input type="text" formControlName="address_line_2" placeholder="Enter address line 2"
+                class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+              <label>Address Line 3</label>
+              <input type="text" formControlName="address_line_3" placeholder="Enter address line 3"
+                class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+              <label>City</label>
+              <input type="text" formControlName="city" placeholder="Enter city" class="w-full border p-2 rounded"
+                [ngClass]="{ 'border-red-500': submitted && location.get('city')?.invalid }" />
+              <div *ngIf="submitted && location.get('city')?.invalid" class="text-red-500 text-sm">
+                City is required
+              </div>
+            </div>
+
+            <div>
+              <label>State</label>
+              <input type="text" formControlName="state" placeholder="Enter state" class="w-full border p-2 rounded"
+                [ngClass]="{ 'border-red-500': submitted && location.get('state')?.invalid }" />
+              <div *ngIf="submitted && location.get('state')?.invalid" class="text-red-500 text-sm">
+                State is required
+              </div>
+            </div>
+
+            <div>
+              <label>Postcode</label>
+              <input type="text" formControlName="postcode" placeholder="Enter postcode"
+                class="w-full border p-2 rounded"
+                [ngClass]="{ 'border-red-500': submitted && location.get('postcode')?.invalid }" />
+              <div *ngIf="submitted && location.get('postcode')?.invalid" class="text-red-500 text-sm">
+                Postcode is required
+              </div>
+            </div>
+
+            <div>
+              <label>Country</label>
+              <input type="text" formControlName="country" placeholder="Enter country"
+                class="w-full border p-2 rounded"
+                [ngClass]="{ 'border-red-500': submitted && location.get('country')?.invalid }" />
+              <div *ngIf="submitted && location.get('country')?.invalid" class="text-red-500 text-sm">
+                Country is required
+              </div>
+            </div>
+
+            <div>
+              <label>Location Status</label>
+              <select formControlName="location_status" class="w-full border p-2 rounded">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="button" class="text-red-500 mt-4" (click)="removeLocation(i)">
+            Remove Location
+          </button>
+        </div>
+
+        <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded mt-4" (click)="addLocation()">
+          + Add Location
+        </button>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded mt-6"
+        [disabled]="isSubmitting || isLoading">
+        {{ isSubmitting ? 'Updating...' : 'Update Company' }}
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,158 @@
+<div id="tab-clients" style="width: 100%;">
+    <!-- Search Bar -->
+
+    <div class="flex justify-between items-center flex-wrap gap-2 mb-4">
+        <!-- Search Bar -->
+        <mat-form-field appearance="fill" class="w-full sm:w-64">
+            <mat-label>Search Invoices</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search by customer name or status"
+                [value]="searchTerm" />
+        </mat-form-field>
+
+        <!-- Add Employee Button -->
+        <button class="flex items-center px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            routerLink="/admin/addinvoice">
+            <img src="assets/images/Dashboard/addlogo.png" alt="Add" class="size-[20px] mr-2" />
+            Add Invoice
+        </button>
+    </div>
+
+
+
+    <!-- Table for Desktop -->
+    <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.id }}</td>
+        </ng-container>
+
+        <!-- Invoice Date -->
+        <ng-container matColumnDef="invoice_date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Invoice Date</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.invoice_date | date: 'mediumDate' }}</td>
+        </ng-container>
+
+        <!-- Customer Name -->
+        <ng-container matColumnDef="customer_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.customer_name }}</td>
+        </ng-container>
+
+        <!-- Total Amount -->
+        <ng-container matColumnDef="total_amount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.total_amount | currency }}</td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.status }}</td>
+        </ng-container>
+
+        <!-- Payment Status -->
+        <ng-container matColumnDef="payment_status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Payment</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.payment_status }}</td>
+        </ng-container>
+
+        <!-- Due Date -->
+        <ng-container matColumnDef="due_date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</th>
+            <td mat-cell *matCellDef="let invoice">{{ invoice.due_date | date: 'mediumDate' }}</td>
+        </ng-container>
+
+        <!-- Overdue -->
+        <ng-container matColumnDef="is_overdue">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overdue</th>
+            <td mat-cell *matCellDef="let invoice">
+                <span [ngClass]="{ 'text-red-600': invoice.is_overdue, 'text-green-600': !invoice.is_overdue }">
+                    {{ invoice.is_overdue ? 'Yes' : 'No' }}
+                </span>
+            </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+            <td mat-cell *matCellDef="let invoice" class="text-center">
+                <div class="flex gap-2 justify-center">
+                     <button class="text-blue-500 hover:text-blue-600" (click)="invoiceview(invoice.id)">
+                    <img src="../../../assets/images/Dashboard/view.png" alt="Edit" class="size-[22px]" />
+                </button>
+                    <button class="text-blue-500 hover:text-blue-600" (click)="editInvoice(invoice.id)">
+                        <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[18px]" />
+                    </button>
+                    <button class="text-red-500 hover:text-red-600" (click)="deleteInvoice(invoice.id)">
+                        <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+                    </button>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <!-- Mobile View -->
+    <div class="block md:hidden">
+        <div *ngFor="let invoice of dataSource.data"
+            class="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Customer</span>
+                <span class="text-sm">{{ invoice.customer_name }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Invoice Date</span>
+                <span class="text-sm">{{ invoice.invoice_date | date: 'mediumDate' }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Due Date</span>
+                <span class="text-sm">{{ invoice.due_date | date: 'mediumDate' }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Total</span>
+                <span class="text-sm">{{ invoice.total_amount | currency }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Status</span>
+                <span class="text-sm">{{ invoice.status }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Payment</span>
+                <span class="text-sm">{{ invoice.payment_status }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Overdue</span>
+                <span class="text-sm"
+                    [ngClass]="{ 'text-red-600': invoice.is_overdue, 'text-green-600': !invoice.is_overdue }">
+                    {{ invoice.is_overdue ? 'Yes' : 'No' }}
+                </span>
+            </div>
+            <div class="flex gap-4 justify-end pt-3 mt-2 border-t">
+                   <button class="text-blue-500 hover:text-blue-600" (click)="invoiceview(invoice.id)">
+                    <img src="../../../assets/images/Dashboard/view.png" alt="Edit" class="size-[22px]" />
+                </button>
+
+                <button class="text-blue-500 hover:text-blue-600" (click)="editInvoice(invoice.id)">
+                    <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[22px]" />
+                </button>
+                <button class="text-red-500 hover:text-red-600" (click)="deleteInvoice(invoice.id)">
+                    <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="text-center py-4">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+
+
+    <!-- Paginator -->
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20]"
+        (page)="onPageChange($event)" showFirstLastButtons></mat-paginator>
+</div>

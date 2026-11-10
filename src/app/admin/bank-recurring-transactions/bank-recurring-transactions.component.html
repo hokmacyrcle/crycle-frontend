@@ -1,0 +1,75 @@
+<div>
+    <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+        <!-- Template Name Column -->
+        <ng-container matColumnDef="templateName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Template Name</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.templateName }}</td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.type }}</td>
+        </ng-container>
+
+        <!-- Transaction Type Column -->
+        <ng-container matColumnDef="txnType">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Transaction Type</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.txnType }}</td>
+        </ng-container>
+
+        <!-- Interval Column -->
+        <ng-container matColumnDef="interval">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Interval</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.interval }}</td>
+        </ng-container>
+
+        <!-- Previous Date Column -->
+        <ng-container matColumnDef="previousDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Previous Date</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.previousDate | date: 'mediumDate' }}</td>
+        </ng-container>
+
+        <!-- Next Date Column -->
+        <ng-container matColumnDef="nextDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Next Date</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.nextDate | date: 'mediumDate' }}</td>
+        </ng-container>
+
+        <!-- Customer/Supplier Column -->
+        <ng-container matColumnDef="customerSupplier">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer/Supplier</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.customerSupplier }}</td>
+        </ng-container>
+
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+            <td mat-cell *matCellDef="let transaction">{{ transaction.amount | currency }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+            <td mat-cell *matCellDef="let transaction" class="text-center">
+                <div class="flex gap-2 justify-center">
+                    <button class="text-blue-500 hover:text-blue-600"
+                        (click)="viewTransaction(transaction.templateName)">
+                        <img src="../../../assets/images/Dashboard/view.png" alt="View" class="size-[22px]" />
+                    </button>
+                    <button class="text-blue-500 hover:text-blue-600"
+                        (click)="editTransaction(transaction.templateName)">
+                        <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[18px]" />
+                    </button>
+                  
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <!-- Paginator -->
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>

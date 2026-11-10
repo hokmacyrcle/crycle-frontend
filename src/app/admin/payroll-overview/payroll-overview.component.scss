@@ -1,0 +1,643 @@
+// Main color scheme based on the images
+@use '../admin.component.scss' as *;
+
+$primary-blue: #3087df;
+$accent-green: #66bb6a;
+$warn-orange: #b4b4b4;
+$light-gray: #d1cdcd;
+$border-gray: #e0e0e0;
+$text-secondary: black;
+
+.payroll-dashboard {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $light-gray;
+
+  // Top Navigation
+  .top-nav {
+    background-color: $primary-blue;
+    z-index: 1000;
+    
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-weight: 500;
+    }
+    
+    .nav-items {
+      display: flex;
+      gap: 16px;
+      margin-left: 32px;
+      
+      button {
+        color: rgba(255, 255, 255, 0.8);
+        
+        &.active {
+          color: white;
+          background-color: rgba(212, 203, 203, 0.1);
+        }
+      }
+    }
+    
+    .spacer {
+      flex: 1 1 auto;
+    }
+    
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      button {
+        color: white;
+      }
+      
+      .user-avatar {
+        background-color: #ff5722;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  // Main content area
+  .main-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    
+    .sidenav-container {
+      width: 100%;
+      
+      .sidebar {
+        width: 280px;
+        background-color: rgb(248, 246, 246);
+        border-right: 1px solid $border-gray;
+        
+        .sidebar-content {
+          padding: 16px;
+          
+          .sidebar-header {
+            margin-bottom: 24px;
+            
+            h3 {
+              font-size: 18px;
+              font-weight: 500;
+              margin: 0 0 8px 0;
+              color: #333;
+            }
+            
+            .help-button {
+              color: $text-secondary;
+              font-size: 12px;
+              padding: 0;
+              min-width: auto;
+              
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                margin-right: 4px;
+              }
+            }
+          }
+          
+          .nav-menu {
+            .mat-mdc-subheader {
+              font-size: 11px;
+              font-weight: 600;
+              color: $text-secondary;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              padding: 8px 16px 4px 16px;
+            }
+            
+            .mat-mdc-list-item {
+              border-radius: 4px;
+              margin-bottom: 2px;
+              background-color: #666666;
+              
+              &.active {
+                background-color: rgba($primary-blue, 0.9);
+              }
+              
+              &:hover {
+                background-color: rgba($primary-blue, 1);
+              }
+              
+              .mat-mdc-list-item-icon {
+                
+                margin-right: 12px;
+              }
+            }
+          }
+        }
+      }
+      
+      .content-area {
+        background-color: $light-gray;
+        padding: 24px;
+        overflow-y: auto;
+      }
+    }
+  }
+
+  // Bento Grid Layout
+  .bento-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      
+      .stat-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        
+        mat-card-content {
+          padding: 20px;
+          
+          .stat-label {
+            font-size: 12px;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+          }
+          
+          .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+          }
+        }
+      }
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      
+      .left-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        
+        .new-task-section {
+          .new-task-btn {
+            background-color: $accent-green;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 500;
+            gap:6px;
+            
+            mat-icon {
+              margin-right: 8px;
+              
+              &:last-child {
+                margin-left: 8px;
+                margin-right: 0;
+              }
+            }
+          }
+        }
+        
+        .table-card {
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          
+          mat-card-header {
+            padding: 20px 20px 0 20px;
+            
+            .section-title {
+              font-size: 18px;
+              font-weight: 500;
+              color: $primary-blue;
+              margin: 0;
+            }
+          }
+          
+          mat-card-content {
+            padding: 16px 20px 20px 20px;
+            
+            &.empty-state {
+              text-align: center;
+              padding: 40px 20px;
+              color: $text-secondary;
+              
+              .empty-icon {
+                font-size: 48px;
+                width: 48px;
+                height: 48px;
+                opacity: 0.3;
+                margin-bottom: 16px;
+              }
+            }
+          }
+          
+          .mat-mdc-table {
+            width: 100%;
+            
+            .mat-mdc-header-cell {
+              font-weight: 600;
+              color: #333;
+              font-size: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            
+            .mat-mdc-cell {
+              font-size: 14px;
+              color: #333;
+            }
+            
+            .clickable-row {
+              cursor: pointer;
+              
+              &:hover {
+                background-color: rgba($primary-blue, 0.05);
+              }
+            }
+            
+            .mat-mdc-chip {
+              font-size: 11px;
+              padding: 4px 8px;
+              height: 24px;
+              border-radius: 12px;
+            }
+            
+          }
+        }
+      }
+      
+      .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        
+        .help-card {
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          
+          .help-content {
+            padding: 24px;
+            text-align: center;
+            
+            .video-placeholder {
+              width: 80px;
+              height: 60px;
+              background-color: #e0e0e0;
+              border-radius: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 16px auto;
+              
+              .play-icon {
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+                color: $primary-blue;
+              }
+            }
+            
+            .info-icon {
+              width: 80px;
+              height: 60px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 16px auto;
+              
+              mat-icon {
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+                color: $primary-blue;
+              }
+            }
+            
+            h3 {
+              font-size: 16px;
+              font-weight: 500;
+              margin: 0 0 8px 0;
+            }
+            
+            .help-link {
+              color: $primary-blue;
+              text-decoration: none;
+              font-size: 14px;
+              
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+        
+        .calendar-card {
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          
+          mat-card-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            mat-card-title {
+              font-size: 16px;
+              font-weight: 500;
+              margin: 0;
+            }
+            
+            .calendar-nav {
+              display: flex;
+              gap: 4px;
+            }
+          }
+          
+          mat-card-content {
+            padding: 0 20px 20px 20px;
+            
+            .mat-calendar {
+              width: 100%;
+              
+              .mat-calendar-header {
+                padding: 0;
+                margin-bottom: 16px;
+              }
+              
+              .mat-calendar-table {
+                font-size: 13px;
+              }
+              
+              .mat-calendar-body-selected {
+                background-color: $primary-blue;
+              }
+              
+              .mat-calendar-body-today {
+                background-color: $accent-green;
+                color: white;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  .payrun-modal, .leave-modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    
+    mat-card-header {
+      padding: 24px 24px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      mat-card-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin: 0;
+      }
+      
+      .close-btn {
+        color: $text-secondary;
+      }
+    }
+    
+    mat-card-content {
+      padding: 20px 24px;
+    }
+    
+    mat-card-actions {
+      padding: 16px 24px 24px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .spacer {
+        flex: 1;
+      }
+    }
+  }
+  
+  .payrun-modal {
+    width: 1000px;
+    
+    .payrun-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+      
+      .stat-item {
+        background-color: $light-gray;
+        padding: 16px;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        
+        .stat-label {
+          font-size: 12px;
+          color: $text-secondary;
+          font-weight: 500;
+        }
+        
+        .stat-value {
+          font-size: 18px;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+    }
+    
+    h4 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 24px 0 16px 0;
+    }
+    
+    .employees-table {
+      margin-bottom: 24px;
+      
+      .check-icon {
+        color: $accent-green;
+        font-size: 20px;
+      }
+    }
+    
+    .payrun-options {
+      margin-bottom: 16px;
+      
+      button {
+        color: $primary-blue;
+        border-color: $primary-blue;
+      }
+    }
+  }
+  
+  .leave-modal {
+    width: 600px;
+    
+    .leave-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      
+      .date-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      
+      .leave-details {
+        background-color: $light-gray;
+        padding: 16px;
+        border-radius: 6px;
+        margin-top: 16px;
+        
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          
+          &:not(:last-child) {
+            border-bottom: 1px solid $border-gray;
+          }
+          
+          .detail-label {
+            font-size: 12px;
+            color: $text-secondary;
+            font-weight: 500;
+          }
+          
+          .detail-value {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            
+            .hours {
+              font-size: 12px;
+              color: $text-secondary;
+            }
+          }
+        }
+      }
+    }
+    
+    .leave-actions {
+      justify-content: flex-start;
+      
+      button:first-child {
+        background-color: $accent-green;
+        color: white;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .bento-grid .main-grid {
+    grid-template-columns: 1fr;
+    
+    .right-panel {
+      order: -1;
+      
+      .help-card {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .payroll-dashboard {
+    .top-nav .nav-items {
+      display: none;
+    }
+    
+    .bento-grid {
+      padding: 16px;
+      
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .modal-overlay {
+      .payrun-modal, .leave-modal {
+        width: 95vw;
+        margin: 16px;
+      }
+      
+      .payrun-modal .payrun-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  }
+}
+
+// Custom Angular Material overrides
+.mat-mdc-raised-button:not(:disabled) {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.mat-mdc-card {
+  border-radius: 8px !important;
+}
+
+.mat-mdc-table {
+  .mat-mdc-row:hover {
+    background-color: rgba($primary-blue, 0.05);
+  }
+}
+
+.mat-mdc-chip.mat-accent {
+  background-color: $accent-green;
+  color: white;
+}
+
+.mat-mdc-chip.mat-warn {
+  background-color: $warn-orange;
+  color: white;
+}

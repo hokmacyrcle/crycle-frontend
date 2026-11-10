@@ -1,0 +1,304 @@
+<form id="invoice-form-wrapper" #invoiceForm="ngForm" (ngSubmit)="saveForm()">
+    <main id="invoice-form" class="p-6 bg-gray-200 pb-40">
+        <!-- Invoice Section -->
+        <div id="invoice-section">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div>
+                    <label for="customer-select" class="block text-sm font-medium">Customer</label>
+                    <select id="customer-select" class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                        [(ngModel)]="formData.customer" name="customer" required
+                        (ngModelChange)="fetchContactDetails()">
+                        <option value="" disabled>Select a customer</option>
+                        <option *ngFor="let contact of contacts" [value]="contact.id">{{ contact['Contact Name'] }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label for="terms" class="block text-sm font-medium">Terms</label>
+                    <select id="terms" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+                        [(ngModel)]="formData.terms" name="terms" required>
+                        <option value="" disabled>Select terms</option>
+                        <option *ngFor="let term of paymentTerms" [value]="term.id">{{ term.text }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="invoice-date" class="block text-sm font-medium">Invoice date</label>
+                    <input id="invoice-date" type="date"
+                        class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                        [(ngModel)]="formData.invoiceDate" name="invoiceDate" required [min]="minInvoiceDate">
+                </div>
+                <div>
+                    <label for="due-date" class="block text-sm font-medium">Due date</label>
+                    <input id="due-date" type="date" class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                        [(ngModel)]="formData.dueDate" name="dueDate" required>
+                </div>
+            </div>
+            <!-- Customer Details Display -->
+            <div *ngIf="contactDetails" class="mb-8 p-4 bg-white rounded-md border border-gray-300">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Customer Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Email</label>
+                        <p class="mt-1 text-sm text-gray-800">{{ contactDetails.email }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Billing Address</label>
+                        <p class="mt-1 text-sm text-gray-800">{{ contactDetails.billing_address }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">#</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/4">
+                            Description</th>
+                        <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Quantity</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider w-1/5">
+                            Rate</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider w-1/5">
+                            Amount</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">GST
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider w-1/5">
+                            GST Amount</th>
+                        <th scope="col" class="relative px-4 py-3"><span class="sr-only">Delete</span></th>
+                    </tr>
+                </thead>
+                <tbody id="invoice-table-body" class="bg-white divide-y divide-gray-200">
+                    <tr *ngFor="let item of lineItems; let i = index" class="line-item">
+                        <td class="px-4 py-4 whitespace-nowrap">{{ i + 1 }}</td>
+                        <td class="px-4 py-4 w-1/4">
+                            <select class="w-full border-b p-1 focus:outline-none focus:border-blue-500"
+                                [(ngModel)]="item.description" [name]="'description' + i"
+                                (ngModelChange)="updateCalculations()" required>
+                                <option value="" disabled>Select an item</option>
+                                <option *ngFor="let itemOption of items" [value]="itemOption.text">{{ itemOption.text }}
+                                </option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-4">
+                            <input type="number" min="0"
+                                class="w-full border-b focus:outline-none focus:border-blue-500 text-right"
+                                [(ngModel)]="item.quantity" [name]="'quantity' + i"
+                                (ngModelChange)="updateCalculations()" required>
+                        </td>
+                        <td class="px-6 py-4 w-1/5">
+                            <input type="number" min="0" step="0.01"
+                                class="w-full border-b focus:outline-none focus:border-blue-500 text-right"
+                                [(ngModel)]="item.rate" [name]="'rate' + i" (ngModelChange)="updateCalculations()"
+                                required>
+                        </td>
+                        <td class="px-6 py-4 w-1/5">
+                            <input type="text" readonly class="w-full bg-gray-50 border-b focus:outline-none text-right"
+                                [value]="(item.quantity * item.rate) | number:'1.2-2'">
+                        </td>
+                        <td class="px-4 py-4 text-center w-1/12">
+                            <select [(ngModel)]="item.gst" [name]="'gst' + i"
+                                class="border-b bg-white p-1 focus:outline-none focus:border-blue-500 w-full"
+                                (ngModelChange)="updateCalculations()">
+                                <option value="">Select</option>
+                                <option value="0">0%</option>
+                                <option value="5">5%</option>
+                                <option value="10">10%</option>
+                                <option value="12">12%</option>
+                                <option value="18">18%</option>
+                                <option value="28">28%</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 w-1/5">
+                            <input type="text" readonly class="w-full bg-gray-50 border-b focus:outline-none text-right"
+                                [value]="((item.quantity * item.rate * (item.gst ? +item.gst : 0)) / 100) | number:'1.2-2'">
+                        </td>
+                        <td class="px-4 py-4 text-right">
+                            <button type="button" class="text-red-600 hover:text-red-900" (click)="deleteLine(i)">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Below Table -->
+        <div class="mt-4 flex justify-between items-start mb-8">
+            <div class="flex space-x-2">
+                <button type="button"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    (click)="addLine()">Add lines</button>
+                <button type="button"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    (click)="clearLines()">Clear all lines</button>
+            </div>
+            <div class="text-right w-full max-w-xs">
+                <div class="flex flex-col space-y-4">
+                    <!-- Discount Type & Value Row -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Discount Type -->
+                        <select id="discount-type" class="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                            [(ngModel)]="formData.discountType" name="discountType"
+                            (ngModelChange)="updateCalculations()">
+                            <option value="percent">Discount percent</option>
+                            <option value="value">Discount value</option>
+                        </select>
+
+                        <!-- Discount Value Input + Display -->
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="discount-value" min="0"
+                                class="border border-gray-300 rounded-md px-2 py-1 w-24 text-right"
+                                [(ngModel)]="formData.discountValue" name="discountValue"
+                                (ngModelChange)="updateCalculations()">
+                            <span class="text-lg font-semibold text-gray-800">
+                                -${{ discountAmount | number:'1.2-2' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Subtotal Row -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Subtotal</span>
+                        <span class="text-lg font-bold text-gray-800">
+                            ${{ subtotal | number:'1.2-2' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- <div class="flex justify-between items-center">
+                      <div class="flex items-center justify-between">
+                    <select id="discount-type" class="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                        [(ngModel)]="formData.discountType" name="discountType" (ngModelChange)="updateCalculations()">
+                        <option value="percent">Discount percent</option>
+                        <option value="value">Discount value</option>
+                    </select>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="discount-value" min="0"
+                            class="border border-gray-300 rounded-md px-2 py-1 w-24 text-right"
+                            [(ngModel)]="formData.discountValue" name="discountValue"
+                            (ngModelChange)="updateCalculations()">
+                        <span class="text-lg font-semibold text-gray-800 w-24 text-right">-${{ discountAmount | number:'1.2-2' }}</span>
+                    </div>
+                </div><br/>
+                    <span class="text-sm font-medium text-gray-700">Subtotal</span>
+                    <span class="text-lg font-bold text-gray-800">${{ subtotal | number:'1.2-2' }}</span>
+                </div> -->
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-sm font-medium text-gray-700">Total GST</span>
+                    <span class="text-lg font-bold text-gray-800">${{ totalGST | number:'1.2-2' }}</span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-sm font-medium text-gray-700">Subtotal with GST</span>
+                    <span class="text-lg font-bold text-gray-800">${{ subtotalWithGST | number:'1.2-2' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+            <div class="space-y-6">
+                <div>
+                    <label for="message-on-invoice" class="block text-sm font-medium text-gray-700">Notes</label>
+                    <textarea id="message-on-invoice" rows="3"
+                        class="mt-1 p-2 w-full rounded-md border-gray-300 shadow-sm"
+                        [(ngModel)]="formData.messageOnInvoice" name="messageOnInvoice"></textarea>
+                </div>
+                <div>
+  <label for="invoice-attachment" class="block text-sm font-medium text-gray-700">
+    Invoice Attachments
+  </label>
+  <input 
+    id="invoice-attachment" 
+    type="file" 
+    class="mt-1 block w-full"
+    (change)="onFileSelected($event)" 
+    name="attachments" 
+    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+    multiple
+  >
+
+  <!-- Attachment Previews -->
+  <div *ngIf="attachments.length > 0" class="mt-4 space-y-2">
+    <div *ngFor="let att of attachments; let i = index" 
+         class="flex items-center justify-between p-2 bg-gray-100 rounded-md border">
+      
+      <div class="flex items-center space-x-3">
+        <!-- Show preview if image -->
+        <img *ngIf="att.isImage" [src]="att.url" alt="{{att.fileName}}" class="w-12 h-12 object-cover rounded" />
+        
+        <!-- File icon + name -->
+        <div *ngIf="!att.isImage" class="flex items-center space-x-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="text-sm text-gray-700 truncate">{{ att.fileName }}</span>
+        </div>
+      </div>
+
+      <!-- Remove button -->
+      <button type="button" class="text-red-600 hover:text-red-800 text-sm font-medium"
+              (click)="attachments.splice(i,1)">
+        Remove
+      </button>
+    </div>
+  </div>
+</div>
+
+                <!-- <div>
+                    <label for="invoice-attachment" class="block text-sm font-medium text-gray-700">Invoice
+                        Attachment</label>
+                    <input id="invoice-attachment" type="file" class="mt-1 block w-full"
+                        (change)="onFileSelected($event)" name="invoiceAttachment" accept=".pdf,.jpg,.png,.doc,.docx">
+                </div> -->
+            </div>
+
+            <div class="space-y-4 w-full max-w-sm ml-auto">
+                <!-- <div class="flex items-center justify-between">
+                    <select id="discount-type" class="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                        [(ngModel)]="formData.discountType" name="discountType" (ngModelChange)="updateCalculations()">
+                        <option value="percent">Discount percent</option>
+                        <option value="value">Discount value</option>
+                    </select>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="discount-value" min="0"
+                            class="border border-gray-300 rounded-md px-2 py-1 w-24 text-right"
+                            [(ngModel)]="formData.discountValue" name="discountValue"
+                            (ngModelChange)="updateCalculations()">
+                        <span class="text-lg font-semibold text-gray-800 w-24 text-right">-${{ discountAmount | number:'1.2-2' }}</span>
+                    </div>
+                </div> -->
+                <div class="flex items-center justify-between border-t pt-2">
+                    <span class="text-sm font-medium text-gray-700">Taxable subtotal</span>
+                    <span class="text-lg font-semibold text-gray-800">${{ taxableSubtotal | number:'1.2-2' }}</span>
+                </div>
+                <hr class="border-gray-300">
+                <div class="flex items-center justify-between">
+                    <div class="text-lg font-semibold text-gray-800">Total</div>
+                    <div class="text-lg font-semibold text-gray-800">${{ total | number:'1.2-2' }}</div>
+                </div>
+                <div class="pt-2 flex items-center justify-between">
+                    <div class="text-lg font-semibold text-gray-800">Balance due</div>
+                    <div class="text-3xl font-bold text-gray-800">${{ balanceDue | number:'1.2-2' }}</div>
+                </div>
+            </div>
+        </div>
+    </main>
+<div *ngIf="invoiceAttachmentUrl">
+  <h3>Invoice Attachment</h3>
+  <img [src]="invoiceAttachmentUrl" alt="Invoice Image" class="invoice-attachment-img" />
+</div>
+    <!-- Footer -->
+    <footer class="border-gray-700 bottom-0 right-0 p-4 bg-gray-800">
+        <div class="mx-auto flex justify-end items-center text-white">
+            <button type="submit"
+                class="px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">Save</button>
+        </div>
+    </footer>
+</form>

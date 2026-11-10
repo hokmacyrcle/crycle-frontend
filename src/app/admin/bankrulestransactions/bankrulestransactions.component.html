@@ -1,0 +1,179 @@
+<div class="relative w-full">
+    <!-- Add Rule Button -->
+    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4" (click)="openCreateRuleForm()">
+        Add Rule
+    </button>
+
+    <!-- Create Rule Form (sidebar style with full scroll) -->
+
+
+
+    <!-- Table -->
+    <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+        <!-- Priority -->
+        <ng-container matColumnDef="priority">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Priority</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.priority }}</td>
+        </ng-container>
+
+        <!-- Rule Name -->
+        <ng-container matColumnDef="ruleName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Rule Name</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.ruleName }}</td>
+        </ng-container>
+
+        <!-- Applied To -->
+        <ng-container matColumnDef="appliedTo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Applied To</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.appliedTo }}</td>
+        </ng-container>
+
+        <!-- Conditions -->
+        <ng-container matColumnDef="conditions">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Conditions</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.conditions }}</td>
+        </ng-container>
+
+        <!-- Settings -->
+        <ng-container matColumnDef="settings">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Settings</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.settings }}</td>
+        </ng-container>
+
+        <!-- Auto-Add -->
+        <ng-container matColumnDef="autoAdd">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Auto-Add</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.autoAdd }}</td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let rule">{{ rule.status }}</td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+            <td mat-cell *matCellDef="let rule" class="text-center">
+                <div class="flex gap-2 justify-center">
+                    <button class="text-blue-500 hover:text-blue-600" (click)="viewRule(rule.priority)">
+                        <img src="../../../assets/images/Dashboard/view.png" alt="View" class="size-[22px]" />
+                    </button>
+                    <button class="text-blue-500 hover:text-blue-600" (click)="editRule(rule.priority)">
+                        <img src="assets/images/Dashboard/editlogo.png" alt="Edit" class="size-[18px]" />
+                    </button>
+                    <button class="text-red-500 hover:text-red-600" (click)="deleteRule(rule.priority)">
+                        <img src="assets/images/Dashboard/deletelogo.png" alt="Delete" class="size-[35px]" />
+                    </button>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+    <div *ngIf="showCreateRuleForm"
+        class="fixed top-0 right-0 h-full w-1/3 bg-white shadow-lg transform transition-transform duration-300 ease-in-out"
+        [ngClass]="{'translate-x-0': showCreateRuleForm, 'translate-x-full': !showCreateRuleForm}">
+        <div class="p-4">
+            <h3 class="text-lg font-bold mb-2">Create Rule</h3>
+            <div class="max-h-full overflow-y-auto" style="height: calc(100vh - 2rem);">
+                <form>
+                    <div class="mb-4">
+                        <label for="ruleName" class="block text-sm font-medium text-gray-700">Name this rule *</label>
+                        <input id="ruleName" type="text" [(ngModel)]="newRule.ruleName" name="ruleName"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2" required />
+                        <span *ngIf="ruleNameError" class="text-red-500 text-sm">A rule name is required.</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Apply this rule to unmatched
+                            transactions</label>
+                        <select [(ngModel)]="newRule.moneyOut" name="moneyOut"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="Money out">Money out</option>
+                            <option value="All bank accounts">All bank accounts</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">And include the following</label>
+                        <select [(ngModel)]="newRule.include" name="include"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="All">All</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <select [(ngModel)]="newRule.conditionType" name="conditionType"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="Contains">Contains</option>
+                        </select>
+                        <input type="text" [(ngModel)]="newRule.conditionValue" name="conditionValue"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            placeholder="Enter text required" />
+                        <button type="button" class="mt-2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                            (click)="addCondition()">
+                            + Add condition
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Then Assign</label>
+                        <div class="max-h-40 overflow-y-auto">
+                            <select [(ngModel)]="newRule.transactionType" name="transactionType"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                <option value="Expense">Expense</option>
+                            </select>
+                            <select [(ngModel)]="newRule.category" name="category"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                <option value="Select a category">Select a category</option>
+                            </select>
+                            <select [(ngModel)]="newRule.productService" name="productService"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                <option value="Product/service">Product/service</option>
+                            </select>
+                            <select [(ngModel)]="newRule.payee" name="payee"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                <option value="Recommended">Recommended</option>
+                            </select>
+                            <select [(ngModel)]="newRule.gst" name="gst"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                <option value="Optional">Optional</option>
+                            </select>
+                            <select [(ngModel)]="newRule.customer" name="customer"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                <option value="Select a customer">Select a customer</option>
+                            </select>
+                            <button type="button"
+                                class="mt-2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                                (click)="addAssignment()">
+                                + Assign more
+                            </button>
+                            <!-- Additional fields can be added dynamically here if needed -->
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Automatically confirm transactions this
+                            rule applies to</label>
+                        <input type="checkbox" [(ngModel)]="newRule.autoAdd" name="autoAdd" class="mt-1" />
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                            (click)="closeCreateRuleForm()">
+                            Cancel
+                        </button>
+                        <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                            (click)="saveRule()">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

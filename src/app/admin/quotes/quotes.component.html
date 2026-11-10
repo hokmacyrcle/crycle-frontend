@@ -1,0 +1,283 @@
+<div id="tab-quotes" style="width: 100%;">
+    <!-- Header with Create Quote Button -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Quotes</h2>
+        <button (click)="createQuote()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Create Quote
+        </button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="showSuccessMessage" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            {{ successMessage }}
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <!-- Status Filter -->
+        <div>
+            <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <select id="status-filter" 
+                    class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    [(ngModel)]="statusFilter" 
+                    (change)="onStatusFilterChange()">
+                <option value="All">All Quotes</option>
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Closed">Closed</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+
+        <!-- Date Filter -->
+        <div>
+            <label for="date-filter" class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <select id="date-filter" 
+                    class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    [(ngModel)]="dateFilter" 
+                    (change)="onDateFilterChange()">
+                <option value="Last 7 days">Last 7 days</option>
+                <option value="Last 30 days">Last 30 days</option>
+                <option value="Last 3 months">Last 3 months</option>
+                <option value="Last 6 months">Last 6 months</option>
+                <option value="Last 12 months">Last 12 months</option>
+                <option value="This year">This year</option>
+                <option value="Last year">Last year</option>
+            </select>
+        </div>
+
+        <!-- Sort By -->
+        <div>
+            <label for="sort-by" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+            <select id="sort-by" 
+                    class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    [(ngModel)]="sortBy" 
+                    (change)="onSortChange()">
+                <option value="quote_date">Quote Date</option>
+                <option value="contact_name">Customer Name</option>
+                <option value="amount">Total Amount</option>
+                <option value="status">Status</option>
+                <option value="valid_until">Valid Until</option>
+            </select>
+        </div>
+
+        <!-- Sort Order -->
+        <div>
+            <label for="sort-order" class="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
+            <select id="sort-order" 
+                    class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    [(ngModel)]="sortOrder" 
+                    (change)="onSortChange()">
+                <option value="desc">Descending</option>
+                <option value="asc">Ascending</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Search and Batch Actions Bar -->
+    <div class="flex justify-between items-center mb-4">
+        <!-- Batch Actions Dropdown -->
+        <div class="relative batch-actions-dropdown">
+            <button (click)="showBatchMenu = !showBatchMenu" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2">
+                Batch actions
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div *ngIf="showBatchMenu" class="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                <div class="py-1">
+                    <button (click)="onBatchAction('approve'); showBatchMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Approve Selected
+                    </button>
+                    <button (click)="onBatchAction('reject'); showBatchMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Reject Selected
+                    </button>
+                    <button (click)="onBatchAction('convert-to-invoice'); showBatchMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Convert to Invoice
+                    </button>
+                    <button (click)="onBatchAction('delete'); showBatchMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Delete Selected
+                    </button>
+                    <button (click)="onBatchAction('send'); showBatchMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Send Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <mat-form-field appearance="fill" class="w-full sm:w-64">
+            <mat-label>Search Quotes</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search by customer name, company, or reference number"
+                [value]="searchTerm" />
+        </mat-form-field>
+    </div>
+
+    <!-- Table for Desktop -->
+    <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z2 bg-white hidden md:table">
+        <!-- Select Checkbox -->
+        <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox (change)="$event ? masterToggle() : null"
+                              [checked]="selection.hasValue() && isAllSelected()"
+                              [indeterminate]="selection.hasValue() && !isAllSelected()"
+                              [aria-label]="'Select all quotes'">
+                </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+                <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selection.toggle(row) : null"
+                              [checked]="selection.isSelected(row)"
+                              [aria-label]="'Select quote'">
+                </mat-checkbox>
+            </td>
+        </ng-container>
+
+        <!-- Quote Date -->
+        <ng-container matColumnDef="quote_date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>DATE</th>
+            <td mat-cell *matCellDef="let quote">{{ quote.quote_date | date: 'shortDate' }}</td>
+        </ng-container>
+
+        <!-- Quote Number -->
+        <ng-container matColumnDef="quote_number">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>NO.</th>
+            <td mat-cell *matCellDef="let quote">{{ quote.quote_number }}</td>
+        </ng-container>
+
+        <!-- Customer Name -->
+        <ng-container matColumnDef="contact_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>CUSTOMER</th>
+            <td mat-cell *matCellDef="let quote">{{ quote.contact_name }}</td>
+        </ng-container>
+
+        <!-- Total Amount -->
+        <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>AMOUNT</th>
+            <td mat-cell *matCellDef="let quote">{{ quote.amount | currency }}</td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                STATUS
+                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+            </th>
+            <td mat-cell *matCellDef="let quote">
+                <span [ngClass]="{
+                    'px-2 py-1 text-xs font-medium rounded-full': true,
+                    'bg-yellow-100 text-yellow-800': quote.status === 'Pending' || quote.status_color === 'warning',
+                    'bg-green-100 text-green-800': quote.status === 'Accepted' || quote.status_color === 'success',
+                    'bg-gray-100 text-gray-800': quote.status === 'Closed' || quote.status_color === 'secondary',
+                    'bg-red-100 text-red-800': quote.status === 'Rejected' || quote.status_color === 'danger'
+                }">
+                    {{ quote.status }}
+                </span>
+            </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-center">
+                ACTION
+                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </th>
+            <td mat-cell *matCellDef="let quote" class="text-center">
+                <div class="flex gap-2 justify-center">
+                    <button (click)="viewQuote(quote.quote_id)" class="text-blue-600 hover:text-blue-800 text-sm">View</button>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 text-sm">Send</a>
+                    <div *ngIf="quote.status === 'Pending'; else statusText">
+                        <button (click)="convertQuoteToInvoice(quote.quote_id)" 
+                                class="text-green-600 hover:text-green-800 text-sm disabled:opacity-50"
+                                [disabled]="convertingQuotes.has(quote.quote_id)">
+                            <span *ngIf="convertingQuotes.has(quote.quote_id)">Converting...</span>
+                            <span *ngIf="!convertingQuotes.has(quote.quote_id)">Convert to Invoice</span>
+                        </button>
+                    </div>
+                    <ng-template #statusText>
+                        <span class="text-gray-500 text-sm">{{ quote.status }}</span>
+                    </ng-template>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <!-- Mobile View -->
+    <div class="block md:hidden">
+        <div *ngFor="let quote of dataSource.data"
+            class="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Date</span>
+                <span class="text-sm">{{ quote.quote_date | date: 'shortDate' }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">No.</span>
+                <span class="text-sm">{{ quote.quote_number }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Customer</span>
+                <span class="text-sm">{{ quote.contact_name }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Amount</span>
+                <span class="text-sm">{{ quote.amount | currency }}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b">
+                <span class="text-sm font-semibold text-gray-600">Status</span>
+                <span class="text-sm px-2 py-1 text-xs font-medium rounded-full" [ngClass]="{
+                    'bg-yellow-100 text-yellow-800': quote.status === 'Pending' || quote.status_color === 'warning',
+                    'bg-green-100 text-green-800': quote.status === 'Accepted' || quote.status_color === 'success',
+                    'bg-gray-100 text-gray-800': quote.status === 'Closed' || quote.status_color === 'secondary',
+                    'bg-red-100 text-red-800': quote.status === 'Rejected' || quote.status_color === 'danger'
+                }">
+                    {{ quote.status }}
+                </span>
+            </div>
+            <div class="flex gap-4 justify-end pt-3 mt-2 border-t">
+                <button (click)="viewQuote(quote.quote_id)" class="text-blue-600 hover:text-blue-800 text-sm">View</button>
+                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm">Send</a>
+                <div *ngIf="quote.status === 'Pending'; else statusTextMobile">
+                    <button (click)="convertQuoteToInvoice(quote.quote_id)" 
+                            class="text-green-600 hover:text-green-800 text-sm disabled:opacity-50"
+                            [disabled]="convertingQuotes.has(quote.quote_id)">
+                        <span *ngIf="convertingQuotes.has(quote.quote_id)">Converting...</span>
+                        <span *ngIf="!convertingQuotes.has(quote.quote_id)">Convert to Invoice</span>
+                    </button>
+                </div>
+                <ng-template #statusTextMobile>
+                    <span class="text-gray-500 text-sm">{{ quote.status }}</span>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="text-center py-4">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Paginator -->
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20, 50]"
+        (page)="onPageChange($event)" showFirstLastButtons></mat-paginator>
+</div>

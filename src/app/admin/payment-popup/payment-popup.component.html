@@ -1,0 +1,321 @@
+<div *ngIf="isVisible" class="fixed inset-0 z-50 overflow-y-auto">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" (click)="onClose()"></div>
+  
+  <!-- Modal -->
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Receive Payment</h2>
+          <p class="mt-1 text-sm text-gray-600">
+            Invoice #{{ invoiceId }} - {{ customerName }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="onClose()"
+          class="text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="showError" class="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Left Column -->
+          <div class="space-y-6">
+            <!-- Payment Amount -->
+            <div>
+              <label for="payment_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                Payment Amount *
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  id="payment_amount"
+                  formControlName="payment_amount"
+                  step="0.01"
+                  min="0.01"
+                  [max]="invoiceAmount"
+                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  [class.border-red-500]="isFieldInvalid('payment_amount')"
+                  placeholder="0.00"
+                  (input)="onPaymentAmountInput()"
+                />
+              </div>
+              <div *ngIf="getFieldError('payment_amount')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('payment_amount') }}
+              </div>
+              <div class="mt-1 text-sm text-gray-500">
+                Invoice total: ${{ invoiceAmount | number:'1.2-2' }}
+              </div>
+            </div>
+
+            <!-- Payment Date -->
+            <div>
+              <label for="payment_date" class="block text-sm font-medium text-gray-700 mb-2">
+                Payment Date *
+              </label>
+              <input
+                type="date"
+                id="payment_date"
+                formControlName="payment_date"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="isFieldInvalid('payment_date')"
+              />
+              <div *ngIf="getFieldError('payment_date')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('payment_date') }}
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div>
+              <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">
+                Payment Method *
+              </label>
+              <select
+                id="payment_method"
+                formControlName="payment_method"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="isFieldInvalid('payment_method')"
+              >
+                <option value="">Select payment method</option>
+                <option *ngFor="let method of paymentMethods" [value]="method">
+                  {{ method }}
+                </option>
+              </select>
+              <div *ngIf="getFieldError('payment_method')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('payment_method') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div class="space-y-6">
+            <!-- Reference Number -->
+            <div>
+              <label for="reference_number" class="block text-sm font-medium text-gray-700 mb-2">
+                Reference Number
+              </label>
+              <input
+                type="text"
+                id="reference_number"
+                formControlName="reference_number"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Check #123, TXN123456"
+              />
+            </div>
+
+            <!-- Notes -->
+            <div>
+              <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+              </label>
+              <textarea
+                id="notes"
+                formControlName="notes"
+                rows="4"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                placeholder="Additional notes about this payment..."
+              ></textarea>
+            </div>
+
+
+
+
+
+
+
+            <!-- Transaction Attachments -->
+            <div *ngIf="getImageAttachments().length > 0" class="mb-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Transaction Images</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <div *ngFor="let attachment of getImageAttachments()" 
+                     class="relative group cursor-pointer"
+                     (click)="openAttachment(attachment)">
+                  <img [src]="getAttachmentUrl(attachment)" 
+                       [alt]="attachment.filename"
+                       class="w-full h-24 object-cover rounded-lg border border-gray-200 hover:opacity-90 transition-opacity"
+                       (error)="onImageError($event)">
+                  <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                    <svg class="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- No Images Message -->
+            <div *ngIf="getImageAttachments().length === 0 && existingAttachments.length === 0" class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-600">
+              No transaction images found. Upload attachments when recording payment.
+            </div>
+
+            <!-- File Attachments -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Attachments
+              </label>
+              
+              <!-- Drag & Drop Zone -->
+              <div 
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event)"
+                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors"
+                [class.border-blue-500]="dragOver"
+                [class.bg-blue-50]="dragOver"
+              >
+                <div class="space-y-2">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div class="text-sm text-gray-600">
+                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                      <span>Upload files</span>
+                      <input 
+                        id="file-upload" 
+                        name="file-upload" 
+                        type="file" 
+                        multiple 
+                        class="sr-only"
+                        (change)="onFileSelected($event)"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                      />
+                    </label>
+                    <span class="text-gray-500"> or drag and drop</span>
+                  </div>
+                  <p class="text-xs text-gray-500">
+                    PDF, DOC, DOCX, JPG, PNG, TXT up to 10MB
+                  </p>
+                </div>
+              </div>
+
+              <!-- File List -->
+              <div *ngIf="selectedFiles.length > 0" class="mt-4 space-y-2">
+                <h4 class="text-sm font-medium text-gray-700">Selected Files:</h4>
+                <div *ngFor="let file of selectedFiles" class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                  <div class="flex items-center space-x-3">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <div>
+                      <p class="text-sm font-medium text-gray-700">{{ file.name }}</p>
+                      <p class="text-xs text-gray-500">{{ getFileSize(file) }}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    (click)="removeFile(file)"
+                    class="text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="bg-gray-50 p-4 rounded-md">
+              <h4 class="text-sm font-medium text-gray-700 mb-3">Payment Summary</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Invoice Amount:</span>
+                  <span class="font-medium">${{ invoiceAmount | number:'1.2-2' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Amount Received:</span>
+                  <span class="font-medium text-blue-600">${{ totalPaid | number:'1.2-2' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Payment Amount:</span>
+                  <span class="font-medium text-green-600">${{ paymentForm.get('payment_amount')?.value | number:'1.2-2' }}</span>
+                </div>
+                <hr class="border-gray-200">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Remaining Balance:</span>
+                  <span class="font-medium" [class.text-red-600]="(paymentForm.get('payment_amount')?.value || 0) <= (invoiceAmount - totalPaid)" [class.text-green-600]="(paymentForm.get('payment_amount')?.value || 0) > (invoiceAmount - totalPaid)">${{ (invoiceAmount - totalPaid - (paymentForm.get('payment_amount')?.value || 0)) | number:'1.2-2' }}</span>
+                </div>
+                <!-- Warning when payment exceeds balance -->
+                <div *ngIf="(paymentForm.get('payment_amount')?.value || 0) > (invoiceAmount - totalPaid)" class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                  ⚠️ Payment amount exceeds remaining balance
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment History -->
+            <div *ngIf="paymentSummary && paymentSummary.payment_count > 0" class="bg-blue-50 p-4 rounded-md">
+              <h4 class="text-sm font-medium text-blue-700 mb-3">Payment History</h4>
+              <div class="space-y-2 text-xs text-blue-600">
+                <div class="flex justify-between">
+                  <span>Total Payments:</span>
+                  <span class="font-medium">{{ paymentSummary.payment_count }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Last Payment:</span>
+                  <span class="font-medium">{{ paymentSummary.last_payment_date | date:'shortDate' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Total Paid:</span>
+                  <span class="font-medium">${{ paymentSummary.total_paid }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Total Due:</span>
+                  <span class="font-medium">${{ paymentSummary.total_due }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="onClose()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="isLoading || !paymentForm.valid"
+            class="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="!isLoading">Record Payment</span>
+            <span *ngIf="isLoading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Recording...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

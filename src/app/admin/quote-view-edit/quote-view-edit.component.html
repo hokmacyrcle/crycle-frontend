@@ -1,0 +1,348 @@
+<!-- Error Message Display -->
+<div *ngIf="showError" class="fixed top-4 right-4 z-50 max-w-md">
+    <div class="bg-red-50 border border-red-200 rounded-md p-4 shadow-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-medium text-red-800">Error</h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <p>{{ errorMessage }}</p>
+                    <div *ngIf="validationErrors && getValidationErrorKeys().length > 0" class="mt-2">
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li *ngFor="let field of getValidationErrorKeys()" class="text-xs">
+                                <strong>{{ field }}:</strong> {{ getFieldError(field) }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="button" (click)="hideError()"
+                        class="text-sm font-medium text-red-800 hover:text-red-600">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div *ngIf="showImagePreview" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-4 max-w-3xl w-full relative">
+        <button type="button" (click)="closeImagePreview()"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <img [src]="selectedImageUrl" alt="Attachment Preview" class="w-full h-auto max-h-[70vh] object-contain">
+    </div>
+</div>
+
+<main class="p-6 bg-gray-200 pb-40">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Quote Edit Form -->
+    <div *ngIf="!loading && quoteData" class="max-w-7xl mx-auto">
+        <form #quoteForm="ngForm" (ngSubmit)="saveQuote()">
+            <!-- Header Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Edit Quote</h1>
+                        <p class="text-gray-600 mt-2">
+                            Quote #{{ quoteData.quote_number || 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" (click)="goBack()"
+                            class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                            Back to Quotes
+                        </button>
+                        <button type="submit" [disabled]="isSubmitting || !quoteForm.valid"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50">
+                            <span *ngIf="isSubmitting">Saving...</span>
+                            <span *ngIf="!isSubmitting">Save Changes</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quote Details -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Customer</label>
+                        <select [(ngModel)]="quoteData.customer_id" name="customer_id"
+                            (ngModelChange)="onCustomerChange()" required
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" disabled>Select a customer</option>
+                            <option *ngFor="let contact of contacts" [value]="contact.id">
+                                {{ contact['Contact Name'] }}
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quote Date</label>
+                        <input type="date" [(ngModel)]="quoteData.quote_date" name="quote_date" required
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select [(ngModel)]="quoteData.status" name="status" required
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="Pending">Pending</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Customer Email</label>
+                        <input type="email" [(ngModel)]="quoteData.customer_email" name="customer_email"
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter customer email">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Billing Address</label>
+                        <textarea [(ngModel)]="quoteData.billing_address" name="billing_address" rows="3"
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter billing address"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Valid Until</label>
+                    <input type="date" [(ngModel)]="quoteData.valid_until" name="valid_until" required
+                        class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <!-- Line Items Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-900">Line Items</h2>
+                    <button type="button" (click)="addLineItem()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        Add Item
+                    </button>
+                </div>
+
+                <!-- Debug section - remove after testing -->
+                <!-- <div *ngIf="quoteData.items" class="bg-yellow-100 p-4 mt-4">
+  <h3>Debug - Loaded Items:</h3>
+  <pre>{{ quoteData.items | json }}</pre>
+</div> -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    #</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product/Service</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Description</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Class</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    QTY</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Rate</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Amount</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    GST</th>
+                                <th
+                                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr *ngFor="let item of quoteData.items || []; let i = index">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ i + 1 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="text" [(ngModel)]="item.product_service" [name]="'product_' + i"
+                                        (blur)="updateLineItem(i)"
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Product/Service">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="text" [(ngModel)]="item.description" [name]="'description_' + i"
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Description">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="text" [(ngModel)]="item.class" [name]="'class_' + i"
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Class">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="number" [(ngModel)]="item.quantity" [name]="'quantity_' + i"
+                                        (blur)="updateLineItem(i)" min="1" required
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="number" [(ngModel)]="item.rate" [name]="'rate_' + i"
+                                        (blur)="updateLineItem(i)" min="0" step="0.01" required
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${{ (item.amount || 0) | number:'1.2-2' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${{ (item.gst || 0) | number:'1.2-2' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <button type="button" (click)="deleteLineItem(i)"
+                                        class="text-red-600 hover:text-red-900">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="!quoteData.items || quoteData.items.length === 0">
+                                <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+                                    No line items found. Click "Add Item" to add your first item.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Attachments Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6"
+                *ngIf="quoteData.attachments && quoteData.attachments.length > 0">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Attachments</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div *ngFor="let attachment of quoteData.attachments" class="border rounded-md p-4 relative group">
+                        <p class="text-sm font-medium">{{ attachment.original_name }}</p>
+                        <p class="text-xs text-gray-500">Size: {{ attachment.size / 1024 | number:'1.2-2' }} KB</p>
+                        <p class="text-xs text-gray-500">Type: {{ attachment.mime_type }}</p>
+                        <div *ngIf="attachment.mime_type.startsWith('image/')"
+                            class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button type="button" (click)="openImagePreview(attachment.path)"
+                                class="text-blue-600 hover:text-blue-800">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <a *ngIf="!attachment.mime_type.startsWith('image/')" [href]="attachment.path" target="_blank"
+                            class="text-blue-600 hover:underline text-sm">Download</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Summary</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea [(ngModel)]="quoteData.message_on_quote" name="message_on_quote" rows="4"
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter notes for this quote"></textarea>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Subtotal:</span>
+                                <span class="font-medium">${{ getSubtotal() | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <select id="discount-method" name="discountMethod"
+                                        [(ngModel)]="quoteData.discount!.method"
+                                        (ngModelChange)="onDiscountMethodChange()"
+                                        class="border border-gray-300 rounded-md px-2 py-1 text-sm" required>
+                                        <option value="percentage">Discount percentage</option>
+                                        <option value="fixed">Discount fixed amount</option>
+                                    </select>
+                                    <input type="number" id="discount-amount" min="0" step="0.01" name="discountAmount"
+                                        [(ngModel)]="quoteData.discount!.amount"
+                                        (ngModelChange)="validateDiscountInput()"
+                                        class="border border-gray-300 rounded-md px-2 py-1 w-24 text-right text-sm"
+                                        placeholder="0"
+                                        [max]="quoteData.discount!.method === 'percentage' ? 100 : subtotal"
+                                        (blur)="validateDiscountInput()"
+                                        [class.border-red-500]="quoteData.discount!.amount > 0 && (quoteData.discount!.method === 'percentage' && quoteData.discount!.amount > 100 || quoteData.discount!.method === 'fixed' && quoteData.discount!.amount > subtotal)">
+                                </div>
+                                <div *ngIf="getFieldError('discount_method')" class="text-xs text-red-600 mt-1">
+                                    {{ getFieldError('discount_method') }}
+                                </div>
+                                <div *ngIf="quoteData.discount!.amount > 0 && quoteData.discount!.method === 'percentage' && quoteData.discount!.amount > 100"
+                                    class="text-xs text-red-600 mt-1">
+                                    Discount percentage cannot exceed 100%
+                                </div>
+                                <div *ngIf="quoteData.discount!.amount > 0 && quoteData.discount!.method === 'fixed' && quoteData.discount!.amount > subtotal"
+                                    class="text-xs text-red-600 mt-1">
+                                    Fixed discount cannot exceed subtotal
+                                </div>
+                                <div *ngIf="discountAmount > 0" class="flex justify-between">
+                                    <span class="text-gray-600">Discount:</span>
+                                    <span class="font-medium text-red-600">-${{ discountAmount | number:'0.2-2'
+                                        }}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">GST Total:</span>
+                                <span class="font-medium">${{ getGstTotal() | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="border-t pt-3">
+                                <div class="flex justify-between text-lg font-bold">
+                                    <span>Total:</span>
+                                    <span>${{ getTotal() | number:'1.2-2' }}</span>
+                                </div>
+                            </div>
+                            <div class="border-t pt-3 mt-3">
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Paid Amount:</span>
+                                        <span class="font-medium">${{ (quoteData.paid_amount || 0) | number:'1.2-2'
+                                            }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Credits:</span>
+                                        <span class="font-medium">${{ (quoteData.credits || 0) | number:'1.2-2'
+                                            }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-lg font-bold" [ngClass]="{
+                                        'text-red-600': getBalanceDue() > 0,
+                                        'text-green-600': getBalanceDue() <= 0
+                                    }">
+                                        <span>Balance Due:</span>
+                                        <span>${{ getBalanceDue() | number:'1.2-2' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
