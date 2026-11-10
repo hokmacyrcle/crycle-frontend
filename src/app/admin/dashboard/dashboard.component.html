@@ -20,7 +20,7 @@
     </span>
     <div class="text-base font-bold">Add your first client business</div>
     <div class="text-[13px] leading-snug text-[#3C4663]">Each client you add gets its own invoices, quotes and pay runs.</div>
-    <a routerLink="/admin/companies" class="mt-1 self-start rounded-full bg-cyrcle-poppy px-5 py-2.5 text-sm font-bold">Add client business</a>
+    <a routerLink="/admin/companies/new" class="mt-1 self-start rounded-full bg-cyrcle-poppy px-5 py-2.5 text-sm font-bold">Add client business</a>
   </div>
 
   <div *ngIf="clients.length" class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -30,7 +30,7 @@
       <span class="min-w-0 flex-1 truncate text-[15px] font-bold">{{ c.company_name }}</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#01153E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
     </button>
-    <a routerLink="/admin/companies" class="flex items-center gap-3 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-4 text-[15px] font-bold">
+    <a routerLink="/admin/companies/new" class="flex items-center gap-3 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-4 text-[15px] font-bold">
       <span class="flex h-10 w-10 items-center justify-center rounded-full border-[1.5px] border-cyrcle-navy"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#01153E" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
       Add client business
     </a>

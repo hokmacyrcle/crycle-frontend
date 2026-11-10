@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsComponent } from './settings/settings.component';
+import { ClientBusinessesComponent } from './client-businesses/client-businesses.component';
+import { ClientBusinessFormComponent } from './client-business-form/client-business-form.component';
 import { EmployeeHomeComponent } from './employee-home/employee-home.component';
 import { AdminRoutingModule } from './admin-routing.module';
 import { ClientsComponent } from './clients/clients.component';
@@ -123,6 +125,8 @@ import { PayrollDashboardComponent } from './payroll-dashboard/payroll-dashboard
     DashboardComponent,
     AdminComponent,
     EmployeeHomeComponent,
+    ClientBusinessesComponent,
+    ClientBusinessFormComponent,
     SettingsComponent,
     SidebarComponent,
     NavbarComponent,

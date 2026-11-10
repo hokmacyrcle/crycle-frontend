@@ -1,0 +1,29 @@
+<div class="mx-auto max-w-xl text-cyrcle-navy">
+  <a routerLink="/admin/companies" class="mb-3 inline-flex min-h-[44px] items-center gap-1 text-sm font-bold text-cyrcle-midnight">
+    <span class="material-icons text-[20px]" aria-hidden="true">arrow_back</span>Client businesses
+  </a>
+  <h1 class="m-0 text-[28px] font-extrabold leading-tight">{{ editing ? 'Edit client business' : 'Add client business' }}</h1>
+  <p class="mt-1.5 text-sm text-[#3C4663]">These details appear on that business's invoices and reports.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="mt-5 flex flex-col gap-3.5" novalidate>
+    <label class="block"><div class="mb-1.5 text-[13px] font-bold">Business name</div><input type="text" formControlName="name" placeholder="" autocomplete="organization" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('name') ? 'border-red-600' : 'border-[#B9B39F]'"><div *ngIf="invalid('name')" class="mt-1 text-xs font-semibold text-red-700">Enter the business name</div></label>
+    <label class="block"><div class="mb-1.5 text-[13px] font-bold">ABN <span class="font-medium text-gray-500">(optional)</span></div><input type="text" formControlName="abn" placeholder="" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('abn') ? 'border-red-600' : 'border-[#B9B39F]'"><div class="mt-1 text-xs text-gray-500">11 digits</div><div *ngIf="invalid('abn')" class="mt-1 text-xs font-semibold text-red-700">Enter a valid 11-digit ABN</div></label>
+    <label class="block"><div class="mb-1.5 text-[13px] font-bold">ACN <span class="font-medium text-gray-500">(optional)</span></div><input type="text" formControlName="acn" placeholder="" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('acn') ? 'border-red-600' : 'border-[#B9B39F]'"><div *ngIf="invalid('acn')" class="mt-1 text-xs font-semibold text-red-700">ACN must be 9 digits</div></label>
+    <label class="block"><div class="mb-1.5 text-[13px] font-bold">Street address</div><input type="text" formControlName="address" placeholder="Unit, level, street number and name" autocomplete="address-line1" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('address') ? 'border-red-600' : 'border-[#B9B39F]'"><div *ngIf="invalid('address')" class="mt-1 text-xs font-semibold text-red-700">Enter the street address</div></label>
+    <label class="block"><div class="mb-1.5 text-[13px] font-bold">Suburb</div><input type="text" formControlName="suburb" placeholder="" autocomplete="address-level2" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('suburb') ? 'border-red-600' : 'border-[#B9B39F]'"><div *ngIf="invalid('suburb')" class="mt-1 text-xs font-semibold text-red-700">Enter the suburb</div></label>
+    <div class="flex gap-3">
+      <label class="block flex-1"><div class="mb-1.5 text-[13px] font-bold">State or territory</div>
+        <select formControlName="state" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('state') ? 'border-red-600' : 'border-[#B9B39F]'"><option value="" disabled>Select</option><option *ngFor="let s of states" [value]="s">{{s}}</option></select>
+        <div *ngIf="invalid('state')" class="mt-1 text-xs font-semibold text-red-700">Choose a state or territory</div></label>
+      <div class="w-[120px] shrink-0"><label class="block"><div class="mb-1.5 text-[13px] font-bold">Postcode</div><input type="text" formControlName="postcode" placeholder="" inputmode="numeric" maxlength="4" autocomplete="postal-code" class="h-[52px] w-full rounded-[14px] border-[1.5px] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy" [ngClass]="invalid('postcode') ? 'border-red-600' : 'border-[#B9B39F]'"><div *ngIf="invalid('postcode')" class="mt-1 text-xs font-semibold text-red-700">4 digits</div></label></div>
+    </div>
+    <div class="text-[13px] text-gray-500">Country: Australia</div>
+    <label class="flex items-start gap-3"><input type="checkbox" formControlName="gst" class="mt-0.5 h-6 w-6 shrink-0 accent-[#01153E]"><span class="text-sm leading-snug"><b>Registered for GST</b><br><span class="text-[13px] text-gray-500">Turn on if this business charges GST.</span></span></label>
+
+    <div *ngIf="error" role="alert" class="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{{error}}</div>
+    <div class="flex flex-col gap-1.5 pt-3">
+      <button type="submit" [disabled]="busy" class="flex h-[52px] items-center justify-center rounded-full bg-cyrcle-poppy text-[15px] font-bold disabled:opacity-60">{{ busy ? 'Please wait…' : (editing ? 'Save changes' : 'Add business') }}</button>
+      <a routerLink="/admin/companies" class="py-1.5 text-center text-sm font-semibold text-cyrcle-midnight underline">Cancel</a>
+    </div>
+  </form>
+</div>

@@ -59,6 +59,8 @@ import { FeedbackDialogComponent } from './feedback-dialog/feedback-dialog.compo
 
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
+import { ClientBusinessesComponent } from './client-businesses/client-businesses.component';
+import { ClientBusinessFormComponent } from './client-business-form/client-business-form.component';
 import { EmployeeHomeComponent } from './employee-home/employee-home.component';
 
 const routes: Routes = [
@@ -67,7 +69,9 @@ const routes: Routes = [
   { path: 'settings', component: SettingsComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'updateclient/:id', component: UpdateclientComponent },
-  { path: 'companies', component: CompaniesComponent },
+  { path: 'companies', component: ClientBusinessesComponent },
+  { path: 'companies/new', component: ClientBusinessFormComponent },
+  { path: 'companies/:id/edit', component: ClientBusinessFormComponent },
   { path: 'updatecompany/:id', component: UpdatecompanyComponent },
   { path: 'Employees', component: EmployeesComponent },
   { path: 'AddEmployee', component: AddEmployeeComponent },
