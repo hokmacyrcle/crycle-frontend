@@ -4,6 +4,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { SessionService } from '../core/session.service';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import {
@@ -100,10 +101,32 @@ export class AdminComponent {
     { id: 'contacts', label: 'Contacts' },
   ];
 
+  // Bottom tabs on phones, chosen by role. Employees only get routes the roleGuard allows.
+  tabs: { label: string; icon: string; route: string }[] = [];
+
+  private buildTabs() {
+    return this.session.role === 'employee'
+      ? [{ label: 'Home', icon: 'home', route: '/admin/my-home' }]
+      : [
+          { label: 'Home', icon: 'home', route: '/admin/Dashboard' },
+          { label: 'Sales', icon: 'receipt_long', route: '/admin/sales' },
+          { label: 'Clients', icon: 'groups', route: '/admin/clients' },
+          { label: 'Payroll', icon: 'payments', route: '/admin/payroll' },
+          { label: 'Team', icon: 'badge', route: '/admin/Employees' },
+        ];
+  }
+
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
   constructor(
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    public session: SessionService
   ) {
+    this.tabs = this.buildTabs(); // built once: a getter returning a new array every change-detection loops with routerLinkActive
     // Set up debounced search
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))

@@ -57,8 +57,12 @@ import { ExpenseCreateSupplierCreditComponent } from './expense-create-supplier-
 import { ExpenseCreateChequeComponent } from './expense-create-cheque/expense-create-cheque.component';
 import { FeedbackDialogComponent } from './feedback-dialog/feedback-dialog.component';
 
+import { roleGuard } from '../core/auth.guard';
+import { EmployeeHomeComponent } from './employee-home/employee-home.component';
+
 const routes: Routes = [
   { path: 'Dashboard', component: DashboardComponent },
+  { path: 'my-home', component: EmployeeHomeComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'updateclient/:id', component: UpdateclientComponent },
   { path: 'companies', component: CompaniesComponent },
@@ -158,11 +162,15 @@ const routes: Routes = [
   { path: 'feedback-dialog', component: FeedbackDialogComponent },
 
   // Default redirect
-  { path: '', redirectTo: '/Dashboard', pathMatch: 'full' }
+  { path: '', redirectTo: '/admin/Dashboard', pathMatch: 'full' }
+];
+
+const guardedRoutes: Routes = [
+  { path: '', canActivateChild: [roleGuard], children: routes }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(guardedRoutes)],
   exports: [RouterModule]
 })
 export class AdminRoutingModule { }

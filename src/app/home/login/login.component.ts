@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AccountService } from 'src/app/services/account.service';
 import { AlertService } from 'src/app/services/alert.service';
+import { toAppRole, EMPLOYEE_HOME, EMPLOYER_HOME } from '../../core/roles';
 
 @Component({
   selector: 'app-login',
@@ -107,16 +108,7 @@ export class LoginComponent implements OnInit {
           if (res.data.companies && res.data.companies.length > 0) {
             this.router.navigate(['/company-selection']);
           } else {
-            switch (res.data.user.role) {
-              case 'admin':
-                this.router.navigate(['/admin/Dashboard']);
-                break;
-              case 'contact':
-                this.router.navigate(['/admin/AllPages']);
-                break;
-              default:
-                this.router.navigate(['/admin/Dashboard']);
-            }
+            this.router.navigate([toAppRole(res.data.user.role) === 'employee' ? EMPLOYEE_HOME : EMPLOYER_HOME]);
           }
           this.loading = false;
         } else {

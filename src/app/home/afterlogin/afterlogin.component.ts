@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AccountService } from 'src/app/services/account.service';
 import { AlertService } from 'src/app/services/alert.service';
+import { toAppRole, EMPLOYEE_HOME, EMPLOYER_HOME } from '../../core/roles';
 
 @Component({
   selector: 'app-afterlogin',
@@ -53,17 +54,8 @@ export class AfterloginComponent {
 
           // Navigate based on user role
           const loginResponse = JSON.parse(localStorage.getItem('login_response') || '{}');
-          const role = loginResponse.data?.user?.role || 'admin';
-          switch (role) {
-            case 'admin':
-              this.router.navigate(['/admin/Dashboard']);
-              break;
-            case 'contact':
-              this.router.navigate(['/admin/AllPages']);
-              break;
-            default:
-              this.router.navigate(['/admin/Dashboard']);
-          }
+          const role = loginResponse.data?.user?.role || '';
+          this.router.navigate([toAppRole(role) === 'employee' ? EMPLOYEE_HOME : EMPLOYER_HOME]);
         } else {
           this.alertService.DangerSwalnew('', res.message || 'Failed to select company');
         }

@@ -376,3 +376,38 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+// ── Cyrcle brand ─────────────────────────────────────────────
+:root {
+  --cy-navy: #01153E;
+  --cy-royal: #002366;
+  --cy-black: #001219;
+  --cy-cyan: #047070;
+  --cy-poppy: #FFC200;
+  --cy-cream: #E8E3CF;
+}
+
+body {
+  font-family: 'Archivo', sans-serif;
+  font-stretch: 112%;                 // Archivo Semi-Expanded for body
+  background: #f6f4ec;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, .font-display {
+  font-family: 'Archivo', sans-serif;
+  font-stretch: 125%;                 // Archivo Expanded for headings
+  font-weight: 700;
+}
+
+// Brand overrides for existing form/button classes
+.form-control { @apply focus:ring-cyrcle-royal; }
+.submit-btn { @apply bg-cyrcle-navy hover:bg-cyrcle-royal rounded-xl; }
+.small-links { @apply text-cyrcle-royal; }
+
+// Mobile ergonomics: 44px touch targets, no iOS input zoom
+@media (max-width: 767px) {
+  input, select, textarea { font-size: 16px !important; }
+  button, .mat-mdc-button, .submit-btn { min-height: 44px; }
+}

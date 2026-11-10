@@ -1,33 +1,44 @@
-<div class="h-screen flex flex-col">
+<div class="min-h-screen flex flex-col bg-[#f6f4ec]">
 
-  <app-navbar class="fixed top-0 left-0 w-full z-50" (toggleSidebar)="toggleSidebar()"></app-navbar>
-
-  <div class="flex flex-1 pt-16">
-
-    <app-sidebar [isSidebarOpen]="isSidebarOpen" [activeSection]="activeSection"
-      (sectionChange)="setActiveSection($event)" class=" bg-white border-r"></app-sidebar>
-
-    <div class="flex-1 flex flex-col overflow-y-auto">
-
-      <nav class="bg-white p-4 flex items-center shadow">
-        <button (click)="toggleSidebar()" class="md:hidden text-2xl text-gray-600 mr-3">
-          ☰
-        </button>
-
-        <div class="flex items-center bg-black rounded-lg p-3 shadow-md mr-4">
-          <img src="assets/images/Dashboard/logo.png" alt="Logo" class="w-12 h-12 rounded-lg" />
-        </div>
-
-        <div>
-          <h1 class="text-xl font-semibold">Accounting</h1>
-          <p class="text-gray-400 text-sm">Company details goes here</p>
-        </div>
-      </nav>
-
-      <div class="p-4 flex-1">
-        <router-outlet></router-outlet>
-      </div>
-
-    </div>
+  <!-- Desktop top bar (unchanged behaviour) -->
+  <div class="hidden md:block fixed top-0 left-0 w-full z-50">
+    <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
   </div>
+
+  <!-- Mobile top bar -->
+  <header class="md:hidden fixed top-0 left-0 w-full z-40 bg-cyrcle-metal text-white flex items-center gap-3 px-4 h-14"
+          style="padding-top: env(safe-area-inset-top)">
+    <img src="assets/images/brand/cyrcle-mark.png" alt="Cyrcle" class="w-8 h-8" />
+    <div class="min-w-0 flex-1">
+      <p class="font-display text-sm leading-tight tracking-wide !m-0">CYRCLE</p>
+      <p class="text-[11px] opacity-75 truncate !m-0" *ngIf="session.companyName">{{ session.companyName }}</p>
+    </div>
+    <button type="button" (click)="logout()" class="text-xs border border-white/30 rounded-full px-3 py-1.5">
+      Sign out
+    </button>
+  </header>
+
+  <div class="flex flex-1 pt-14 md:pt-16">
+
+    <!-- Sidebar: desktop, employer only -->
+    <div *ngIf="session.role === 'employer'" class="hidden md:block bg-white border-r">
+      <app-sidebar [isSidebarOpen]="true" [activeSection]="activeSection"
+        (sectionChange)="setActiveSection($event)"></app-sidebar>
+    </div>
+
+    <main class="flex-1 min-w-0 p-4 pb-24 md:pb-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-cyrcle-pearl grid"
+       [style.gridTemplateColumns]="'repeat(' + tabs.length + ', minmax(0, 1fr))'"
+       style="padding-bottom: env(safe-area-inset-bottom)">
+    <a *ngFor="let t of tabs" [routerLink]="t.route" routerLinkActive="text-cyrcle-royal"
+       class="flex flex-col items-center justify-center py-2 text-cyrcle-chestnut min-h-[56px]">
+      <span class="material-icons text-[24px]">{{ t.icon }}</span>
+      <span class="text-[11px] mt-0.5 font-medium">{{ t.label }}</span>
+    </a>
+  </nav>
 </div>
