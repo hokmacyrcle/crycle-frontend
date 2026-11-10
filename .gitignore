@@ -46,3 +46,6 @@ Thumbs.db
 
 /dist/
 *.zip
+
+/dist/
+*.zip
