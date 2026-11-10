@@ -65,6 +65,11 @@ import { CustomerFormComponent } from './sales/customer-form.component';
 
 import { EmployeeListComponent } from './payroll-employees/employee-list.component';
 import { EmployeeFormComponent } from './payroll-employees/employee-form.component';
+import { PayrollShellComponent } from './payroll-runs/payroll-shell.component';
+import { PayRunListComponent } from './payroll-runs/pay-run-list.component';
+import { PayRunNewComponent } from './payroll-runs/pay-run-new.component';
+import { PayRunComponent } from './payroll-runs/pay-run.component';
+import { PayslipComponent } from './payroll-runs/payslip.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
@@ -92,10 +97,18 @@ const routes: Routes = [
   { path: 'add-contact', component: AddcontactComponent },
   { path: 'update-contact/:id', component: AddcontactComponent },
 
-  // Payroll: employees first; pay runs and payslips come next.
+  // Payroll: pay runs and employees share one frame with tabs; forms and payslips open on their own.
   { path: 'payroll/employees/new', component: EmployeeFormComponent },
   { path: 'payroll/employees/:id/edit', component: EmployeeFormComponent },
-  { path: 'payroll', component: EmployeeListComponent },
+  { path: 'payroll/runs/new', component: PayRunNewComponent },
+  { path: 'payroll/runs/:id/payslip/:lineId', component: PayslipComponent },
+  { path: 'payroll/runs/:id', component: PayRunComponent },
+  {
+    path: 'payroll', component: PayrollShellComponent, children: [
+      { path: '', component: PayRunListComponent },
+      { path: 'employees', component: EmployeeListComponent },
+    ]
+  },
   { path: 'payroll/:rest', redirectTo: 'payroll', pathMatch: 'full' },
 
   // Other routes

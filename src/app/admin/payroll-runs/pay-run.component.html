@@ -1,0 +1,101 @@
+<div class="mx-auto max-w-4xl text-cyrcle-navy">
+  <a routerLink="/admin/payroll" class="inline-flex min-h-[40px] items-center gap-1 text-sm font-bold text-cyrcle-midnight print:hidden"><app-icon name="arrow-left" [size]="16"></app-icon>Pay runs</a>
+
+  <div *ngIf="loading" class="mt-3 text-sm text-[#5B6478]">Loading…</div>
+  <div *ngIf="error" class="cy-card mt-3 flex flex-col gap-2"><div class="font-bold">We could not open this pay run</div><div class="text-sm text-[#3C4663]">{{ error }}</div></div>
+
+  <ng-container *ngIf="run">
+    <div class="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="m-0 text-[22px] font-extrabold" role="heading" aria-level="2">{{ run.reference }}</div>
+          <span class="cy-pill" [ngClass]="run.status === 'finalised' ? 'cy-pill-paid' : 'cy-pill-draft'">{{ run.status === 'finalised' ? 'Finalised' : 'Draft' }}</span>
+        </div>
+        <div class="text-sm text-[#3C4663]">{{ run.frequency }} · {{ run.period_start | auDate }} to {{ run.period_end | auDate }}</div>
+        <div class="text-sm text-[#3C4663]">Pay date {{ run.pay_date | auDate }}<span *ngIf="run.super_due_date"> · Super due by {{ run.super_due_date | auDate }}</span></div>
+      </div>
+      <div class="flex gap-2 print:hidden">
+        <button type="button" class="cy-btn-secondary" (click)="print()"><app-icon name="printer" [size]="18"></app-icon>Print summary</button>
+      </div>
+    </div>
+
+    <dl class="m-0 mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+      <div class="rounded-[16px] bg-white px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Gross wages</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ run.total_gross | aud }}</dd></div>
+      <div class="rounded-[16px] bg-white px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Tax withheld</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ run.total_tax | aud }}</dd></div>
+      <div class="rounded-[16px] bg-white px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Super (12%)</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ run.total_super | aud }}</dd></div>
+      <div class="rounded-[16px] bg-cyrcle-navy px-4 py-3 text-white"><dt class="text-[12px] font-bold uppercase tracking-wide opacity-80">Net pay</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ run.total_net | aud }}</dd></div>
+    </dl>
+
+    <div *ngIf="banner" class="mt-4 rounded-[12px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C] print:hidden" role="alert">{{ banner }}</div>
+    <div *ngIf="editable && run.needs_attention && !banner" class="mt-4 flex items-start gap-3 rounded-[16px] bg-[#FBEBC5] px-4 py-3 text-sm text-[#5C3F00] print:hidden">
+      <span class="mt-0.5 shrink-0"><app-icon name="alert" [size]="18"></app-icon></span>
+      <span><b>{{ run.needs_attention }} {{ run.needs_attention === 1 ? 'line needs' : 'lines need' }} your attention</b> before you can finalise. They are marked below.</span>
+    </div>
+    <div *ngIf="run.status === 'finalised'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-[#D5ECE3] px-4 py-3 text-sm text-cyrcle-midnight print:hidden">
+      <span class="mt-0.5 shrink-0"><app-icon name="check" [size]="18"></app-icon></span>
+      <span>This pay run is finalised. Open a payslip below to print or save it. Super must reach each fund by <b>{{ run.super_due_date | auDate }}</b>. Public holidays are not counted, so pay a little earlier if one falls in that week.</span>
+    </div>
+
+    <div class="mb-0 mt-6 text-[16px] font-extrabold" role="heading" aria-level="3">Employees</div>
+    <ul class="m-0 mt-2 flex list-none flex-col gap-2.5 p-0">
+      <li *ngFor="let l of run.lines" class="rounded-[20px] bg-white p-4 print:break-inside-avoid print:border print:border-gray-300"
+          [ngClass]="[editable && needs(l) ? 'ring-2 ring-[#E3A83B]' : '', busyLine === l.id ? 'opacity-60' : '']">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="truncate text-[15px] font-bold">{{ l.employee_name }}</div>
+            <div class="text-[13px] text-[#5B6478]">
+              <ng-container *ngIf="l.pay_basis === 'hourly'">{{ l.hourly_rate | aud }} an hour</ng-container>
+              <ng-container *ngIf="l.pay_basis === 'salary'">{{ l.annual_salary | aud }} a year</ng-container>
+            </div>
+          </div>
+          <div class="flex shrink-0 gap-3 text-[13px] font-bold text-cyrcle-midnight print:hidden">
+            <a *ngIf="run.status === 'finalised'" class="min-h-[32px] underline" [routerLink]="['/admin/payroll/runs', run.id, 'payslip', l.id]">Payslip</a>
+            <button *ngIf="editable" type="button" class="min-h-[32px] underline" (click)="removeLine(l)">Remove</button>
+          </div>
+        </div>
+
+        <div *ngIf="l.pay_basis === 'hourly'" class="mt-3">
+          <label class="block text-[13px] font-bold" [for]="'h' + l.id">Hours worked</label>
+          <input *ngIf="editable" [id]="'h' + l.id" type="number" inputmode="decimal" min="0" step="0.25" class="cy-input mt-1 max-w-[160px]"
+                 [value]="l.hours ?? ''" (change)="setHours(l, $any($event.target).value)" placeholder="Enter hours">
+          <div *ngIf="!editable" class="text-[15px]">{{ l.hours }}</div>
+        </div>
+
+        <dl class="m-0 mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
+          <div><dt class="text-[12px] text-[#5B6478]">Gross</dt><dd class="m-0 font-bold">{{ l.gross | aud }}</dd></div>
+          <div><dt class="text-[12px] text-[#5B6478]">Tax</dt><dd class="m-0 font-bold">{{ l.tax | aud }}<span *ngIf="l.tax_overridden" class="ml-1 text-[12px] font-normal text-[#5B6478]">(entered)</span></dd></div>
+          <div><dt class="text-[12px] text-[#5B6478]">Super</dt><dd class="m-0 font-bold">{{ l.super_amount | aud }}</dd></div>
+          <div><dt class="text-[12px] text-[#5B6478]">Net pay</dt><dd class="m-0 font-bold">{{ l.net | aud }}</dd></div>
+        </dl>
+
+        <div *ngIf="l.tax_note" class="mt-3 rounded-[12px] px-3 py-2 text-[13px] leading-snug"
+             [ngClass]="l.tax_status === 'auto' ? 'bg-[#F1EBDD] text-[#3C4663]' : 'bg-[#FBEBC5] text-[#5C3F00]'">{{ l.tax_note }}</div>
+        <div *ngIf="!l.super_fund_name" class="mt-2 text-[13px] text-[#5B6478]">No super fund on file. Add one on the employee so you know where to pay this super.</div>
+
+        <div *ngIf="editable" class="mt-3 flex flex-wrap items-center gap-2 print:hidden">
+          <ng-container *ngIf="taxEdit[l.id] === undefined">
+            <button *ngIf="l.tax_status !== 'auto' && !l.tax_confirmed && !(l.tax_status === 'manual_required' && !l.tax_overridden)" type="button" class="cy-btn-primary cy-btn-sm" (click)="confirmTax(l)"><app-icon name="check" [size]="16"></app-icon>Confirm tax</button>
+            <button type="button" class="cy-btn-secondary cy-btn-sm" (click)="startTax(l)">{{ l.tax_status === 'manual_required' && !l.tax_overridden ? 'Enter tax' : 'Change tax' }}</button>
+            <button *ngIf="l.tax_overridden && l.tax_status !== 'manual_required'" type="button" class="cy-btn-secondary cy-btn-sm" (click)="useCalculated(l)">Use calculated tax</button>
+          </ng-container>
+          <ng-container *ngIf="taxEdit[l.id] !== undefined">
+            <label class="sr-only" [for]="'t' + l.id">Tax to withhold</label>
+            <input [id]="'t' + l.id" type="number" inputmode="decimal" min="0" step="0.01" class="cy-input max-w-[160px]" [(ngModel)]="taxEdit[l.id]" (keyup.enter)="saveTax(l)">
+            <button type="button" class="cy-btn-primary cy-btn-sm" (click)="saveTax(l)">Save</button>
+            <button type="button" class="cy-btn-secondary cy-btn-sm" (click)="cancelTax(l)">Cancel</button>
+          </ng-container>
+        </div>
+        <div *ngIf="lineError[l.id]" class="mt-2 text-[13px] font-bold text-[#9B1C1C]" role="alert">{{ lineError[l.id] }}</div>
+      </li>
+    </ul>
+
+    <div *ngIf="!run.lines.length" class="mt-3 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5 text-sm text-[#3C4663]">Everyone has been removed from this run. Delete the draft and start a new one.</div>
+
+    <p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Tax is worked out from the ATO's weekly tax tables for 2026–27 using each employee's tax details. Study and training loan repayments, allowances, bonuses and leave are not included yet. Stapled super and Single Touch Payroll reporting are not part of this version.</p>
+
+    <div *ngIf="editable" class="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between print:hidden">
+      <button type="button" class="cy-btn-secondary justify-center" (click)="discard()" [disabled]="busy">Delete draft</button>
+      <button type="button" class="cy-btn-primary justify-center" (click)="finalise()" [disabled]="busy || !run.lines.length">{{ busy ? 'Finalising…' : 'Finalise pay run' }}</button>
+    </div>
+  </ng-container>
+</div>

@@ -178,7 +178,7 @@ export class EmployeeFormComponent implements OnInit {
       next: () => {
         this.saving = false;
         this.alerts.toast(this.id ? 'Employee updated' : 'Employee added');
-        this.router.navigate(['/admin/payroll']);
+        this.router.navigate(['/admin/payroll/employees']);
       },
       error: e => {
         this.saving = false;
@@ -195,7 +195,7 @@ export class EmployeeFormComponent implements OnInit {
     if (first) { this.tab = first.key; this.scrollToError(); }
   }
 
-  cancel(): void { this.router.navigate(['/admin/payroll']); }
+  cancel(): void { this.router.navigate(['/admin/payroll/employees']); }
 
   private scrollToError(): void {
     setTimeout(() => (document.querySelector('.cy-input.invalid') as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' }));

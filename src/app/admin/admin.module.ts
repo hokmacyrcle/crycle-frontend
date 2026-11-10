@@ -121,6 +121,11 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { PayrollDashboardComponent } from './payroll-dashboard/payroll-dashboard.component';
 
 import { EmployeeListComponent } from './payroll-employees/employee-list.component';
+import { PayrollShellComponent } from './payroll-runs/payroll-shell.component';
+import { PayRunListComponent } from './payroll-runs/pay-run-list.component';
+import { PayRunNewComponent } from './payroll-runs/pay-run-new.component';
+import { PayRunComponent } from './payroll-runs/pay-run.component';
+import { PayslipComponent } from './payroll-runs/payslip.component';
 import { EmployeeFormComponent } from './payroll-employees/employee-form.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { IconComponent } from './ui/icon.component';
@@ -134,7 +139,7 @@ import { CustomerFormComponent } from './sales/customer-form.component';
 
 @NgModule({
   declarations: [
-    EmployeeListComponent, EmployeeFormComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
+    EmployeeListComponent, EmployeeFormComponent, PayrollShellComponent, PayRunListComponent, PayRunNewComponent, PayRunComponent, PayslipComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
     SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, CustomerListComponent, CustomerFormComponent,
     DashboardComponent,
     AdminComponent,
