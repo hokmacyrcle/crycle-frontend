@@ -58,11 +58,13 @@ import { ExpenseCreateChequeComponent } from './expense-create-cheque/expense-cr
 import { FeedbackDialogComponent } from './feedback-dialog/feedback-dialog.component';
 
 import { roleGuard } from '../core/auth.guard';
+import { SettingsComponent } from './settings/settings.component';
 import { EmployeeHomeComponent } from './employee-home/employee-home.component';
 
 const routes: Routes = [
   { path: 'Dashboard', component: DashboardComponent },
   { path: 'my-home', component: EmployeeHomeComponent },
+  { path: 'settings', component: SettingsComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'updateclient/:id', component: UpdateclientComponent },
   { path: 'companies', component: CompaniesComponent },

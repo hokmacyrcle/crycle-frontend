@@ -5,6 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { SessionService } from '../core/session.service';
+import { MenuItem, moreMenu, tabMenu } from '../core/menu';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import {
@@ -101,19 +102,22 @@ export class AdminComponent {
     { id: 'contacts', label: 'Contacts' },
   ];
 
-  // Bottom tabs on phones, chosen by role. Employees only get routes the roleGuard allows.
+  // Bottom tabs on phones, chosen by role and context. Employees only get routes the roleGuard allows.
   tabs: { label: string; icon: string; route: string }[] = [];
+  more: MenuItem[] = [];
+  showMore = false;
 
   private buildTabs() {
-    return this.session.role === 'employee'
-      ? [{ label: 'Home', icon: 'home', route: '/admin/my-home' }]
-      : [
-          { label: 'Home', icon: 'home', route: '/admin/Dashboard' },
-          { label: 'Sales', icon: 'receipt_long', route: '/admin/sales' },
-          { label: 'Clients', icon: 'groups', route: '/admin/clients' },
-          { label: 'Payroll', icon: 'payments', route: '/admin/payroll' },
-          { label: 'Team', icon: 'badge', route: '/admin/Employees' },
-        ];
+    if (this.session.role === 'employee') {
+      return [{ label: 'Home', icon: 'home', route: '/admin/my-home' }];
+    }
+    const ctx = this.session.context;
+    const tabs: { label: string; icon: string; route: string }[] = tabMenu(ctx).map(m => ({ label: m.label, icon: m.icon, route: m.route }));
+    this.more = moreMenu(ctx);
+    if (this.more.length) {
+      // "More" is a button, not a route; the template renders it separately
+    }
+    return tabs;
   }
 
   logout() {

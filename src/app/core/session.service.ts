@@ -28,6 +28,15 @@ export class SessionService {
     return localStorage.getItem('name') || 'User';
   }
 
+  /** 'firm' = working at firm level; 'client' = working inside one client business. */
+  get context(): 'firm' | 'client' {
+    try {
+      return JSON.parse(localStorage.getItem('selected_company') || '{}')?.company_type === 'Client' ? 'client' : 'firm';
+    } catch {
+      return 'firm';
+    }
+  }
+
   get companyName(): string {
     try {
       return JSON.parse(localStorage.getItem('selected_company') || '{}')?.company_name || '';

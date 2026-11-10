@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SessionService } from 'src/app/core/session.service';
 import { Router } from '@angular/router';
 import { AccountService } from 'src/app/services/account.service';
 import { AlertService } from 'src/app/services/alert.service';
@@ -13,10 +14,12 @@ export class DashboardComponent {
   firmName = '';
   clients: any[] = [];
   opening = false;
+  isClient = false;
 
-  constructor(private router: Router, private api: AccountService, private alerts: AlertService) {
+  constructor(private router: Router, private api: AccountService, private alerts: AlertService, session: SessionService) {
     let login: any = {};
     try { login = JSON.parse(localStorage.getItem('login_response') || '{}'); } catch { /* ignore */ }
+    this.isClient = session.context === 'client';
     this.firstName = login?.data?.user?.first_name || '';
     const all: any[] = login?.data?.companies || [];
     this.clients = all.filter(c => c.company_type === 'Client');

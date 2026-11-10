@@ -1,6 +1,6 @@
 <div class="mx-auto max-w-3xl text-cyrcle-navy">
   <h1 class="m-0 text-[28px] font-extrabold leading-tight">G'day{{ firstName ? ', ' + firstName : '' }}</h1>
-  <p class="mt-1.5 text-sm text-[#3C4663]">{{ firmName || 'Your accounting firm' }}</p>
+  <p class="mt-1.5 text-sm text-[#3C4663]">{{ firmName || 'Your accounting firm' }}{{ isClient ? ' · client business' : '' }}</p>
 
   <div class="mt-4 flex flex-wrap gap-2">
     <a routerLink="/admin/addinvoice" class="flex h-11 items-center rounded-full bg-cyrcle-poppy px-5 text-sm font-bold text-cyrcle-navy">New invoice</a>
@@ -8,6 +8,7 @@
     <a routerLink="/admin/payroll" class="flex h-11 items-center rounded-full bg-cyrcle-cream px-5 text-sm font-bold text-cyrcle-navy">Run payroll</a>
   </div>
 
+  <ng-container *ngIf="!isClient">
   <div class="mt-7 flex items-baseline justify-between">
     <h2 class="m-0 text-lg font-extrabold">Your clients</h2>
     <a *ngIf="clients.length" routerLink="/admin/companies" class="text-sm font-bold text-cyrcle-midnight underline">See all</a>
@@ -34,6 +35,8 @@
       Add client business
     </a>
   </div>
+
+  </ng-container>
 
   <div class="mt-7"><h2 class="m-0 text-lg font-extrabold">This week</h2></div>
   <p class="mt-2 text-sm leading-snug text-[#5B6478]">Nothing due yet. Pay runs, overdue invoices and quotes awaiting a reply will show up here.</p>

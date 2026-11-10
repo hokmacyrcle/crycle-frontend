@@ -1,12 +1,10 @@
-<!-- sidebar.component.html -->
-<aside id="sidebar" class="bg-white w-[130px] space-y-1 shadow-lg absolute md:relative md:translate-x-0"
-     [ngClass]="{'-translate-x-full': !isSidebarOpen, 'translate-x-0': isSidebarOpen}"
-     [ngStyle]="{'transition': 'transform 300ms ease-in-out', 'z-index': isSidebarOpen ? '20' : 'auto'}">
-     <div *ngFor="let menu of menuItems" [routerLink]="menu.route"
-          class="menu-item relative flex flex-col border-b text-center items-center py-3 hover:text-cyrcle-royal cursor-pointer"
-          [ngClass]="{'text-cyrcle-royal font-bold': activeSection === menu.section}" (click)="setActiveSection(menu.section)">
-          <span class="material-icons mb-1 text-[32px]" aria-hidden="true">{{ iconFor(menu.section) }}</span>
-          <span class="text-sm font-medium">{{ menu.label }}</span>
-          <span class="absolute inset-y-2 left-0 w-1 rounded-r bg-cyrcle-poppy" [ngClass]="{'hidden': activeSection !== menu.section}"></span>
-     </div>
+<aside id="sidebar" class="w-[140px] bg-white" aria-label="Main menu">
+  <a *ngFor="let menu of menuItems" [routerLink]="menu.route"
+     class="relative flex min-h-[84px] flex-col items-center justify-center gap-1.5 border-b border-cyrcle-pearl px-2 text-center text-[13px] text-cyrcle-navy hover:bg-[#F6F4EC]"
+     [ngClass]="isActive(menu) ? 'bg-[#F6F4EC] font-extrabold text-cyrcle-royal' : 'font-semibold'"
+     [attr.aria-current]="isActive(menu) ? 'page' : null">
+    <span *ngIf="isActive(menu)" class="absolute inset-y-3.5 left-0 w-1 rounded-r bg-cyrcle-poppy"></span>
+    <span class="material-icons text-[28px]" aria-hidden="true">{{ menu.icon }}</span>
+    <span>{{ menu.label }}</span>
+  </a>
 </aside>
