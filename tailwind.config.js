@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{html,ts}"],
+  // Status pills are chosen at run time (cy-pill-<status>), so Tailwind cannot see them in the templates.
+  safelist: [{ pattern: /^cy-pill-(draft|awaiting|overdue|paid|void|sent|accepted|declined|expired|invoiced)$/ }],
   theme: {
     extend: {
       colors: {

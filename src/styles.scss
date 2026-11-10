@@ -442,3 +442,68 @@ h1, h2, h3, .font-display {
 .swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: #047070; }
 .swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(4, 112, 112, 0.25); }
 .swal2-icon.swal2-warning, .swal2-icon.swal2-question, .swal2-icon.swal2-info { border-color: #FFC200; color: #8A4B00; }
+
+// ---------------------------------------------------------------------------
+// Cyrcle UI kit: one size and one look for buttons, fields, cards and status pills.
+// Use these instead of one-off Tailwind classes so every screen matches.
+// ---------------------------------------------------------------------------
+@layer components {
+  .cy-btn {
+    @apply inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .cy-btn-primary {
+    @apply inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-cyrcle-poppy px-5 text-sm font-bold text-cyrcle-navy transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .cy-btn-secondary {
+    @apply inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-cyrcle-navy bg-transparent px-5 text-sm font-bold text-cyrcle-navy transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .cy-btn-danger {
+    @apply inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-red-700 bg-transparent px-5 text-sm font-bold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .cy-btn-sm {
+    height: 2.25rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    font-size: 13px !important;
+  }
+  .cy-icon-btn {
+    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-cyrcle-navy transition hover:bg-cyrcle-cream disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .cy-input {
+    @apply h-[52px] w-full rounded-[14px] border-[1.5px] border-[#B9B39F] bg-white px-4 text-base text-cyrcle-navy outline-none focus:border-cyrcle-navy;
+  }
+  textarea.cy-input {
+    @apply h-auto py-3;
+  }
+  .cy-input.invalid {
+    @apply border-red-700;
+  }
+  .cy-input:disabled {
+    @apply bg-[#F1EEE3] text-[#5B6478];
+  }
+  .cy-label {
+    @apply mb-1.5 block text-[13px] font-bold text-cyrcle-navy;
+  }
+  .cy-error {
+    @apply mt-1 text-[13px] font-semibold text-red-700;
+  }
+  .cy-help {
+    @apply mt-1 text-[13px] text-[#5B6478];
+  }
+  .cy-card {
+    @apply rounded-[20px] bg-white p-5;
+  }
+  .cy-pill {
+    @apply inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold;
+  }
+  .cy-pill-draft { @apply bg-[#E6E3D8] text-[#3C4663]; }
+  .cy-pill-awaiting { @apply bg-[#DCE6F7] text-cyrcle-royal; }
+  .cy-pill-overdue { @apply bg-[#FADBD8] text-[#9B1C1C]; }
+  .cy-pill-paid { @apply bg-[#D5ECE3] text-cyrcle-midnight; }
+  .cy-pill-void { @apply bg-[#E6E3D8] text-[#6B6B6B] line-through; }
+  .cy-pill-sent { @apply bg-[#DCE6F7] text-cyrcle-royal; }
+  .cy-pill-accepted { @apply bg-[#D5ECE3] text-cyrcle-midnight; }
+  .cy-pill-declined { @apply bg-[#FADBD8] text-[#9B1C1C]; }
+  .cy-pill-expired { @apply bg-[#FBEBC5] text-[#7A5200]; }
+  .cy-pill-invoiced { @apply bg-cyrcle-navy text-white; }
+}

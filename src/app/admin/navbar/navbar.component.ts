@@ -18,6 +18,12 @@ export class NavbarComponent {
   ) { }
   showDropdown = false;
 
+  /** Two letters for the round avatar, from the signed-in name. */
+  get initials(): string {
+    const parts = (this.session.userName || '').trim().split(/\s+/).filter(Boolean);
+    return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() || 'U';
+  }
+
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
   }

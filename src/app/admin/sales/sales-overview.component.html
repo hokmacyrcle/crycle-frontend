@@ -1,0 +1,131 @@
+<div *ngIf="loading" class="text-sm text-[#5B6478]">Loading your sales…</div>
+
+<div *ngIf="error" class="cy-card flex flex-col gap-3">
+  <div class="font-bold">We could not load your sales</div>
+  <div class="text-sm text-[#3C4663]">{{ error }}</div>
+  <button type="button" class="cy-btn-secondary self-start" (click)="load()">Try again</button>
+</div>
+
+<ng-container *ngIf="s && !loading">
+
+  <!-- Things that still need setting up. Only shown when something is actually missing. -->
+  <div *ngIf="needsAbn || !s.business.has_bank_details || s.totals.customers === 0" class="mb-5 flex flex-col gap-2.5">
+    <a *ngIf="needsAbn" [routerLink]="editBusiness" class="flex items-center gap-3 rounded-[16px] bg-[#FBEBC5] px-4 py-3 text-sm font-bold text-[#5C3F00]">
+      <app-icon name="alert" [size]="20"></app-icon>
+      <span class="flex-1">This business is registered for GST but has no ABN. Add it before issuing tax invoices.</span>
+      <app-icon name="chevron-right" [size]="18"></app-icon>
+    </a>
+    <a *ngIf="!s.business.has_bank_details" [routerLink]="editBusiness" class="flex items-center gap-3 rounded-[16px] bg-white px-4 py-3 text-sm font-bold">
+      <app-icon name="bank" [size]="20"></app-icon>
+      <span class="flex-1">Add bank details (BSB and account number) so customers know how to pay you. They are printed on every invoice.</span>
+      <app-icon name="chevron-right" [size]="18"></app-icon>
+    </a>
+    <a *ngIf="s.totals.customers === 0" routerLink="/admin/sales/customers/new" class="flex items-center gap-3 rounded-[16px] bg-white px-4 py-3 text-sm font-bold">
+      <app-icon name="customers" [size]="20"></app-icon>
+      <span class="flex-1">Add your first customer to start invoicing.</span>
+      <app-icon name="chevron-right" [size]="18"></app-icon>
+    </a>
+  </div>
+
+  <!-- Key numbers -->
+  <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <a routerLink="/admin/sales/invoices" [queryParams]="{ status: 'awaiting' }" class="cy-card block !p-4 hover:shadow-sm">
+      <div class="text-[13px] font-bold text-[#5B6478]">Owed to you</div>
+      <div class="mt-1 text-[24px] font-extrabold leading-tight">{{ s.owed.amount | aud }}</div>
+      <div class="text-[13px] text-[#5B6478]">{{ s.owed.count }} {{ s.owed.count === 1 ? 'invoice' : 'invoices' }}</div>
+    </a>
+    <a routerLink="/admin/sales/invoices" [queryParams]="{ status: 'overdue' }" class="cy-card block !p-4 hover:shadow-sm">
+      <div class="text-[13px] font-bold text-[#5B6478]">Overdue</div>
+      <div class="mt-1 text-[24px] font-extrabold leading-tight" [ngClass]="s.overdue.count ? 'text-[#9B1C1C]' : ''">{{ s.overdue.amount | aud }}</div>
+      <div class="text-[13px] text-[#5B6478]">{{ s.overdue.count }} {{ s.overdue.count === 1 ? 'invoice' : 'invoices' }}</div>
+    </a>
+    <div class="cy-card !p-4">
+      <div class="text-[13px] font-bold text-[#5B6478]">Received, last 30 days</div>
+      <div class="mt-1 text-[24px] font-extrabold leading-tight">{{ s.received_30_days.amount | aud }}</div>
+      <div class="text-[13px] text-[#5B6478]">{{ s.received_30_days.count }} {{ s.received_30_days.count === 1 ? 'payment' : 'payments' }}</div>
+    </div>
+    <a routerLink="/admin/sales/quotes" [queryParams]="{ status: 'sent' }" class="cy-card block !p-4 hover:shadow-sm">
+      <div class="text-[13px] font-bold text-[#5B6478]">Quotes awaiting reply</div>
+      <div class="mt-1 text-[24px] font-extrabold leading-tight">{{ s.quotes_awaiting.amount | aud }}</div>
+      <div class="text-[13px] text-[#5B6478]">{{ s.quotes_awaiting.count }} {{ s.quotes_awaiting.count === 1 ? 'quote' : 'quotes' }}</div>
+    </a>
+  </div>
+
+  <!-- First-time empty state -->
+  <div *ngIf="isEmpty" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">Nothing here yet</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]">Create your first invoice or quote. Your numbers and chart will appear here as you go.</div>
+    <div class="mt-1 flex flex-wrap gap-2">
+      <a routerLink="/admin/sales/invoices/new" class="cy-btn-primary">New invoice</a>
+      <a routerLink="/admin/sales/quotes/new" class="cy-btn-secondary">New quote</a>
+      <a routerLink="/admin/sales/customers/new" class="cy-btn-secondary">Add customer</a>
+    </div>
+  </div>
+
+  <div class="mt-5 grid gap-5 lg:grid-cols-[1.3fr_1fr]">
+    <!-- Chart -->
+    <section class="cy-card" aria-labelledby="chart-h">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="chart-h" class="m-0 text-base font-extrabold">Invoiced and received</h2>
+        <div class="flex items-center gap-4 text-[13px] font-semibold text-[#3C4663]">
+          <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded-sm bg-[#01153E]"></span>Invoiced</span>
+          <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded-sm bg-[#047070]"></span>Received</span>
+        </div>
+      </div>
+      <div class="text-[13px] text-[#5B6478]">Last 6 months</div>
+
+      <div *ngIf="!hasChartData" class="mt-4 rounded-[14px] bg-[#F6F4EC] p-5 text-sm text-[#3C4663]">
+        Invoices you issue and payments you record will show here.
+      </div>
+
+      <svg *ngIf="hasChartData" [attr.viewBox]="'0 0 ' + W + ' ' + H" class="mt-3 w-full" role="img" [attr.aria-label]="chartSummary">
+        <g *ngFor="let t of ticks">
+          <line [attr.x1]="50" [attr.x2]="W - 8" [attr.y1]="t.y" [attr.y2]="t.y" stroke="#E6DAC4" stroke-width="1"/>
+          <text [attr.x]="44" [attr.y]="t.y + 4" text-anchor="end" font-size="11" fill="#5B6478">{{ t.label }}</text>
+        </g>
+        <rect *ngFor="let b of bars" [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="3" [attr.fill]="b.color"><title>{{ b.tip }}</title></rect>
+        <text *ngFor="let m of months" [attr.x]="m.x" [attr.y]="H - 10" text-anchor="middle" font-size="12" fill="#3C4663">{{ m.label }}</text>
+      </svg>
+    </section>
+
+    <!-- Overdue -->
+    <section class="cy-card" aria-labelledby="overdue-h">
+      <h2 id="overdue-h" class="m-0 text-base font-extrabold">Overdue invoices</h2>
+      <div *ngIf="!s.overdue_list.length" class="mt-3 flex items-center gap-2 text-sm text-[#3C4663]">
+        <app-icon name="check" [size]="18"></app-icon> Nothing is overdue.
+      </div>
+      <ul *ngIf="s.overdue_list.length" class="m-0 mt-2 list-none p-0">
+        <li *ngFor="let o of s.overdue_list" class="border-b border-cyrcle-pearl last:border-0">
+          <a [routerLink]="['/admin/sales/invoices', o.id]" class="flex items-center justify-between gap-3 py-3">
+            <span class="min-w-0">
+              <span class="block truncate text-[15px] font-bold">{{ o.customer_name }}</span>
+              <span class="block text-[13px] text-[#5B6478]">{{ o.number }} · {{ o.days_overdue }} {{ o.days_overdue === 1 ? 'day' : 'days' }} overdue</span>
+            </span>
+            <span class="shrink-0 text-[15px] font-extrabold text-[#9B1C1C]">{{ o.amount_due | aud }}</span>
+          </a>
+        </li>
+      </ul>
+      <a *ngIf="s.overdue.count > s.overdue_list.length" routerLink="/admin/sales/invoices" [queryParams]="{ status: 'overdue' }" class="mt-2 inline-block text-[13px] font-bold underline">See all {{ s.overdue.count }}</a>
+    </section>
+  </div>
+
+  <!-- Recent -->
+  <section class="cy-card mt-5" aria-labelledby="recent-h" *ngIf="s.recent.length">
+    <div class="flex items-center justify-between">
+      <h2 id="recent-h" class="m-0 text-base font-extrabold">Recent invoices</h2>
+      <a routerLink="/admin/sales/invoices" class="text-[13px] font-bold underline">View all</a>
+    </div>
+    <ul class="m-0 mt-2 list-none p-0">
+      <li *ngFor="let r of s.recent" class="border-b border-cyrcle-pearl last:border-0">
+        <a [routerLink]="['/admin/sales/invoices', r.id]" class="flex flex-wrap items-center gap-x-3 gap-y-1 py-3">
+          <span class="min-w-0 flex-1 basis-40">
+            <span class="block truncate text-[15px] font-bold">{{ r.customer_name }}</span>
+            <span class="block text-[13px] text-[#5B6478]">{{ r.number }} · {{ r.issue_date | auDate }}</span>
+          </span>
+          <span class="cy-pill" [ngClass]="'cy-pill-' + r.status">{{ label[r.status] }}</span>
+          <span class="shrink-0 text-right text-[15px] font-extrabold sm:w-24">{{ r.total | aud }}</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+</ng-container>

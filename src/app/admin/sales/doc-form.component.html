@@ -1,0 +1,178 @@
+<div class="mx-auto max-w-4xl text-cyrcle-navy">
+  <button type="button" (click)="cancel()" class="inline-flex min-h-[40px] items-center gap-1.5 text-sm font-bold underline">
+    <app-icon name="arrow-left" [size]="18"></app-icon>{{ editing ? 'Back to ' + noun : 'Back to ' + noun + 's' }}
+  </button>
+
+  <h1 class="m-0 mt-1 text-[28px] font-extrabold leading-tight">
+    {{ editing ? 'Edit ' + noun + (doc ? ' ' + doc.number : '') : 'New ' + noun }}
+  </h1>
+  <p class="mt-1 text-sm text-[#3C4663]" *ngIf="!editing">The number is assigned when you save.</p>
+
+  <div *ngIf="loading" class="mt-6 text-sm text-[#5B6478]">Loading…</div>
+  <div *ngIf="loadError" class="cy-card mt-5 flex flex-col gap-3">
+    <div class="font-bold">We could not open this {{ noun }}</div>
+    <div class="text-sm text-[#3C4663]">{{ loadError }}</div>
+    <button type="button" (click)="cancel()" class="cy-btn-secondary self-start">Go back</button>
+  </div>
+
+  <!-- A customer is needed first -->
+  <div *ngIf="!loading && !loadError && !customers.length" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">Add a customer first</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]">Every {{ noun }} is for a customer. Add one, then you will come back here.</div>
+    <button type="button" class="cy-btn-primary mt-1 self-start" (click)="addCustomer()">Add customer</button>
+  </div>
+
+  <form *ngIf="!loading && !loadError && customers.length" class="mt-5 flex flex-col gap-5" (ngSubmit)="save(undefined)" novalidate autocomplete="off">
+
+    <!-- Customer and dates -->
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Customer</h2>
+      <div class="mt-3">
+        <label for="customer" class="cy-label">Who is this for?</label>
+        <select id="customer" name="customer" class="cy-input" [class.invalid]="err('customer_id')" [(ngModel)]="customerId">
+          <option [ngValue]="null" disabled>Choose a customer</option>
+          <option *ngFor="let c of customers" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+        <div class="cy-error" *ngIf="err('customer_id')">{{ err('customer_id') }}</div>
+        <div class="cy-help" *ngIf="selectedCustomer?.abn">ABN {{ selectedCustomer?.abn | abn }}</div>
+        <button type="button" class="mt-2 min-h-[36px] text-[13px] font-bold underline" (click)="addCustomer()">Add a new customer</button>
+      </div>
+
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="issue" class="cy-label">{{ isInvoice ? 'Invoice date' : 'Quote date' }}</label>
+          <input id="issue" name="issue" type="date" class="cy-input" [class.invalid]="err('issue_date')" [(ngModel)]="issueDate" (ngModelChange)="onIssueDateChange()">
+          <div class="cy-error" *ngIf="err('issue_date')">{{ err('issue_date') }}</div>
+        </div>
+        <div>
+          <label for="terms" class="cy-label">{{ isInvoice ? 'Payment terms' : 'How long is it valid?' }}</label>
+          <select id="terms" name="terms" class="cy-input" [(ngModel)]="termKey" (ngModelChange)="applyTerm()">
+            <option *ngFor="let t of options" [value]="t.key">{{ t.label }}</option>
+          </select>
+        </div>
+        <div>
+          <label for="due" class="cy-label">{{ isInvoice ? 'Due date' : 'Valid until' }}</label>
+          <input id="due" name="due" type="date" class="cy-input" [class.invalid]="err('due_date')" [(ngModel)]="dueDate" (ngModelChange)="onDueDateTyped()">
+          <div class="cy-error" *ngIf="err('due_date')">{{ err('due_date') }}</div>
+        </div>
+        <div>
+          <label for="ref" class="cy-label">Reference <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="ref" name="ref" type="text" class="cy-input" maxlength="100" [(ngModel)]="reference" placeholder="Purchase order or job number">
+        </div>
+      </div>
+    </section>
+
+    <!-- Lines -->
+    <section class="cy-card">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="m-0 text-base font-extrabold">What you are charging for</h2>
+      </div>
+
+      <fieldset *ngIf="gstRegistered" class="mt-3 border-0 p-0">
+        <legend class="cy-label">Amounts are</legend>
+        <div class="flex flex-wrap gap-2">
+          <label *ngFor="let o of [{k:'exclusive',l:'Excluding GST'},{k:'inclusive',l:'Including GST'},{k:'no_gst',l:'No GST'}]"
+                 class="inline-flex h-10 cursor-pointer items-center rounded-full border-[1.5px] px-4 text-[13px] font-bold"
+                 [ngClass]="amountsAre === o.k ? 'border-cyrcle-navy bg-cyrcle-navy text-white' : 'border-[#B9B39F] bg-white'">
+            <input type="radio" class="sr-only" name="amountsAre" [value]="o.k" [(ngModel)]="amountsAre">{{ o.l }}
+          </label>
+        </div>
+      </fieldset>
+      <p *ngIf="!gstRegistered" class="cy-help">This business is not registered for GST, so no GST is added.</p>
+
+      <div class="mt-4 hidden gap-3 px-0.5 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid"
+           [ngClass]="gstRegistered ? 'md:grid-cols-[1fr_90px_120px_130px_110px_40px]' : 'md:grid-cols-[1fr_90px_120px_110px_40px]'">
+        <div>Description</div><div>Quantity</div><div>Price</div><div *ngIf="gstRegistered">GST</div><div class="text-right">Amount</div><div></div>
+      </div>
+
+      <div *ngFor="let l of lines; let i = index" class="mt-3 grid grid-cols-6 gap-3 rounded-[16px] bg-[#F6F4EC] p-3 md:items-start md:bg-transparent md:p-0"
+           [ngClass]="gstRegistered ? 'md:grid-cols-[1fr_90px_120px_130px_110px_40px]' : 'md:grid-cols-[1fr_90px_120px_110px_40px]'">
+        <div class="col-span-6 md:col-span-1">
+          <label [attr.for]="'d' + i" class="cy-label md:sr-only">Description</label>
+          <input [id]="'d' + i" [name]="'d' + i" type="text" class="cy-input" [class.invalid]="err('lines.' + i + '.description')" maxlength="255" [(ngModel)]="l.description">
+          <div class="cy-error" *ngIf="err('lines.' + i + '.description')">{{ err('lines.' + i + '.description') }}</div>
+        </div>
+        <div [ngClass]="gstRegistered ? 'col-span-2' : 'col-span-3'" class="md:col-span-1">
+          <label [attr.for]="'q' + i" class="cy-label md:sr-only">Quantity</label>
+          <input [id]="'q' + i" [name]="'q' + i" type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [class.invalid]="err('lines.' + i + '.quantity')" [(ngModel)]="l.quantity">
+          <div class="cy-error" *ngIf="err('lines.' + i + '.quantity')">{{ err('lines.' + i + '.quantity') }}</div>
+        </div>
+        <div [ngClass]="gstRegistered ? 'col-span-2' : 'col-span-3'" class="md:col-span-1">
+          <label [attr.for]="'r' + i" class="cy-label md:sr-only">Price</label>
+          <input [id]="'r' + i" [name]="'r' + i" type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [class.invalid]="err('lines.' + i + '.rate')" [(ngModel)]="l.rate">
+          <div class="cy-error" *ngIf="err('lines.' + i + '.rate')">{{ err('lines.' + i + '.rate') }}</div>
+        </div>
+        <div *ngIf="gstRegistered" class="col-span-2 md:col-span-1">
+          <label [attr.for]="'g' + i" class="cy-label md:sr-only">GST</label>
+          <select [id]="'g' + i" [name]="'g' + i" class="cy-input" [(ngModel)]="l.gst_rate" [disabled]="amountsAre === 'no_gst'">
+            <option [ngValue]="10">10%</option>
+            <option [ngValue]="0">Free</option>
+          </select>
+        </div>
+        <div class="col-span-4 flex items-center justify-between md:col-span-1 md:h-[52px] md:justify-end">
+          <span class="text-[13px] font-bold text-[#5B6478] md:hidden">Amount</span>
+          <span class="text-[15px] font-extrabold">{{ totals.lines[i].entered | aud }}</span>
+        </div>
+        <div class="col-span-2 flex items-center justify-end md:col-span-1 md:h-[52px]">
+          <button type="button" class="cy-icon-btn" (click)="removeLine(i)" [disabled]="lines.length === 1" aria-label="Remove this line"><app-icon name="trash" [size]="20"></app-icon></button>
+        </div>
+      </div>
+      <div class="cy-error mt-2" *ngIf="err('lines')" data-invalid="true">{{ err('lines') }}</div>
+
+      <button type="button" class="cy-btn-secondary cy-btn-sm mt-4" (click)="addLine()"><app-icon name="plus" [size]="16"></app-icon>Add another line</button>
+
+      <!-- Discount -->
+      <div class="mt-5 border-t border-cyrcle-pearl pt-4">
+        <button *ngIf="!discountOn" type="button" class="min-h-[36px] text-[13px] font-bold underline" (click)="discountOn = true">Add a discount</button>
+        <div *ngIf="discountOn" class="grid gap-3 sm:grid-cols-[180px_160px_auto] sm:items-end">
+          <div>
+            <label for="dm" class="cy-label">Discount type</label>
+            <select id="dm" name="dm" class="cy-input" [(ngModel)]="discountMethod">
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Dollar amount ($)</option>
+            </select>
+          </div>
+          <div>
+            <label for="dv" class="cy-label">{{ discountMethod === 'percentage' ? 'Percent off' : 'Amount off' }}</label>
+            <input id="dv" name="dv" type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [class.invalid]="err('discount_value')" [(ngModel)]="discountValue">
+          </div>
+          <button type="button" class="min-h-[36px] self-center text-[13px] font-bold underline sm:mb-3" (click)="discountOn = false; discountValue = null">Remove discount</button>
+          <div class="cy-error sm:col-span-3" *ngIf="err('discount_value')">{{ err('discount_value') }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section class="cy-card">
+      <label for="notes" class="cy-label">Notes <span class="font-normal text-[#5B6478]">(optional, shown on the {{ noun }})</span></label>
+      <textarea id="notes" name="notes" rows="3" maxlength="2000" class="cy-input" [(ngModel)]="notes"></textarea>
+      <ng-container *ngIf="!isInvoice">
+        <label for="tc" class="cy-label mt-4">Terms and conditions <span class="font-normal text-[#5B6478]">(optional)</span></label>
+        <textarea id="tc" name="tc" rows="3" maxlength="2000" class="cy-input" [(ngModel)]="terms"></textarea>
+      </ng-container>
+    </section>
+
+    <!-- Totals and actions -->
+    <section class="cy-card">
+      <dl class="m-0 ml-auto flex max-w-sm flex-col gap-2 text-[15px]">
+        <div class="flex justify-between"><dt class="text-[#3C4663]">Subtotal{{ amountsAre === 'inclusive' && gstRegistered ? ' (including GST)' : '' }}</dt><dd class="m-0 font-bold">{{ totals.gross | aud }}</dd></div>
+        <div class="flex justify-between" *ngIf="totals.discount > 0"><dt class="text-[#3C4663]">Discount</dt><dd class="m-0 font-bold">−{{ totals.discount | aud }}</dd></div>
+        <div class="flex justify-between" *ngIf="gstRegistered && amountsAre === 'exclusive'"><dt class="text-[#3C4663]">GST 10%</dt><dd class="m-0 font-bold">{{ totals.gst | aud }}</dd></div>
+        <div class="flex justify-between border-t border-cyrcle-pearl pt-2 text-lg"><dt class="font-extrabold">Total (AUD)</dt><dd class="m-0 font-extrabold">{{ totals.total | aud }}</dd></div>
+        <div class="flex justify-between text-[13px] text-[#5B6478]" *ngIf="gstRegistered && amountsAre === 'inclusive'"><dt>Total includes GST of</dt><dd class="m-0 font-bold">{{ totals.gst | aud }}</dd></div>
+      </dl>
+
+      <div *ngIf="banner" class="mt-4 rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ banner }}</div>
+
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="cancel()" [disabled]="saving">Cancel</button>
+        <ng-container *ngIf="isDraft">
+          <button type="button" class="cy-btn-secondary" (click)="save('draft')" [disabled]="saving">Save draft</button>
+          <button *ngIf="isInvoice" type="button" class="cy-btn-primary" (click)="save('issue')" [disabled]="saving">{{ saving ? 'Saving…' : 'Issue invoice' }}</button>
+          <button *ngIf="!isInvoice" type="button" class="cy-btn-primary" (click)="save('send')" [disabled]="saving">{{ saving ? 'Saving…' : 'Mark as sent' }}</button>
+        </ng-container>
+        <button *ngIf="!isDraft" type="button" class="cy-btn-primary" (click)="save(undefined)" [disabled]="saving">{{ saving ? 'Saving…' : 'Save changes' }}</button>
+      </div>
+    </section>
+  </form>
+</div>

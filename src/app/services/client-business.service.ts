@@ -10,6 +10,9 @@ export interface ClientBusiness {
   company_abn: string | null;
   company_acn: string | null;
   gst_registered: boolean;
+  bank_account_name?: string | null;
+  bank_bsb?: string | null;
+  bank_account_number?: string | null;
   address_line: string | null;
   suburb: string | null;
   state: string | null;

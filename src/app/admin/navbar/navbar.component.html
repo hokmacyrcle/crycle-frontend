@@ -2,36 +2,23 @@
 <nav class="bg-white drop-shadow-md px-4 py-2 flex items-center justify-between w-full h-[70px] border-b">
   <div class="flex items-center gap-6">
     <a routerLink="/admin/Dashboard" aria-label="Cyrcle home"><img src="assets/images/brand/cyrcle-lockup-navy.svg" alt="Cyrcle" class="h-9 w-auto"></a>
-    <a routerLink="/company-selection" class="hidden sm:flex h-10 items-center gap-2.5 rounded-full bg-cyrcle-cream px-4 text-sm font-bold text-cyrcle-navy" title="Switch business"><span class="material-icons text-[18px]" aria-hidden="true">swap_horiz</span><span>{{ session.companyName }}</span><span class="font-medium text-[#3C4663]">· {{ session.context === 'firm' ? 'Firm level' : 'Inside a client' }}</span></a>
+    <a routerLink="/company-selection" class="hidden sm:flex h-10 items-center gap-2.5 rounded-full bg-cyrcle-cream px-4 text-sm font-bold text-cyrcle-navy" title="Switch business"><app-icon name="swap" [size]="18"></app-icon><span>{{ session.companyName }}</span><span class="font-medium text-[#3C4663]">· {{ session.context === 'firm' ? 'Firm level' : 'Inside a client' }}</span></a>
   </div>
   <div class="flex items-center gap-6">
-    <div class="relative hidden sm:block">
-      <input type="text" placeholder="Search"
-        class="pl-4 pr-8 py-1 rounded-full border bg-cyrcle-cream text-sm focus:outline-none" />
-      <span class="absolute right-2 top-1.5 text-gray-500">
-        <img src="assets/images/Dashboard/searchlogo.png" alt="Search" class="size-[20px]" />
-      </span>
-    </div>
-    <div class="flex items-center gap-4 text-gray-600 text-xl">
-      <button title="Notifications" class="hover:text-black">
-        <img src="assets/images/Dashboard/belllogo.png" alt="Notifications" class="size-[24px]" />
-      </button>
-      <button title="Settings" class="hover:text-black">
-        <img src="assets/images/Dashboard/settinglogo.png" alt="Settings" class="size-[24px]" />
-      </button>
-    </div><!-- User Dropdown -->
+    <a routerLink="/admin/settings" class="cy-icon-btn" title="Settings" aria-label="Settings"><app-icon name="settings" [size]="22"></app-icon></a>
+
     <div class="relative" (click)="toggleDropdown()" (document:click)="onDocumentClick($event)">
       <div class="flex items-center gap-2 cursor-pointer select-none">
-        <img src="assets/images/Dashboard/userlogo.png" alt="User" class="w-8 h-8 rounded-full" />
+        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-cyrcle-navy text-sm font-bold text-white" aria-hidden="true">{{ initials }}</span>
         <span class="hidden sm:inline text-sm font-medium text-cyrcle-navy">{{ session.userName }}</span>
       </div>
 
       <!-- Dropdown Menu -->
       <div *ngIf="showDropdown" class="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
-        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+        <a routerLink="/admin/settings" class="block px-4 py-2.5 text-sm font-semibold text-cyrcle-navy hover:bg-[#F6F4EC]">Settings</a>
+        <a routerLink="/company-selection" class="block px-4 py-2.5 text-sm font-semibold text-cyrcle-navy hover:bg-[#F6F4EC]">Switch business</a>
         <div class="border-t my-1"></div>
-        <a  class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100" (click)="logout()">Logout</a>
+        <button type="button" class="block w-full px-4 py-2.5 text-left text-sm font-semibold text-red-700 hover:bg-red-50" (click)="logout()">Sign out</button>
       </div>
     </div>
 

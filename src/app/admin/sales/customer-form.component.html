@@ -1,0 +1,96 @@
+<div class="mx-auto max-w-2xl text-cyrcle-navy">
+  <button type="button" (click)="cancel()" class="inline-flex min-h-[40px] items-center gap-1.5 text-sm font-bold underline">
+    <app-icon name="arrow-left" [size]="18"></app-icon>Back
+  </button>
+  <h1 class="m-0 mt-1 text-[28px] font-extrabold leading-tight">{{ editing ? 'Edit customer' : 'Add customer' }}</h1>
+  <p class="mt-1 text-sm text-[#3C4663]">They will be available when you create invoices and quotes.</p>
+
+  <div *ngIf="loading" class="mt-6 text-sm text-[#5B6478]">Loading…</div>
+  <div *ngIf="loadError" class="cy-card mt-5 flex flex-col gap-3">
+    <div class="font-bold">We could not open this customer</div>
+    <div class="text-sm text-[#3C4663]">{{ loadError }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="cancel()">Go back</button>
+  </div>
+
+  <form *ngIf="!loading && !loadError" class="mt-5 flex flex-col gap-5" (ngSubmit)="save()" novalidate autocomplete="off">
+    <section class="cy-card">
+      <fieldset class="m-0 border-0 p-0">
+        <legend class="cy-label">Who are you invoicing?</legend>
+        <div class="grid gap-2.5 sm:grid-cols-3">
+          <label *ngFor="let t of types" class="flex cursor-pointer flex-col rounded-[16px] border-[1.5px] p-3.5"
+                 [ngClass]="m.type === t.key ? 'border-cyrcle-navy bg-[#F6F4EC]' : 'border-[#B9B39F] bg-white'">
+            <input type="radio" class="sr-only" name="type" [value]="t.key" [(ngModel)]="m.type">
+            <span class="text-[15px] font-bold">{{ t.label }}</span>
+            <span class="text-[13px] text-[#5B6478]">{{ t.hint }}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2" *ngIf="m.type !== 'Individual'">
+          <label for="bn" class="cy-label">{{ isBusiness ? 'Business name' : 'Trading name' }} <span *ngIf="!isBusiness" class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="bn" name="bn" type="text" class="cy-input" [class.invalid]="err('business_name')" maxlength="255" [(ngModel)]="m.business_name">
+          <div class="cy-error" *ngIf="err('business_name')">{{ err('business_name') }}</div>
+        </div>
+        <div>
+          <label for="fn" class="cy-label">{{ isBusiness ? 'Contact first name' : 'First name' }} <span *ngIf="isBusiness" class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="fn" name="fn" type="text" class="cy-input" [class.invalid]="err('first_name')" maxlength="100" [(ngModel)]="m.first_name">
+          <div class="cy-error" *ngIf="err('first_name')">{{ err('first_name') }}</div>
+        </div>
+        <div>
+          <label for="ln" class="cy-label">{{ isBusiness ? 'Contact last name' : 'Last name' }} <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="ln" name="ln" type="text" class="cy-input" maxlength="100" [(ngModel)]="m.last_name">
+        </div>
+        <div class="sm:col-span-2" *ngIf="hasAbn">
+          <label for="abn" class="cy-label">ABN <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="abn" name="abn" type="text" inputmode="numeric" class="cy-input" [class.invalid]="err('abn')" maxlength="14" [(ngModel)]="m.abn">
+          <div class="cy-error" *ngIf="err('abn')">{{ err('abn') }}</div>
+          <div class="cy-help" *ngIf="!err('abn')">Shown on tax invoices. The ATO asks for the buyer's ABN or name on invoices over $1,000.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Contact details</h2>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="em" class="cy-label">Email <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="em" name="em" type="email" autocomplete="off" class="cy-input" [class.invalid]="err('email')" maxlength="255" [(ngModel)]="m.email">
+          <div class="cy-error" *ngIf="err('email')">{{ err('email') }}</div>
+        </div>
+        <div>
+          <label for="ph" class="cy-label">Phone <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="ph" name="ph" type="tel" class="cy-input" [class.invalid]="err('phone')" maxlength="20" [(ngModel)]="m.phone">
+          <div class="cy-error" *ngIf="err('phone')">{{ err('phone') }}</div>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="ad" class="cy-label">Street address <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="ad" name="ad" type="text" class="cy-input" maxlength="255" [(ngModel)]="m.address_line">
+        </div>
+        <div class="sm:col-span-2">
+          <label for="su" class="cy-label">Suburb</label>
+          <input id="su" name="su" type="text" class="cy-input" maxlength="100" [(ngModel)]="m.suburb">
+        </div>
+        <div>
+          <label for="st" class="cy-label">State or territory</label>
+          <select id="st" name="st" class="cy-input" [(ngModel)]="m.state">
+            <option value="">Choose</option>
+            <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <div>
+          <label for="pc" class="cy-label">Postcode</label>
+          <input id="pc" name="pc" type="text" inputmode="numeric" class="cy-input" [class.invalid]="err('postcode')" maxlength="4" [(ngModel)]="m.postcode">
+          <div class="cy-error" *ngIf="err('postcode')">{{ err('postcode') }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="banner" class="mt-4 rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ banner }}</div>
+
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="cancel()" [disabled]="saving">Cancel</button>
+        <button type="submit" class="cy-btn-primary" [disabled]="saving">{{ saving ? 'Saving…' : (editing ? 'Save changes' : 'Add customer') }}</button>
+      </div>
+    </section>
+  </form>
+</div>

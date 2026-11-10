@@ -1,7 +1,7 @@
 export interface MenuItem {
   key: string;
   label: string;
-  icon: string; // Material icon name
+  icon: string; // name in the app icon set (admin/ui/icon.component.ts)
   route: string;
 }
 
@@ -13,17 +13,16 @@ export function sideMenu(context: 'firm' | 'client'): MenuItem[] {
   return context === 'firm'
     ? [
         HOME,
-        { key: 'businesses', label: 'Client businesses', icon: 'apartment', route: '/admin/companies' },
+        { key: 'businesses', label: 'Client businesses', icon: 'building', route: '/admin/companies' },
         SETTINGS,
       ]
     : [
         HOME,
-        { key: 'sales', label: 'Sales', icon: 'receipt_long', route: '/admin/sales' },
-        { key: 'payroll', label: 'Payroll', icon: 'account_balance_wallet', route: '/admin/payroll' },
-        { key: 'expenses', label: 'Expenses', icon: 'credit_card', route: '/admin/expenses' },
-        { key: 'customers', label: 'Customers', icon: 'groups', route: '/admin/clients' },
-        { key: 'contacts', label: 'Contacts', icon: 'contacts', route: '/admin/contacts' },
-        { key: 'banking', label: 'Banking', icon: 'account_balance', route: '/admin/Banktransactions' },
+        { key: 'sales', label: 'Sales', icon: 'sales', route: '/admin/sales' },
+        { key: 'payroll', label: 'Payroll', icon: 'payroll', route: '/admin/payroll' },
+        { key: 'expenses', label: 'Expenses', icon: 'expenses', route: '/admin/expenses' },
+        { key: 'customers', label: 'Customers', icon: 'customers', route: '/admin/sales/customers' },
+        { key: 'banking', label: 'Banking', icon: 'bank', route: '/admin/Banktransactions' },
         SETTINGS,
       ];
 }
@@ -33,14 +32,14 @@ export function tabMenu(context: 'firm' | 'client'): MenuItem[] {
   return context === 'firm'
     ? [
         HOME,
-        { key: 'businesses', label: 'Businesses', icon: 'apartment', route: '/admin/companies' },
+        { key: 'businesses', label: 'Businesses', icon: 'building', route: '/admin/companies' },
         SETTINGS,
       ]
     : [
         HOME,
-        { key: 'sales', label: 'Sales', icon: 'receipt_long', route: '/admin/sales' },
-        { key: 'payroll', label: 'Payroll', icon: 'account_balance_wallet', route: '/admin/payroll' },
-        { key: 'expenses', label: 'Expenses', icon: 'credit_card', route: '/admin/expenses' },
+        { key: 'sales', label: 'Sales', icon: 'sales', route: '/admin/sales' },
+        { key: 'payroll', label: 'Payroll', icon: 'payroll', route: '/admin/payroll' },
+        { key: 'expenses', label: 'Expenses', icon: 'expenses', route: '/admin/expenses' },
       ];
 }
 

@@ -56,6 +56,12 @@ import { ExpenseCreatePurchaseOrderComponent } from './expense-create-purchase-o
 import { ExpenseCreateSupplierCreditComponent } from './expense-create-supplier-credit/expense-create-supplier-credit.component';
 import { ExpenseCreateChequeComponent } from './expense-create-cheque/expense-create-cheque.component';
 import { FeedbackDialogComponent } from './feedback-dialog/feedback-dialog.component';
+import { SalesOverviewComponent } from './sales/sales-overview.component';
+import { DocListComponent } from './sales/doc-list.component';
+import { DocFormComponent } from './sales/doc-form.component';
+import { DocViewComponent } from './sales/doc-view.component';
+import { CustomerListComponent } from './sales/customer-list.component';
+import { CustomerFormComponent } from './sales/customer-form.component';
 
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
@@ -67,7 +73,6 @@ const routes: Routes = [
   { path: 'Dashboard', component: DashboardComponent },
   { path: 'my-home', component: EmployeeHomeComponent },
   { path: 'settings', component: SettingsComponent },
-  { path: 'clients', component: ClientsComponent },
   { path: 'updateclient/:id', component: UpdateclientComponent },
   { path: 'companies', component: ClientBusinessesComponent },
   { path: 'companies/new', component: ClientBusinessFormComponent },
@@ -76,10 +81,11 @@ const routes: Routes = [
   { path: 'Employees', component: EmployeesComponent },
   { path: 'AddEmployee', component: AddEmployeeComponent },
   { path: 'employees/edit/:id', component: AddEmployeeComponent },
-  { path: 'addinvoice', component: InvoiceComponent },
-  { path: 'getallinvoice', component: GetallinvoicesComponent },
-  { path: 'contacts', component: GetallcustomerComponent },
-  { path: 'invoices/:id', component: InvoiceComponent },
+  { path: 'addinvoice', redirectTo: 'sales/invoices/new', pathMatch: 'full' },
+  { path: 'create-quote', redirectTo: 'sales/quotes/new', pathMatch: 'full' },
+  { path: 'getallinvoice', redirectTo: 'sales/invoices', pathMatch: 'full' },
+  { path: 'clients', redirectTo: 'sales/customers', pathMatch: 'full' },
+  { path: 'contacts', redirectTo: 'sales/customers', pathMatch: 'full' },
   { path: 'add-contact', component: AddcontactComponent },
   { path: 'update-contact/:id', component: AddcontactComponent },
 
@@ -141,10 +147,25 @@ const routes: Routes = [
   },
 
   // Other routes
-  { path: 'sales', component: SalesComponent },
-  { path: 'quote/:id', component: QuoteViewComponent },
-  { path: 'invoice/:id', component: InvoiceViewEditComponent },
-  { path: 'create-quote', component: CreateQuoteComponent },
+  // Sales: form and document pages first, then the tabbed shell
+  { path: 'sales/invoices/new', component: DocFormComponent, data: { kind: 'invoice' } },
+  { path: 'sales/invoices/:id/edit', component: DocFormComponent, data: { kind: 'invoice' } },
+  { path: 'sales/invoices/:id', component: DocViewComponent, data: { kind: 'invoice' } },
+  { path: 'sales/quotes/new', component: DocFormComponent, data: { kind: 'quote' } },
+  { path: 'sales/quotes/:id/edit', component: DocFormComponent, data: { kind: 'quote' } },
+  { path: 'sales/quotes/:id', component: DocViewComponent, data: { kind: 'quote' } },
+  { path: 'sales/customers/new', component: CustomerFormComponent },
+  { path: 'sales/customers/:id/edit', component: CustomerFormComponent },
+  {
+    path: 'sales',
+    component: SalesComponent,
+    children: [
+      { path: '', component: SalesOverviewComponent },
+      { path: 'invoices', component: DocListComponent, data: { kind: 'invoice' } },
+      { path: 'quotes', component: DocListComponent, data: { kind: 'quote' } },
+      { path: 'customers', component: CustomerListComponent },
+    ]
+  },
 
   // Bank Transactions
   { path: 'Banktransactions', component: BanktransactionsComponent },

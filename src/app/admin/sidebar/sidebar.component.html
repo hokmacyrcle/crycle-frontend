@@ -4,7 +4,7 @@
      [ngClass]="isActive(menu) ? 'bg-[#F6F4EC] font-extrabold text-cyrcle-royal' : 'font-semibold'"
      [attr.aria-current]="isActive(menu) ? 'page' : null">
     <span *ngIf="isActive(menu)" class="absolute inset-y-3.5 left-0 w-1 rounded-r bg-cyrcle-poppy"></span>
-    <span class="material-icons text-[28px]" aria-hidden="true">{{ menu.icon }}</span>
+    <app-icon [name]="menu.icon" [size]="26"></app-icon>
     <span>{{ menu.label }}</span>
   </a>
 </aside>

@@ -21,6 +21,9 @@ export class ClientBusinessFormComponent implements OnInit {
     abn: ['', abnValidator],
     acn: ['', Validators.pattern(/^(\d{3}\s?\d{3}\s?\d{3})?$/)],
     gst: [false],
+    bankName: ['', Validators.maxLength(100)],
+    bsb: ['', Validators.pattern(/^(\d{3}-?\d{3})?$/)],
+    accountNumber: ['', Validators.pattern(/^(\d{6,9})?$/)],
     address: ['', Validators.required],
     suburb: ['', Validators.required],
     state: ['', Validators.required],
@@ -40,6 +43,7 @@ export class ClientBusinessFormComponent implements OnInit {
           if (!r?.status) { this.alerts.DangerSwalnew('Could not load this business', r?.message || ''); this.router.navigate(['/admin/companies']); return; }
           const c = r.data.company;
           this.form.patchValue({ name: c.company_name, abn: c.company_abn || '', acn: c.company_acn || '', gst: !!c.gst_registered,
+            bankName: c.bank_account_name || '', bsb: c.bank_bsb || '', accountNumber: c.bank_account_number || '',
             address: c.address_line || '', suburb: c.suburb || '', state: c.state || '', postcode: c.postcode || '' });
         },
         error: () => this.router.navigate(['/admin/companies'])
@@ -57,8 +61,15 @@ export class ClientBusinessFormComponent implements OnInit {
       return;
     }
     const v = this.form.value;
+    if (v.gst && !(v.abn || '').trim()) {
+      this.form.get('abn')?.setErrors({ required: true });
+      this.error = 'A business registered for GST needs an ABN so it can issue tax invoices.';
+      setTimeout(() => document.querySelector('.border-red-600')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+      return;
+    }
     const body = {
       company_name: v.name, company_abn: v.abn || null, company_acn: v.acn || null, gst_registered: !!v.gst,
+      bank_account_name: v.bankName || null, bank_bsb: v.bsb || null, bank_account_number: v.accountNumber || null,
       address_line: v.address, suburb: v.suburb, state: v.state, postcode: v.postcode
     };
     this.busy = true;

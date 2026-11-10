@@ -1,64 +1,64 @@
 <div class="min-h-screen flex flex-col bg-[#f6f4ec]">
 
   <!-- Desktop top bar (unchanged behaviour) -->
-  <div class="hidden md:block fixed top-0 left-0 w-full z-50">
+  <div class="hidden md:block fixed top-0 left-0 w-full z-50 print:hidden">
     <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
   </div>
 
   <!-- Mobile top bar -->
-  <header class="md:hidden fixed top-0 left-0 w-full z-40 bg-[#F6F4EC] flex items-center gap-2.5 px-5 pb-2"
+  <header class="md:hidden fixed top-0 left-0 w-full z-40 bg-[#F6F4EC] flex items-center gap-2.5 px-5 pb-2 print:hidden"
           style="padding-top: calc(env(safe-area-inset-top) + 8px)">
     <a *ngIf="session.role === 'employer'" routerLink="/company-selection" class="flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-cyrcle-cream px-4 text-sm font-bold text-cyrcle-navy" aria-label="Switch business">
-      <span class="material-icons text-[18px]" aria-hidden="true">swap_horiz</span>
+      <app-icon name="swap" [size]="18"></app-icon>
       <span class="truncate">{{ session.companyName || 'Your business' }}</span>
     </a>
     <div *ngIf="session.role !== 'employer'" class="min-w-0 flex-1 truncate text-sm font-bold text-cyrcle-navy">{{ session.companyName }}</div>
     <a *ngIf="session.role === 'employer'" routerLink="/admin/settings" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cyrcle-navy text-white" aria-label="Settings">
-      <span class="material-icons text-[22px]" aria-hidden="true">person</span>
+      <app-icon name="user" [size]="22"></app-icon>
     </a>
     <button *ngIf="session.role !== 'employer'" type="button" (click)="logout()" class="text-xs border border-cyrcle-navy/30 rounded-full px-3 py-1.5 text-cyrcle-navy">Sign out</button>
   </header>
 
-  <div class="flex flex-1 pt-[72px] md:pt-16">
+  <div class="flex flex-1 pt-[72px] md:pt-16 print:pt-0">
 
     <!-- Sidebar: desktop, employer only -->
-    <div *ngIf="session.role === 'employer'" class="hidden md:block bg-white border-r">
+    <div *ngIf="session.role === 'employer'" class="hidden md:block bg-white border-r print:hidden">
       <app-sidebar [isSidebarOpen]="true" [activeSection]="activeSection"
         (sectionChange)="setActiveSection($event)"></app-sidebar>
     </div>
 
-    <main class="flex-1 min-w-0 p-4 pb-24 md:pb-4">
+    <main class="flex-1 min-w-0 p-4 pb-24 md:pb-4 print:p-0">
       <router-outlet></router-outlet>
     </main>
   </div>
 
   <!-- Mobile bottom tab bar -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-cyrcle-pearl grid"
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-cyrcle-pearl grid print:hidden"
        [style.gridTemplateColumns]="'repeat(' + (tabs.length + (more.length ? 1 : 0)) + ', minmax(0, 1fr))'"
        style="padding-bottom: env(safe-area-inset-bottom)">
     <a *ngFor="let t of tabs" [routerLink]="t.route" routerLinkActive="text-cyrcle-royal"
        class="flex flex-col items-center justify-center py-2 text-cyrcle-chestnut min-h-[56px]">
-      <span class="material-icons text-[24px]">{{ t.icon }}</span>
+      <app-icon [name]="t.icon" [size]="24"></app-icon>
       <span class="text-[11px] mt-0.5 font-medium">{{ t.label }}</span>
     </a>
     <button *ngIf="more.length" type="button" (click)="showMore = true"
        class="flex flex-col items-center justify-center py-2 text-cyrcle-chestnut min-h-[56px]">
-      <span class="material-icons text-[24px]">more_horiz</span>
+      <app-icon name="more" [size]="24"></app-icon>
       <span class="text-[11px] mt-0.5 font-medium">More</span>
     </button>
   </nav>
 
   <!-- Phone "More" sheet -->
-  <div *ngIf="showMore" class="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/40" (click)="showMore = false">
+  <div *ngIf="showMore" class="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/40 print:hidden" (click)="showMore = false">
     <div class="rounded-t-3xl bg-white px-5 pb-8 pt-5" (click)="$event.stopPropagation()" role="dialog" aria-label="More">
       <div class="mb-3 text-lg font-extrabold text-cyrcle-navy">More</div>
       <a *ngFor="let m of more" [routerLink]="m.route" (click)="showMore = false"
          class="flex min-h-[56px] items-center gap-4 border-b border-cyrcle-pearl text-[15px] font-bold text-cyrcle-navy">
-        <span class="material-icons text-[24px]" aria-hidden="true">{{ m.icon }}</span>{{ m.label }}
+        <app-icon [name]="m.icon" [size]="24"></app-icon>{{ m.label }}
       </a>
       <a routerLink="/company-selection" (click)="showMore = false"
          class="flex min-h-[56px] items-center gap-4 text-[15px] font-bold text-cyrcle-navy">
-        <span class="material-icons text-[24px]" aria-hidden="true">swap_horiz</span>Switch business
+        <app-icon name="swap" [size]="24"></app-icon>Switch business
       </a>
     </div>
   </div>

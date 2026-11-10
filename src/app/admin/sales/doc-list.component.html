@@ -1,0 +1,85 @@
+<div class="text-cyrcle-navy">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <label class="block flex-1 sm:max-w-sm">
+      <span class="sr-only">Search {{ noun }}s</span>
+      <input type="search" [ngModel]="search" (ngModelChange)="onSearch($event)" class="cy-input"
+        [placeholder]="'Search by customer, ' + (kind === 'invoice' ? 'invoice' : 'quote') + ' number or reference'">
+    </label>
+    <a [routerLink]="kind === 'invoice' ? '/admin/sales/invoices/new' : '/admin/sales/quotes/new'" class="cy-btn-primary self-start sm:self-auto" [ngClass]="kind === 'invoice' ? 'max-sm:hidden' : ''">
+      <app-icon name="plus" [size]="18"></app-icon>New {{ noun }}
+    </a>
+  </div>
+
+  <div class="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" [attr.aria-label]="noun + ' status'">
+    <button *ngFor="let f of filters" type="button" role="tab" [attr.aria-selected]="status === f.key" (click)="setStatus(f.key)"
+      class="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-[13px] font-bold"
+      [ngClass]="status === f.key ? 'border-cyrcle-navy bg-cyrcle-navy text-white' : 'border-[#B9B39F] bg-white text-cyrcle-navy hover:border-cyrcle-navy'">
+      {{ f.label }}<span class="text-[12px] font-semibold opacity-80">{{ counts[f.key] }}</span>
+    </button>
+  </div>
+
+  <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
+    <div class="font-bold">We could not load your {{ noun }}s</div>
+    <div class="text-sm text-[#3C4663]">{{ error }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="load(1)">Try again</button>
+  </div>
+
+  <div *ngIf="loading && !rows.length && !error" class="mt-5 text-sm text-[#5B6478]">Loading…</div>
+
+  <div *ngIf="!loading && !error && !rows.length" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">{{ hasFilter ? 'No ' + noun + 's match' : 'No ' + noun + 's yet' }}</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]" *ngIf="!hasFilter">
+      {{ kind === 'invoice' ? 'Create an invoice for a customer and it will be listed here.' : 'Create a quote for a customer. When they accept, turn it into an invoice in one click.' }}
+    </div>
+    <div class="text-[13px] leading-snug text-[#3C4663]" *ngIf="hasFilter">Try a different filter or search.</div>
+    <a *ngIf="!hasFilter" [routerLink]="kind === 'invoice' ? '/admin/sales/invoices/new' : '/admin/sales/quotes/new'" class="cy-btn-primary mt-1 self-start">New {{ noun }}</a>
+  </div>
+
+  <div *ngIf="rows.length" class="mt-4 overflow-hidden rounded-[20px] bg-white" [class.opacity-60]="loading">
+    <!-- column titles (desktop) -->
+    <div class="hidden grid-cols-[110px_1fr_110px_110px_120px_150px] gap-3 border-b border-cyrcle-pearl px-5 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
+      <div>Number</div><div>Customer</div><div>Date</div><div>{{ kind === 'invoice' ? 'Due' : 'Valid until' }}</div>
+      <div class="text-right">{{ kind === 'invoice' ? 'Amount' : 'Total' }}</div><div>Status</div>
+    </div>
+    <a *ngFor="let r of rows" [routerLink]="['/admin/sales', kind === 'invoice' ? 'invoices' : 'quotes', r.id]"
+       class="block border-b border-cyrcle-pearl last:border-0 hover:bg-[#FAF8F1]">
+      <!-- phone -->
+      <div class="flex flex-col gap-1.5 px-4 py-3.5 md:hidden">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="truncate text-[15px] font-bold">{{ r.customer_name }}</div>
+            <div class="text-[13px] text-[#5B6478]">{{ r.number }}<span *ngIf="r.reference"> · {{ r.reference }}</span></div>
+          </div>
+          <div class="shrink-0 text-right text-[15px] font-extrabold">{{ shownAmount(r) | aud }}</div>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-[13px] text-[#5B6478]">{{ kind === 'invoice' ? 'Due ' : 'Valid until ' }}{{ (kind === 'invoice' ? r.due_date : r.expiry_date) | auDate }}</span>
+          <span class="cy-pill" [ngClass]="'cy-pill-' + r.status">{{ label[r.status] }}</span>
+        </div>
+      </div>
+      <!-- desktop -->
+      <div class="hidden grid-cols-[110px_1fr_110px_110px_120px_150px] items-center gap-3 px-5 py-3.5 md:grid">
+        <div class="text-sm font-semibold">{{ r.number }}</div>
+        <div class="min-w-0">
+          <div class="truncate text-[15px] font-bold">{{ r.customer_name }}</div>
+          <div *ngIf="r.reference" class="truncate text-[13px] text-[#5B6478]">{{ r.reference }}</div>
+        </div>
+        <div class="text-sm">{{ r.issue_date | auDate }}</div>
+        <div class="text-sm">{{ (kind === 'invoice' ? r.due_date : r.expiry_date) | auDate }}</div>
+        <div class="text-right text-[15px] font-extrabold">
+          {{ shownAmount(r) | aud }}
+          <div *ngIf="showsBalance(r)" class="text-[12px] font-semibold text-[#5B6478]">of {{ r.total | aud }}</div>
+        </div>
+        <div><span class="cy-pill" [ngClass]="'cy-pill-' + r.status">{{ label[r.status] }}</span></div>
+      </div>
+    </a>
+  </div>
+
+  <div *ngIf="meta.total > meta.per_page" class="mt-4 flex items-center justify-between gap-3 text-sm">
+    <span class="text-[#5B6478]">{{ from }}–{{ to }} of {{ meta.total }}</span>
+    <div class="flex gap-2">
+      <button type="button" class="cy-btn-secondary cy-btn-sm" [disabled]="meta.page <= 1 || loading" (click)="load(meta.page - 1)"><app-icon name="chevron-left" [size]="16"></app-icon>Previous</button>
+      <button type="button" class="cy-btn-secondary cy-btn-sm" [disabled]="meta.page >= meta.last_page || loading" (click)="load(meta.page + 1)">Next<app-icon name="chevron-right" [size]="16"></app-icon></button>
+    </div>
+  </div>
+</div>
