@@ -6,8 +6,8 @@ import { AccountService } from 'src/app/services/account.service';
   selector: 'app-pending',
   template: `
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-[#F6F4EC] px-5 pb-8 pt-[calc(env(safe-area-inset-top)+48px)] text-cyrcle-navy">
-  <img src="assets/images/brand/cyrcle-mark.svg" alt="Cyrcle logo mark" class="mx-auto w-[120px]">
-  <h1 class="mt-8 text-[26px] font-extrabold leading-tight">{{ title }}</h1>
+  <img src="assets/images/brand/cyrcle-mark.svg" alt="Cyrcle logo mark" class="mx-auto block w-[120px]">
+  <h1 class="!mt-10 text-[26px] font-extrabold leading-tight">{{ title }}</h1>
   <p class="mt-2 text-[15px] leading-snug text-[#3C4663]">{{ body }}</p>
   <div *ngIf="error" role="alert" class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{{ error }}</div>
   <div class="mt-auto flex flex-col gap-2 pt-8">
