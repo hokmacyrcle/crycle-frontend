@@ -22,6 +22,46 @@ export class EmployeeFormComponent implements OnInit {
   tfnLast3: string | null = null;
   superRate = 12;
 
+  tabs = [
+    { key: 'personal', label: 'Personal' },
+    { key: 'job', label: 'Job and pay' },
+    { key: 'tax', label: 'Tax' },
+    { key: 'super', label: 'Super' },
+    { key: 'bank', label: 'Bank' },
+  ];
+  tab = 'personal';
+
+  /** Which tab each field lives on, so errors can send the person to the right place. */
+  private tabOf(field: string): string {
+    if (['start_date', 'hourly_rate', 'annual_salary', 'hours_per_week', 'pay_frequency', 'pay_basis', 'employment_basis', 'job_title'].includes(field)) return 'job';
+    if (['tfn', 'residency', 'claim_tax_free_threshold', 'has_study_training_loans', 'working_holiday_maker'].includes(field)) return 'tax';
+    if (field.startsWith('super_')) return 'super';
+    if (field.startsWith('bank_')) return 'bank';
+    return 'personal';
+  }
+
+  tabHasError(key: string): boolean { return Object.keys(this.errors).some(f => this.tabOf(f) === key); }
+  get tabIndex(): number { return this.tabs.findIndex(t => t.key === this.tab); }
+  get isLast(): boolean { return this.tabIndex === this.tabs.length - 1; }
+  get isFirst(): boolean { return this.tabIndex === 0; }
+
+  goTab(key: string): void { this.tab = key; this.scrollTop(); }
+  back(): void { if (!this.isFirst) this.goTab(this.tabs[this.tabIndex - 1].key); }
+
+  /** Moves on only when the current tab is filled in correctly. */
+  next(): void {
+    this.validate();
+    const here = Object.keys(this.errors).filter(f => this.tabOf(f) === this.tab);
+    if (here.length) {
+      const only: Record<string, string> = {}; here.forEach(f => only[f] = this.errors[f]);
+      this.errors = only; this.banner = ''; this.scrollToError(); return;
+    }
+    this.errors = {}; this.banner = '';
+    if (!this.isLast) this.goTab(this.tabs[this.tabIndex + 1].key);
+  }
+
+  private scrollTop(): void { setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' })); }
+
   bases = ['Full-time', 'Part-time', 'Casual', 'Fixed-term'];
   frequencies = ['Weekly', 'Fortnightly', 'Monthly'];
 
@@ -114,7 +154,7 @@ export class EmployeeFormComponent implements OnInit {
 
   save(): void {
     this.banner = '';
-    if (!this.validate()) { this.banner = 'Please fix the highlighted fields.'; this.scrollToError(); return; }
+    if (!this.validate()) { this.banner = 'Please fix the highlighted fields.'; this.showFirstError(); return; }
     const m = this.m;
     const body: EmployeePayload = {
       first_name: m.first_name.trim(), middle_name: this.txt(m.middle_name), last_name: m.last_name.trim(), date_of_birth: m.date_of_birth || null,
@@ -144,9 +184,15 @@ export class EmployeeFormComponent implements OnInit {
         this.saving = false;
         const p = toProblem(e);
         this.errors = p.fieldErrors; this.banner = p.message;
-        if (!Object.keys(p.fieldErrors).length) this.alerts.DangerSwalnew('Could not save', p.message); else this.scrollToError();
+        if (!Object.keys(p.fieldErrors).length) this.alerts.DangerSwalnew('Could not save', p.message); else this.showFirstError();
       }
     });
+  }
+
+  private showFirstError(): void {
+    if (this.tabHasError(this.tab)) { this.scrollToError(); return; }
+    const first = this.tabs.find(t => this.tabHasError(t.key));
+    if (first) { this.tab = first.key; this.scrollToError(); }
   }
 
   cancel(): void { this.router.navigate(['/admin/payroll']); }
