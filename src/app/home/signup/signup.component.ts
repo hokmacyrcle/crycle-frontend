@@ -47,6 +47,8 @@ export class SignupComponent {
     acn: ['', Validators.pattern(/^(\d{3}\s?\d{3}\s?\d{3})?$/)],
     state: ['', Validators.required],
     address: ['', Validators.required],
+    suburb: ['', Validators.required],
+    postcode: ['', [Validators.required, Validators.pattern(/^\d{4}$/)]],
     gst: [false]
   });
 
@@ -118,7 +120,7 @@ export class SignupComponent {
     const f = this.firm.value, a = this.access.value;
     this.busy = true;
     this.api.registerFirm({
-      firm_name: f.firmName, abn: f.abn, acn: f.acn || null, state: f.state, address_line: f.address,
+      firm_name: f.firmName, abn: f.abn, acn: f.acn || null, state: f.state, address_line: f.address, suburb: f.suburb, postcode: f.postcode,
       gst_registered: !!f.gst, client_count_band: a.clients, staff_count_band: a.staff, accept_terms: !!a.terms
     }).subscribe({
       next: r => { this.busy = false; if (r.status) { this.step = 5; } else { this.error = this.firstError(r); } },
