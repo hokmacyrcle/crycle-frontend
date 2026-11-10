@@ -224,4 +224,12 @@ export class DocFormComponent implements OnInit {
 
   get selectedCustomer(): PickCustomer | undefined { return this.customers.find(c => c.id === this.customerId); }
   get today(): string { return iso(new Date()); }
+
+  /** The edit page of the business being worked in, where GST registration is switched on. */
+  get editBusiness(): any[] {
+    try {
+      const id = JSON.parse(localStorage.getItem('selected_company') || '{}')?.company_id;
+      return id ? ['/admin/companies', id, 'edit'] : ['/admin/companies'];
+    } catch { return ['/admin/companies']; }
+  }
 }

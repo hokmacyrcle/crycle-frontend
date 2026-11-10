@@ -78,7 +78,7 @@
           </label>
         </div>
       </fieldset>
-      <p *ngIf="!gstRegistered" class="cy-help">This business is not registered for GST, so no GST is added.</p>
+      <p *ngIf="!gstRegistered" class="cy-help">This business is not registered for GST, so no GST is added and the document is a plain invoice. If it is registered, <a [routerLink]="editBusiness" class="font-bold underline">turn on GST in the business details</a> (an ABN is needed).</p>
 
       <div class="mt-4 hidden gap-3 px-0.5 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid"
            [ngClass]="gstRegistered ? 'md:grid-cols-[1fr_90px_120px_130px_110px_40px]' : 'md:grid-cols-[1fr_90px_120px_110px_40px]'">
