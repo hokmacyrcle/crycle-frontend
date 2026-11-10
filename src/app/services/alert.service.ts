@@ -10,10 +10,10 @@ export class AlertService {
 
   
   successSwalnew(any: any, doc: any) {
-    Swal.fire(any, doc, 'success');
+    Swal.fire({ title: any || 'Done', text: doc, icon: 'success', confirmButtonText: 'OK' });
   }
 
   DangerSwalnew(any: any, doc: any) {
-    Swal.fire(any, doc, 'error');
+    Swal.fire({ title: any || 'Something went wrong', text: doc, icon: 'error', confirmButtonText: 'OK' });
   }
 }

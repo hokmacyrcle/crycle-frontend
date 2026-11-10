@@ -411,3 +411,34 @@ h1, h2, h3, .font-display {
   input, select, textarea { font-size: 16px !important; }
   button, .mat-mdc-button, .submit-btn { min-height: 44px; }
 }
+
+
+/* ---- Cyrcle popups (SweetAlert2) ---- */
+.swal2-container { padding: 16px; }
+.swal2-popup {
+  width: min(92vw, 380px);
+  border-radius: 24px;
+  padding: 28px 20px 20px;
+  background: #fff;
+  color: #01153E;
+  font-family: 'Archivo', sans-serif;
+  font-stretch: 112%;
+}
+.swal2-title { color: #01153E; font-size: 22px; font-weight: 800; font-stretch: 122%; padding: 8px 0 0; }
+.swal2-html-container { color: #3C4663; font-size: 15px; line-height: 1.45; margin: 8px 0 0; }
+.swal2-actions { width: 100%; margin-top: 22px; gap: 10px; }
+.swal2-styled.swal2-confirm {
+  flex: 1; height: 52px; border-radius: 26px; border: 0; box-shadow: none !important;
+  background: #FFC200 !important; color: #01153E !important; font-size: 15px; font-weight: 700; font-stretch: 118%;
+}
+.swal2-styled.swal2-cancel, .swal2-styled.swal2-deny {
+  flex: 1; height: 52px; border-radius: 26px; border: 2px solid #01153E; box-shadow: none !important;
+  background: transparent !important; color: #01153E !important; font-size: 15px; font-weight: 700; font-stretch: 118%;
+}
+.swal2-styled:focus-visible { outline: 3px solid #002366; outline-offset: 2px; }
+.swal2-icon.swal2-error { border-color: #B42318; color: #B42318; }
+.swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: #B42318; }
+.swal2-icon.swal2-success { border-color: #047070; color: #047070; }
+.swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: #047070; }
+.swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(4, 112, 112, 0.25); }
+.swal2-icon.swal2-warning, .swal2-icon.swal2-question, .swal2-icon.swal2-info { border-color: #FFC200; color: #8A4B00; }

@@ -73,7 +73,7 @@ export class LoginComponent implements OnInit {
   //       this.loading = false;
   //     },
   //     (error) => {
-  //       this.alertservice.DangerSwalnew('', error.error.message);
+  //       this.alertservice.DangerSwalnew('Could not log in', error?.error?.message || 'Please check your details and try again.');
   //       console.log(error.error.message);
   //       console.error('Login error', error.message);
   //       this.loading = false;
@@ -113,12 +113,12 @@ export class LoginComponent implements OnInit {
           }
           this.loading = false;
         } else {
-          this.alertservice.DangerSwalnew('', res.message);
+          this.alertservice.DangerSwalnew('Could not log in', res.message);
           this.loading = false;
         }
       },
       (error) => {
-        this.alertservice.DangerSwalnew('', error.error.message);
+        this.alertservice.DangerSwalnew('Could not log in', error?.error?.message || 'Please check your details and try again.');
         console.error('Login error', error.error.message);
         this.loading = false;
       }
