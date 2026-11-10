@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AccountService } from 'src/app/services/account.service';
@@ -18,14 +18,14 @@ export function abnValidator(c: AbstractControl): ValidationErrors | null {
   selector: 'app-signup',
   templateUrl: './signup.component.html'
 })
-export class SignupComponent implements OnDestroy {
-  step = 1; // 1 account, 2 verify email, 3 firm, 4 request access, 5 done
+export class SignupComponent {
+  step = 1; // 1 account, 3 firm, 4 request access, 5 done (2 = email code, removed for now)
+  dots = [1, 3, 4];
+  get shown(): number { return this.dots.indexOf(this.step) + 1; }
   busy = false;
   error = '';
   tried = false;
-  resendIn = 0;
   showPw = false;
-  private timer: any;
 
   states = ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];
   clientBands = ['1-10', '11-50', '51-200', '200+'];
@@ -40,8 +40,6 @@ export class SignupComponent implements OnDestroy {
     password: ['', [Validators.required, Validators.minLength(8)]],
     passwordConfirmation: ['', Validators.required]
   }, { validators: (g: AbstractControl) => g.get('password')?.value === g.get('passwordConfirmation')?.value ? null : { mismatch: true } });
-
-  code = this.fb.control('', [Validators.required, Validators.pattern(/^\d{6}$/)]);
 
   firm = this.fb.group({
     firmName: ['', Validators.required],
@@ -59,26 +57,13 @@ export class SignupComponent implements OnDestroy {
     marketing: [false]
   });
 
-  constructor(private fb: FormBuilder, private api: AccountService, private router: Router) {
-    // Resume after a refresh: if a token exists, ask the server where the user is.
-    if (localStorage.getItem('access_token')) {
-      this.api.me().subscribe({
-        next: r => {
-          if (r?.data?.firm_status) { this.router.navigate(['/pending']); }
-          else if (r?.data?.email_verified) { this.step = 3; }
-        },
-        error: () => { /* stale token: stay on step 1 */ }
-      });
-    }
-  }
-
-  ngOnDestroy(): void { clearInterval(this.timer); }
+  constructor(private fb: FormBuilder, private api: AccountService, private router: Router) { }
 
   back(): void {
     this.error = ''; this.tried = false;
     if (this.step === 1) { this.router.navigate(['/login']); }
-    else if (this.step === 2) { this.step = 1; }
-    else if (this.step > 2) { this.step -= 1; }
+    else if (this.step === 3) { this.step = 1; }
+    else if (this.step === 4) { this.step = 3; }
   }
 
   private notice(): void {
@@ -107,40 +92,15 @@ export class SignupComponent implements OnDestroy {
           localStorage.setItem('access_token', r.data.access_token);
           localStorage.setItem('token_type', r.data.token_type || 'Bearer');
           localStorage.setItem('name', r.data.user?.name || '');
+          this.busy = false;
           this.tried = false;
-          this.sendCode(true);
+          this.step = 3;
         } else {
           this.busy = false;
           this.error = this.firstError(r);
         }
       },
       error: e => { this.busy = false; this.error = this.firstError(e.error) || 'Something went wrong. Please try again.'; }
-    });
-  }
-
-  // Step 2
-  sendCode(advance = false): void {
-    this.busy = true; this.error = '';
-    this.api.sendEmailCode().subscribe({
-      next: r => {
-        this.busy = false;
-        if (r.status) { if (advance) { this.step = 2; } this.startCooldown(); }
-        else { this.error = r.message; if (advance) { this.step = 2; } }
-      },
-      error: () => { this.busy = false; this.error = 'We could not send the code. Please try again.'; if (advance) { this.step = 2; } }
-    });
-  }
-  private startCooldown(): void {
-    this.resendIn = 30; clearInterval(this.timer);
-    this.timer = setInterval(() => { this.resendIn--; if (this.resendIn <= 0) clearInterval(this.timer); }, 1000);
-  }
-  submitCode(): void {
-    this.tried = true; this.error = '';
-    if (this.code.invalid) { this.notice(); return; }
-    this.busy = true;
-    this.api.verifyEmailCode(this.code.value!).subscribe({
-      next: r => { this.busy = false; if (r.status) { this.tried = false; this.step = 3; } else { this.error = r.message; } },
-      error: () => { this.busy = false; this.error = 'Something went wrong. Please try again.'; }
     });
   }
 
