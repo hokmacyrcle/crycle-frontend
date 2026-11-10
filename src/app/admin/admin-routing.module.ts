@@ -63,6 +63,7 @@ import { DocViewComponent } from './sales/doc-view.component';
 import { CustomerListComponent } from './sales/customer-list.component';
 import { CustomerFormComponent } from './sales/customer-form.component';
 
+import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
 import { ClientBusinessesComponent } from './client-businesses/client-businesses.component';
@@ -89,62 +90,22 @@ const routes: Routes = [
   { path: 'add-contact', component: AddcontactComponent },
   { path: 'update-contact/:id', component: AddcontactComponent },
 
-  // Payroll Routes
+  // Payroll is being rebuilt; the old screens held sample data and are no longer routed.
   {
     path: 'payroll',
-    component: PayrollComponent,
-    children: [
-      {
-        path: 'payrollemployee',
-        component: PayrollEmployeeComponent,
-        children: [
-          { path: 'employees/add', component: PayrollAddEmployeeComponent, },
-          {
-            path: 'payrollemployeedetails/:id',
-            component: PayrollEmployeeDetailsComponent,
-            children: [
-              { path: 'details', component: EmployeeDetailsComponent },
-              { path: 'employment', component: EmployementComponent },
-              { path: 'taxes', component: TaxesComponent },
-              { path: 'leave', component: LeaveComponent },
-              { path: 'bankaccount', component: BankaccountComponent },
-              { path: 'payslips', component: PayslipsComponent },
-              { path: 'paytemplate', component: PaytemplateComponent },
-              { path: 'openingbalance', component: OpeningbalanceComponent },
-              { path: 'notes', component: NotesComponent },
-              // Default redirect
-              { path: '', redirectTo: 'details', pathMatch: 'full' }
-            ]
-          }
-        ]
-      },
-      { path: 'payroll-leave', component: PayrollLeaveComponent },
-      {
-        path: 'payroll-timesheet', component: PayrollTimesheetComponent, children: [
-          { path: 'payroll-timesheet-details', component: PayrollTimesheetDetailsComponent },
-        ]
-      },
-      {
-        path: 'pay-employees', component: PayEmployeesComponent, children: [
-          { path: 'pay-employees-details', component: PayEmployeesDetailsComponent },
-        ]
-      },
-      { path: 'payroll-history', component: PayrollHistoryComponent },
-      {
-        path: 'payrollsetting',
-        component: PayrollSettingComponent,
-        children: [
-          { path: 'organisation', component: SettingOrganisationComponent },
-          { path: 'payfrequencis', component: SettingPayfrequencisComponent },
-          { path: 'holidays', component: SettingHolidaysComponent },
-          { path: 'payitems', component: SettingPayitemsComponent },
-          { path: 'superannuation', component: SettingSuperannuationComponent },
-          // Default redirect
-          { path: '', redirectTo: 'organisation', pathMatch: 'full' }
-        ]
-      },
-    ]
+    component: SectionPlaceholderComponent,
+    data: {
+      title: 'Payroll', icon: 'payroll',
+      blurb: 'Pay your team accurately and on time.',
+      planned: [
+        'Add employees with their tax file number, pay rate and super details',
+        'Run a pay run and see gross pay, PAYG withholding, super and net pay',
+        'Give every employee a payslip',
+        'Track leave and see payroll history'
+      ]
+    }
   },
+  { path: 'payroll/:rest', redirectTo: 'payroll', pathMatch: 'full' },
 
   // Other routes
   // Sales: form and document pages first, then the tabbed shell
@@ -167,23 +128,44 @@ const routes: Routes = [
     ]
   },
 
-  // Bank Transactions
-  { path: 'Banktransactions', component: BanktransactionsComponent },
-  { path: 'Banktransactionstable', component: BanktransactiontableComponent },
-  { path: 'Bankapptransactions', component: BankapptransactionsComponent },
-  { path: 'Banktransactionsreceipt', component: BanktransactionreceiptsComponent },
-  { path: 'Reconcile', component: ReconcileComponent },
-  { path: 'Bankrules', component: BankrulestransactionsComponent },
-  { path: 'Bankcharts', component: BankchartofaccountsComponent },
-  { path: 'BankRecurring', component: BankRecurringTransactionsComponent },
-
-  // Expenses routes
-  { path: 'expenses', component: ExpensesComponent },
-  { path: 'expense-create-bill', component: ExpenseCreateBillComponent },
-  { path: 'expense-create-expense', component: ExpenseCreateExpenseComponent },
-  { path: 'expense-create-purchase-order', component: ExpenseCreatePurchaseOrderComponent },
-  { path: 'expense-create-supplier-credit', component: ExpenseCreateSupplierCreditComponent },
-  { path: 'expense-create-cheque', component: ExpenseCreateChequeComponent },
+  // Banking and Expenses are not built yet; the old screens held sample data and are no longer routed.
+  {
+    path: 'Banktransactions', component: SectionPlaceholderComponent,
+    data: {
+      title: 'Banking', icon: 'bank',
+      blurb: 'See what came in and went out of your bank account.',
+      planned: [
+        'Connect your bank account',
+        'Match bank transactions to invoices and bills',
+        'Reconcile your accounts each month'
+      ]
+    }
+  },
+  {
+    path: 'expenses', component: SectionPlaceholderComponent,
+    data: {
+      title: 'Expenses', icon: 'expenses',
+      blurb: 'Keep track of what you spend and what you owe.',
+      planned: [
+        'Record bills from suppliers and pay them',
+        'Claim GST credits on what you buy',
+        'Keep receipts with each expense',
+        'See what you owe and when it is due'
+      ]
+    }
+  },
+  { path: 'Banktransactionstable', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Bankapptransactions', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Banktransactionsreceipt', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Reconcile', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Bankrules', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Bankcharts', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'BankRecurring', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'expense-create-bill', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-expense', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-purchase-order', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-supplier-credit', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-cheque', redirectTo: 'expenses', pathMatch: 'full' },
 
   // Feedback dialog
   { path: 'feedback-dialog', component: FeedbackDialogComponent },
