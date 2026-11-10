@@ -63,6 +63,8 @@ import { DocViewComponent } from './sales/doc-view.component';
 import { CustomerListComponent } from './sales/customer-list.component';
 import { CustomerFormComponent } from './sales/customer-form.component';
 
+import { EmployeeListComponent } from './payroll-employees/employee-list.component';
+import { EmployeeFormComponent } from './payroll-employees/employee-form.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
@@ -90,21 +92,10 @@ const routes: Routes = [
   { path: 'add-contact', component: AddcontactComponent },
   { path: 'update-contact/:id', component: AddcontactComponent },
 
-  // Payroll is being rebuilt; the old screens held sample data and are no longer routed.
-  {
-    path: 'payroll',
-    component: SectionPlaceholderComponent,
-    data: {
-      title: 'Payroll', icon: 'payroll',
-      blurb: 'Pay your team accurately and on time.',
-      planned: [
-        'Add employees with their tax file number, pay rate and super details',
-        'Run a pay run and see gross pay, PAYG withholding, super and net pay',
-        'Give every employee a payslip',
-        'Track leave and see payroll history'
-      ]
-    }
-  },
+  // Payroll: employees first; pay runs and payslips come next.
+  { path: 'payroll/employees/new', component: EmployeeFormComponent },
+  { path: 'payroll/employees/:id/edit', component: EmployeeFormComponent },
+  { path: 'payroll', component: EmployeeListComponent },
   { path: 'payroll/:rest', redirectTo: 'payroll', pathMatch: 'full' },
 
   // Other routes

@@ -1,0 +1,68 @@
+<div class="mx-auto max-w-4xl text-cyrcle-navy">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="m-0 text-[28px] font-extrabold leading-tight">Payroll</h1>
+      <p class="mt-1 text-sm text-[#3C4663]">Your employees and how they are paid.</p>
+    </div>
+    <a routerLink="/admin/payroll/employees/new" class="cy-btn-primary self-start sm:self-auto"><app-icon name="plus" [size]="18"></app-icon>Add employee</a>
+  </div>
+
+  <div class="mt-4 flex items-start gap-3 rounded-[16px] bg-[#F1EBDD] px-4 py-3 text-[13px] leading-snug text-[#3C4663]">
+    <span class="mt-0.5 shrink-0 text-cyrcle-navy"><app-icon name="info" [size]="18"></app-icon></span>
+    <span>Pay runs and payslips are the next step. Add your employees now so they are ready.</span>
+  </div>
+
+  <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <label class="block flex-1 sm:max-w-sm">
+      <span class="sr-only">Search employees</span>
+      <input type="search" [ngModel]="search" (ngModelChange)="onSearch($event)" class="cy-input" placeholder="Search by name, email or job title">
+    </label>
+    <div class="flex gap-2" role="group" aria-label="Show">
+      <button type="button" (click)="setArchived(false)" class="cy-btn cy-btn-sm" [ngClass]="!archived ? 'bg-cyrcle-navy text-white' : 'border-[1.5px] border-[#B9B39F] bg-white'">Current <span class="opacity-70">{{ counts.active }}</span></button>
+      <button type="button" (click)="setArchived(true)" class="cy-btn cy-btn-sm" [ngClass]="archived ? 'bg-cyrcle-navy text-white' : 'border-[1.5px] border-[#B9B39F] bg-white'">Archived <span class="opacity-70">{{ counts.archived }}</span></button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
+    <div class="font-bold">We could not load your employees</div>
+    <div class="text-sm text-[#3C4663]">{{ error }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="load(1)">Try again</button>
+  </div>
+
+  <div *ngIf="loading && !rows.length && !error" class="mt-5 text-sm text-[#5B6478]">Loading…</div>
+
+  <div *ngIf="!loading && !error && !rows.length" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">{{ search ? 'No employees match' : archived ? 'No archived employees' : 'Add your first employee' }}</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]" *ngIf="!archived && !search">You will need their name, start date, pay rate, tax file number and super fund. Bank details are needed to pay them.</div>
+    <a *ngIf="!archived && !search" routerLink="/admin/payroll/employees/new" class="cy-btn-primary mt-1 self-start">Add employee</a>
+  </div>
+
+  <ul *ngIf="rows.length" class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0" [class.opacity-60]="loading">
+    <li *ngFor="let e of rows" class="rounded-[20px] bg-white">
+      <div class="flex items-center gap-3.5 px-4 pb-2 pt-4">
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cyrcle-navy text-base font-bold text-white" aria-hidden="true">{{ e.name.charAt(0) | uppercase }}</span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate text-[15px] font-bold">{{ e.name }}</span>
+          <span class="block truncate text-[13px] text-[#5B6478]">
+            {{ e.job_title || 'No job title' }}<span *ngIf="e.employment_basis"> · {{ e.employment_basis }}</span>
+          </span>
+          <span class="block truncate text-[13px] text-[#5B6478]">
+            <span *ngIf="e.pay_summary">{{ e.pay_summary }}</span><span *ngIf="!e.pay_summary">No pay rate set</span><span *ngIf="e.pay_frequency"> · paid {{ e.pay_frequency | lowercase }}</span>
+          </span>
+        </span>
+      </div>
+      <div class="flex flex-wrap gap-x-5 px-4 pb-3 pl-[76px] text-[13px] font-bold text-cyrcle-midnight">
+        <button type="button" class="min-h-[36px] underline" (click)="edit(e)">{{ archived ? 'Open' : 'Edit' }}</button>
+        <button type="button" class="min-h-[36px] underline disabled:opacity-50" (click)="toggle(e)" [disabled]="busyId === e.id">{{ archived ? 'Restore' : 'Archive' }}</button>
+      </div>
+    </li>
+  </ul>
+
+  <div *ngIf="meta.total > meta.per_page" class="mt-4 flex items-center justify-between gap-3 text-sm">
+    <span class="text-[#5B6478]">{{ from }}–{{ to }} of {{ meta.total }}</span>
+    <div class="flex gap-2">
+      <button type="button" class="cy-btn-secondary cy-btn-sm" [disabled]="meta.page <= 1 || loading" (click)="load(meta.page - 1)"><app-icon name="chevron-left" [size]="16"></app-icon>Previous</button>
+      <button type="button" class="cy-btn-secondary cy-btn-sm" [disabled]="meta.page >= meta.last_page || loading" (click)="load(meta.page + 1)">Next<app-icon name="chevron-right" [size]="16"></app-icon></button>
+    </div>
+  </div>
+</div>

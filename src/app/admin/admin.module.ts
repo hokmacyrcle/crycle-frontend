@@ -120,6 +120,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { PayrollDashboardComponent } from './payroll-dashboard/payroll-dashboard.component';
 
+import { EmployeeListComponent } from './payroll-employees/employee-list.component';
+import { EmployeeFormComponent } from './payroll-employees/employee-form.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { IconComponent } from './ui/icon.component';
 import { AudPipe, AbnPipe, AuDatePipe } from './ui/format.pipes';
@@ -132,7 +134,7 @@ import { CustomerFormComponent } from './sales/customer-form.component';
 
 @NgModule({
   declarations: [
-    SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
+    EmployeeListComponent, EmployeeFormComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
     SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, CustomerListComponent, CustomerFormComponent,
     DashboardComponent,
     AdminComponent,

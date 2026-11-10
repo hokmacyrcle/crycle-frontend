@@ -1,0 +1,229 @@
+<div class="mx-auto max-w-2xl text-cyrcle-navy">
+  <button type="button" (click)="cancel()" class="inline-flex min-h-[40px] items-center gap-1.5 text-sm font-bold underline">
+    <app-icon name="arrow-left" [size]="18"></app-icon>Back to payroll
+  </button>
+  <h1 class="m-0 mt-1 text-[28px] font-extrabold leading-tight">{{ editing ? 'Edit employee' : 'Add employee' }}</h1>
+  <p class="mt-1 text-sm text-[#3C4663]">Everything needed to pay this person correctly. You can come back and change it later.</p>
+
+  <div *ngIf="loading" class="mt-6 text-sm text-[#5B6478]">Loading…</div>
+  <div *ngIf="loadError" class="cy-card mt-5 flex flex-col gap-3">
+    <div class="font-bold">We could not open this employee</div>
+    <div class="text-sm text-[#3C4663]">{{ loadError }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="cancel()">Go back</button>
+  </div>
+
+  <form *ngIf="!loading && !loadError" class="mt-5 flex flex-col gap-5" (ngSubmit)="save()" novalidate autocomplete="off">
+
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Personal details</h2>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="fn" class="cy-label">First name</label>
+          <input id="fn" name="fn" type="text" class="cy-input" [class.invalid]="err('first_name')" maxlength="100" [(ngModel)]="m.first_name">
+          <div class="cy-error" *ngIf="err('first_name')">{{ err('first_name') }}</div>
+        </div>
+        <div>
+          <label for="ln" class="cy-label">Last name</label>
+          <input id="ln" name="ln" type="text" class="cy-input" [class.invalid]="err('last_name')" maxlength="100" [(ngModel)]="m.last_name">
+          <div class="cy-error" *ngIf="err('last_name')">{{ err('last_name') }}</div>
+        </div>
+        <div>
+          <label for="mn" class="cy-label">Middle name <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="mn" name="mn" type="text" class="cy-input" maxlength="100" [(ngModel)]="m.middle_name">
+        </div>
+        <div>
+          <label for="dob" class="cy-label">Date of birth <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="dob" name="dob" type="date" class="cy-input" [class.invalid]="err('date_of_birth')" [(ngModel)]="m.date_of_birth">
+          <div class="cy-error" *ngIf="err('date_of_birth')">{{ err('date_of_birth') }}</div>
+        </div>
+        <div>
+          <label for="em" class="cy-label">Email <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="em" name="em" type="email" autocomplete="off" class="cy-input" [class.invalid]="err('email')" maxlength="255" [(ngModel)]="m.email">
+          <div class="cy-error" *ngIf="err('email')">{{ err('email') }}</div>
+          <div class="cy-help" *ngIf="!err('email')">Used to send payslips.</div>
+        </div>
+        <div>
+          <label for="mo" class="cy-label">Mobile <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="mo" name="mo" type="tel" autocomplete="off" class="cy-input" [class.invalid]="err('mobile')" maxlength="20" [(ngModel)]="m.mobile">
+          <div class="cy-error" *ngIf="err('mobile')">{{ err('mobile') }}</div>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="ad" class="cy-label">Street address <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="ad" name="ad" type="text" autocomplete="off" class="cy-input" maxlength="255" [(ngModel)]="m.address_line">
+        </div>
+        <div>
+          <label for="su" class="cy-label">Suburb</label>
+          <input id="su" name="su" type="text" autocomplete="off" class="cy-input" maxlength="100" [(ngModel)]="m.suburb">
+        </div>
+        <div class="grid grid-cols-[1fr_110px] gap-3">
+          <div>
+            <label for="st" class="cy-label">State</label>
+            <select id="st" name="st" class="cy-input" [class.invalid]="err('state')" [(ngModel)]="m.state">
+              <option value="">Choose</option>
+              <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div>
+            <label for="pc" class="cy-label">Postcode</label>
+            <input id="pc" name="pc" type="text" inputmode="numeric" autocomplete="off" class="cy-input" [class.invalid]="err('postcode')" maxlength="4" [(ngModel)]="m.postcode">
+          </div>
+        </div>
+        <div class="cy-error sm:col-span-2" *ngIf="err('postcode')">{{ err('postcode') }}</div>
+      </div>
+    </section>
+
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Job and pay</h2>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="jt" class="cy-label">Job title <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="jt" name="jt" type="text" class="cy-input" maxlength="100" [(ngModel)]="m.job_title">
+        </div>
+        <div>
+          <label for="sd" class="cy-label">Start date</label>
+          <input id="sd" name="sd" type="date" class="cy-input" [class.invalid]="err('start_date')" [(ngModel)]="m.start_date">
+          <div class="cy-error" *ngIf="err('start_date')">{{ err('start_date') }}</div>
+        </div>
+        <div>
+          <label for="eb" class="cy-label">Employment type</label>
+          <select id="eb" name="eb" class="cy-input" [(ngModel)]="m.employment_basis">
+            <option *ngFor="let b of bases" [value]="b">{{ b }}</option>
+          </select>
+        </div>
+        <div>
+          <label for="pf" class="cy-label">How often are they paid?</label>
+          <select id="pf" name="pf" class="cy-input" [class.invalid]="err('pay_frequency')" [(ngModel)]="m.pay_frequency">
+            <option *ngFor="let f of frequencies" [value]="f">{{ f }}</option>
+          </select>
+        </div>
+      </div>
+
+      <fieldset class="m-0 mt-4 border-0 p-0">
+        <legend class="cy-label">Pay basis</legend>
+        <div class="grid grid-cols-2 gap-2.5">
+          <label class="flex cursor-pointer flex-col rounded-[16px] border-[1.5px] p-3.5" [ngClass]="m.pay_basis === 'hourly' ? 'border-cyrcle-navy bg-[#F6F4EC]' : 'border-[#B9B39F] bg-white'">
+            <input type="radio" class="sr-only" name="pb" value="hourly" [(ngModel)]="m.pay_basis">
+            <span class="text-[15px] font-bold">Hourly</span><span class="text-[13px] text-[#5B6478]">Paid for hours worked</span>
+          </label>
+          <label class="flex cursor-pointer flex-col rounded-[16px] border-[1.5px] p-3.5" [ngClass]="m.pay_basis === 'salary' ? 'border-cyrcle-navy bg-[#F6F4EC]' : 'border-[#B9B39F] bg-white'">
+            <input type="radio" class="sr-only" name="pb" value="salary" [(ngModel)]="m.pay_basis">
+            <span class="text-[15px] font-bold">Salary</span><span class="text-[13px] text-[#5B6478]">A fixed yearly amount</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div *ngIf="m.pay_basis === 'hourly'">
+          <label for="hr" class="cy-label">Hourly rate ($)</label>
+          <input id="hr" name="hr" type="text" inputmode="decimal" class="cy-input" [class.invalid]="err('hourly_rate')" [(ngModel)]="m.hourly_rate">
+          <div class="cy-error" *ngIf="err('hourly_rate')">{{ err('hourly_rate') }}</div>
+        </div>
+        <div *ngIf="m.pay_basis === 'salary'">
+          <label for="as" class="cy-label">Yearly salary ($)</label>
+          <input id="as" name="as" type="text" inputmode="decimal" class="cy-input" [class.invalid]="err('annual_salary')" [(ngModel)]="m.annual_salary">
+          <div class="cy-error" *ngIf="err('annual_salary')">{{ err('annual_salary') }}</div>
+          <div class="cy-help" *ngIf="!err('annual_salary')">Before tax, not including super.</div>
+        </div>
+        <div>
+          <label for="hw" class="cy-label">Usual hours a week <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="hw" name="hw" type="text" inputmode="decimal" class="cy-input" [class.invalid]="err('hours_per_week')" [(ngModel)]="m.hours_per_week">
+          <div class="cy-error" *ngIf="err('hours_per_week')">{{ err('hours_per_week') }}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Tax</h2>
+      <p class="mt-1 text-[13px] text-[#5B6478]">Take these from the employee's tax file number declaration.</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="tfn" class="cy-label">Tax file number</label>
+          <input id="tfn" name="tfn" type="text" inputmode="numeric" autocomplete="off" class="cy-input" [class.invalid]="err('tfn')" maxlength="11"
+                 [placeholder]="tfnLast3 ? 'Saved, ending ' + tfnLast3 + '. Leave empty to keep it.' : ''" [(ngModel)]="m.tfn">
+          <div class="cy-error" *ngIf="err('tfn')">{{ err('tfn') }}</div>
+          <div class="cy-help" *ngIf="!err('tfn')">Stored encrypted. Only the last 3 digits are ever shown. Without a TFN, tax is withheld at the highest rate.</div>
+        </div>
+      </div>
+
+      <fieldset class="m-0 mt-4 border-0 p-0">
+        <legend class="cy-label">Tax residency</legend>
+        <div class="grid grid-cols-2 gap-2.5">
+          <label class="flex cursor-pointer flex-col rounded-[16px] border-[1.5px] p-3.5" [ngClass]="m.residency === 'Australian resident' ? 'border-cyrcle-navy bg-[#F6F4EC]' : 'border-[#B9B39F] bg-white'">
+            <input type="radio" class="sr-only" name="res" value="Australian resident" [(ngModel)]="m.residency" (ngModelChange)="onResidency()">
+            <span class="text-[15px] font-bold">Australian resident</span><span class="text-[13px] text-[#5B6478]">For tax purposes</span>
+          </label>
+          <label class="flex cursor-pointer flex-col rounded-[16px] border-[1.5px] p-3.5" [ngClass]="m.residency === 'Foreign resident' ? 'border-cyrcle-navy bg-[#F6F4EC]' : 'border-[#B9B39F] bg-white'">
+            <input type="radio" class="sr-only" name="res" value="Foreign resident" [(ngModel)]="m.residency" (ngModelChange)="onResidency()">
+            <span class="text-[15px] font-bold">Foreign resident</span><span class="text-[13px] text-[#5B6478]">For tax purposes</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="mt-4 flex flex-col gap-3.5">
+        <label class="flex items-start gap-3" [class.opacity-60]="foreign">
+          <input type="checkbox" name="tft" class="mt-0.5 h-6 w-6 shrink-0 accent-[#01153E]" [disabled]="foreign" [(ngModel)]="m.claim_tax_free_threshold">
+          <span class="text-sm leading-snug"><b>Claim the tax-free threshold</b><br><span class="text-[13px] text-[#5B6478]">Only on one job at a time. Foreign residents cannot claim it.</span></span>
+        </label>
+        <label class="flex items-start gap-3">
+          <input type="checkbox" name="hel" class="mt-0.5 h-6 w-6 shrink-0 accent-[#01153E]" [(ngModel)]="m.has_study_training_loans">
+          <span class="text-sm leading-snug"><b>Has a study or training loan</b><br><span class="text-[13px] text-[#5B6478]">For example HELP. Extra tax is withheld to repay it.</span></span>
+        </label>
+        <label class="flex items-start gap-3">
+          <input type="checkbox" name="whm" class="mt-0.5 h-6 w-6 shrink-0 accent-[#01153E]" [(ngModel)]="m.working_holiday_maker">
+          <span class="text-sm leading-snug"><b>Working holiday maker</b><br><span class="text-[13px] text-[#5B6478]">Taxed on a different scale.</span></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Super</h2>
+      <p class="mt-1 text-[13px] text-[#5B6478]">Super is calculated at {{ superRate }}% of ordinary pay. Leave the fund empty if you have not collected it yet.</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="sf" class="cy-label">Fund name</label>
+          <input id="sf" name="sf" type="text" class="cy-input" maxlength="255" [(ngModel)]="m.super_fund_name">
+        </div>
+        <ng-container *ngIf="m.super_fund_name.trim()">
+          <div>
+            <label for="usi" class="cy-label">USI</label>
+            <input id="usi" name="usi" type="text" autocomplete="off" class="cy-input" [class.invalid]="err('super_usi')" maxlength="16" [(ngModel)]="m.super_usi">
+            <div class="cy-error" *ngIf="err('super_usi')">{{ err('super_usi') }}</div>
+          </div>
+          <div>
+            <label for="smn" class="cy-label">Member number</label>
+            <input id="smn" name="smn" type="text" autocomplete="off" class="cy-input" [class.invalid]="err('super_member_number')" maxlength="50" [(ngModel)]="m.super_member_number">
+            <div class="cy-error" *ngIf="err('super_member_number')">{{ err('super_member_number') }}</div>
+          </div>
+        </ng-container>
+      </div>
+    </section>
+
+    <section class="cy-card">
+      <h2 class="m-0 text-base font-extrabold">Bank account</h2>
+      <p class="mt-1 text-[13px] text-[#5B6478]">Where their pay is sent. Fill in all three, or leave them empty for now.</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="ban" class="cy-label">Account name</label>
+          <input id="ban" name="ban" type="text" autocomplete="off" class="cy-input" [class.invalid]="err('bank_account_name')" maxlength="100" [(ngModel)]="m.bank_account_name">
+          <div class="cy-error" *ngIf="err('bank_account_name')">{{ err('bank_account_name') }}</div>
+        </div>
+        <div>
+          <label for="bsb" class="cy-label">BSB</label>
+          <input id="bsb" name="bsb" type="text" inputmode="numeric" autocomplete="off" class="cy-input" [class.invalid]="err('bank_bsb')" maxlength="7" placeholder="062-000" [(ngModel)]="m.bank_bsb">
+          <div class="cy-error" *ngIf="err('bank_bsb')">{{ err('bank_bsb') }}</div>
+        </div>
+        <div>
+          <label for="acc" class="cy-label">Account number</label>
+          <input id="acc" name="acc" type="text" inputmode="numeric" autocomplete="off" class="cy-input" [class.invalid]="err('bank_account_number')" maxlength="9" [(ngModel)]="m.bank_account_number">
+          <div class="cy-error" *ngIf="err('bank_account_number')">{{ err('bank_account_number') }}</div>
+        </div>
+      </div>
+    </section>
+
+    <div *ngIf="banner" role="alert" class="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{{ banner }}</div>
+    <div class="flex flex-col gap-2.5 pb-2 sm:flex-row-reverse">
+      <button type="submit" class="cy-btn-primary" [disabled]="saving">{{ saving ? 'Saving…' : (editing ? 'Save changes' : 'Add employee') }}</button>
+      <button type="button" class="cy-btn-secondary" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>
