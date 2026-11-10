@@ -35,7 +35,7 @@ export class SignupComponent implements OnDestroy {
     middleName: [''],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.required, Validators.pattern(/^0?4\d{8}$/)]],
+    phone: ['', [Validators.required, Validators.pattern(/^0?4(\s?\d){8}$/)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
     passwordConfirmation: ['', Validators.required]
   }, { validators: (g: AbstractControl) => g.get('password')?.value === g.get('passwordConfirmation')?.value ? null : { mismatch: true } });
@@ -93,7 +93,7 @@ export class SignupComponent implements OnDestroy {
     this.busy = true;
     this.api.register({
       first_name: v.firstName!, middle_name: v.middleName || '', last_name: v.lastName!,
-      email: v.email!, phone: String(v.phone).replace(/^0/, ''), country_code: '+61',
+      email: v.email!, phone: String(v.phone).replace(/\s+/g, '').replace(/^0/, ''), country_code: '+61',
       password: v.password!, password_confirmation: v.passwordConfirmation!, marketing_opt_in: false
     }).subscribe({
       next: r => {
