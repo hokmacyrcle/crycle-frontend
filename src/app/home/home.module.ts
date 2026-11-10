@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HomeRoutingModule } from './home-routing.module';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { PendingComponent } from './pending/pending.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { Home1Component } from './home1/home1.component';
@@ -31,6 +32,7 @@ import { AfterloginComponent } from './afterlogin/afterlogin.component';
     RegistrationComponent,
     SignupComponent,
     PendingComponent,
+    ForgotPasswordComponent,
     Home1Component,
     OtpComponent,
     AfterloginComponent

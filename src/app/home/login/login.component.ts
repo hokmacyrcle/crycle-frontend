@@ -94,7 +94,6 @@ export class LoginComponent implements OnInit {
       (res) => {
         this.apiresponse = res;
         if (res.status === true) {
-          this.alertservice.successSwalnew('', res.message);
           console.log('access_token: ' + JSON.stringify(res));
           localStorage.setItem('login_response', JSON.stringify(res)); // Store full response
           localStorage.setItem('token_type', res.data.token_type);
@@ -114,7 +113,7 @@ export class LoginComponent implements OnInit {
           }
           this.loading = false;
         } else {
-          this.alertservice.successSwalnew('', res.message);
+          this.alertservice.DangerSwalnew('', res.message);
           this.loading = false;
         }
       },

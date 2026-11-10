@@ -24,6 +24,7 @@ export class SignupComponent implements OnDestroy {
   error = '';
   tried = false;
   resendIn = 0;
+  showPw = false;
   private timer: any;
 
   states = ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];
@@ -80,6 +81,11 @@ export class SignupComponent implements OnDestroy {
     else if (this.step > 2) { this.step -= 1; }
   }
 
+  private notice(): void {
+    this.error = 'Please fix the highlighted fields.';
+    setTimeout(() => document.querySelector('.border-red-600')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+  }
+
   invalid(form: { get(n: string): AbstractControl | null }, name: string): boolean {
     const c = form.get(name);
     return !!(this.tried && c && c.invalid);
@@ -88,7 +94,7 @@ export class SignupComponent implements OnDestroy {
   // Step 1
   submitAccount(): void {
     this.tried = true; this.error = '';
-    if (this.account.invalid) return;
+    if (this.account.invalid) { this.notice(); return; }
     const v = this.account.value;
     this.busy = true;
     this.api.register({
@@ -130,7 +136,7 @@ export class SignupComponent implements OnDestroy {
   }
   submitCode(): void {
     this.tried = true; this.error = '';
-    if (this.code.invalid) return;
+    if (this.code.invalid) { this.notice(); return; }
     this.busy = true;
     this.api.verifyEmailCode(this.code.value!).subscribe({
       next: r => { this.busy = false; if (r.status) { this.tried = false; this.step = 3; } else { this.error = r.message; } },
@@ -141,14 +147,14 @@ export class SignupComponent implements OnDestroy {
   // Step 3
   submitFirm(): void {
     this.tried = true; this.error = '';
-    if (this.firm.invalid) return;
+    if (this.firm.invalid) { this.notice(); return; }
     this.tried = false; this.step = 4;
   }
 
   // Step 4
   submitAccess(): void {
     this.tried = true; this.error = '';
-    if (this.access.invalid) return;
+    if (this.access.invalid) { this.notice(); return; }
     const f = this.firm.value, a = this.access.value;
     this.busy = true;
     this.api.registerFirm({

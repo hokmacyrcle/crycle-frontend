@@ -73,6 +73,15 @@ export class AccountService {
   registerFirm(data: any): Observable<any> {
     return this.httpClient.post(baseUrl + '/firm/register', data, { headers: this.authHeaders() });
   }
+  forgotSendOtp(email: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/forgot-password/send-otp', { email });
+  }
+  forgotVerifyOtp(email: string, otp: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/forgot-password/verify-otp', { email, otp });
+  }
+  forgotReset(email: string, password: string, password_confirmation: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/forgot-password/reset', { email, password, password_confirmation });
+  }
   me(): Observable<any> {
     return this.httpClient.get(baseUrl + '/me', { headers: this.authHeaders() });
   }

@@ -30,6 +30,8 @@
       </label>
     </div>
 
+    <div class="px-5 pt-4"><a routerLink="/forgot-password" class="text-sm font-bold text-cyrcle-midnight underline">Forgot your password?</a></div>
+
     <div class="mt-auto flex flex-col gap-1.5 px-4 pb-8 pt-8">
       <button type="submit" [disabled]="loading" class="flex h-[52px] items-center justify-center rounded-full bg-cyrcle-poppy text-[15px] font-bold text-cyrcle-navy disabled:opacity-60">{{ loading ? 'Please wait…' : 'Log in' }}</button>
       <a routerLink="/signup" class="py-1.5 text-center text-sm font-semibold text-cyrcle-midnight underline">New to Cyrcle? Register your firm</a>
