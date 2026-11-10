@@ -3,12 +3,10 @@
      [ngClass]="{'-translate-x-full': !isSidebarOpen, 'translate-x-0': isSidebarOpen}"
      [ngStyle]="{'transition': 'transform 300ms ease-in-out', 'z-index': isSidebarOpen ? '20' : 'auto'}">
      <div *ngFor="let menu of menuItems" [routerLink]="menu.route"
-          class="menu-item relative flex flex-col border-b text-center items-center py-3 hover:text-purple-500 cursor-pointer"
-          [ngClass]="{'text-purple-500': activeSection === menu.section}" (click)="setActiveSection(menu.section)">
-          <img [src]="menu.icon" class="w-10 h-10 mb-1" [alt]="menu.label" />
+          class="menu-item relative flex flex-col border-b text-center items-center py-3 hover:text-cyrcle-royal cursor-pointer"
+          [ngClass]="{'text-cyrcle-royal font-bold': activeSection === menu.section}" (click)="setActiveSection(menu.section)">
+          <span class="material-icons mb-1 text-[32px]" aria-hidden="true">{{ iconFor(menu.section) }}</span>
           <span class="text-sm font-medium">{{ menu.label }}</span>
-          <img src="assets/images/Dashboard/clicked.png" alt="Active"
-               class="active-indicator size-[22px] absolute bottom-0 right-0"
-               [ngClass]="{'hidden': activeSection !== menu.section}" />
+          <span class="absolute inset-y-2 left-0 w-1 rounded-r bg-cyrcle-poppy" [ngClass]="{'hidden': activeSection !== menu.section}"></span>
      </div>
 </aside>

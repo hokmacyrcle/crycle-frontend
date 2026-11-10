@@ -37,7 +37,8 @@ export class AfterloginComponent {
 
 
   // Sign out and return to login
-  signOut(): void {
+  signOut(event?: Event): void {
+    event?.preventDefault();
     localStorage.clear();
     this.router.navigate(['/login']);
   }
@@ -47,7 +48,6 @@ export class AfterloginComponent {
     this.service.selectCompany(company.company_id).subscribe(
       (res) => {
         if (res.status === true) {
-          this.alertService.successSwalnew('', res.message || 'Company selected successfully');
           localStorage.setItem('selected_company', JSON.stringify(company));
           // Optionally store additional data from response
           localStorage.setItem('company_selection_response', JSON.stringify(res.data));
@@ -57,13 +57,13 @@ export class AfterloginComponent {
           const role = loginResponse.data?.user?.role || '';
           this.router.navigate([toAppRole(role) === 'employee' ? EMPLOYEE_HOME : EMPLOYER_HOME]);
         } else {
-          this.alertService.DangerSwalnew('', res.message || 'Failed to select company');
+          this.alertService.DangerSwalnew('Could not open this business', res.message || 'Please try again.');
         }
         this.loading = false;
       },
       (error) => {
-        this.alertService.DangerSwalnew('', error.error.message || 'Error selecting company');
-        console.error('Company selection error', error.error.message);
+        this.alertService.DangerSwalnew('Could not open this business', error?.error?.message || 'Please try again.');
+        console.error('Company selection error', error?.error?.message);
         this.loading = false;
       }
     );

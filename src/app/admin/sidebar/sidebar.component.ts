@@ -29,6 +29,14 @@ export class SidebarComponent {
 
   ];
 
+  private icons: Record<string, string> = {
+    dashboard: 'dashboard', Clients: 'groups', Companies: 'apartment', invoices: 'receipt_long',
+    Employees: 'badge', contacts: 'contacts', sales: 'trending_up', expenses: 'payments',
+    Payroll: 'account_balance_wallet', projects: 'work', workers: 'engineering', reports: 'bar_chart',
+    taxes: 'request_quote', account: 'account_circle'
+  };
+  iconFor(section: string): string { return this.icons[section] || 'circle'; }
+
   setActiveSection(section: string) {
     this.activeSection = section;
     this.sectionChange.emit(section);

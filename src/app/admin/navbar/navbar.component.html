@@ -1,16 +1,14 @@
 <!-- navbar.component.html -->
 <nav class="bg-white drop-shadow-md px-4 py-2 flex items-center justify-between w-full h-[70px] border-b">
   <div class="flex items-center gap-6">
-    <a href="#" class="text-3xl text-transparent bg-gradient-to-r from-purple-500 via-purple-600 bg-clip-text">
-      ABS <span class="text-orange-500">Systems</span>
-    </a>
-    <button (click)="toggleSidebar.emit()" class="text-gray-500 text-2xl focus:outline-none">☰</button>
-    <span class="hidden sm:inline-block text-sm text-gray-600">Accounting Company Name</span>
+    <a routerLink="/admin/Dashboard" aria-label="Cyrcle home"><img src="assets/images/brand/cyrcle-lockup-navy.svg" alt="Cyrcle" class="h-9 w-auto"></a>
+    <button (click)="toggleSidebar.emit()" aria-label="Toggle menu" class="text-cyrcle-navy text-2xl focus:outline-none">☰</button>
+    <span class="hidden sm:inline-block text-sm font-semibold text-cyrcle-navy">{{ session.companyName }}</span>
   </div>
   <div class="flex items-center gap-6">
     <div class="relative hidden sm:block">
       <input type="text" placeholder="Search"
-        class="pl-4 pr-8 py-1 rounded-full border bg-gray-100 text-sm focus:outline-none" />
+        class="pl-4 pr-8 py-1 rounded-full border bg-cyrcle-cream text-sm focus:outline-none" />
       <span class="absolute right-2 top-1.5 text-gray-500">
         <img src="assets/images/Dashboard/searchlogo.png" alt="Search" class="size-[20px]" />
       </span>
@@ -26,7 +24,7 @@
     <div class="relative" (click)="toggleDropdown()" (document:click)="onDocumentClick($event)">
       <div class="flex items-center gap-2 cursor-pointer select-none">
         <img src="assets/images/Dashboard/userlogo.png" alt="User" class="w-8 h-8 rounded-full" />
-        <span class="hidden sm:inline text-sm font-medium text-gray-700">User Name</span>
+        <span class="hidden sm:inline text-sm font-medium text-cyrcle-navy">{{ session.userName }}</span>
       </div>
 
       <!-- Dropdown Menu -->
@@ -40,7 +38,7 @@
 
     <!-- <div class="flex items-center gap-4">
       <img src="assets/images/Dashboard/userlogo.png" alt="User" class="w-8 h-8 rounded-full" />
-      <span class="hidden sm:inline text-sm font-medium text-gray-700">User Name</span>
+      <span class="hidden sm:inline text-sm font-medium text-cyrcle-navy">{{ session.userName }}</span>
     </div> -->
   </div>
 </nav>
