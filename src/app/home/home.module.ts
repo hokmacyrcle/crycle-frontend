@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { HomeRoutingModule } from './home-routing.module';
 import { LoginComponent } from './login/login.component';
+import { SignupComponent } from './signup/signup.component';
+import { PendingComponent } from './pending/pending.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { Home1Component } from './home1/home1.component';
 import { OtpComponent } from './otp/otp.component';
@@ -27,6 +29,8 @@ import { AfterloginComponent } from './afterlogin/afterlogin.component';
   declarations: [
     LoginComponent,
     RegistrationComponent,
+    SignupComponent,
+    PendingComponent,
     Home1Component,
     OtpComponent,
     AfterloginComponent

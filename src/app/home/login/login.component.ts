@@ -104,8 +104,10 @@ export class LoginComponent implements OnInit {
           const fullToken = `${res.data.token_type} ${res.data.access_token}`;
           localStorage.setItem('full_token', fullToken);
 
-          // Navigate to company selection if companies exist, else to dashboard
-          if (res.data.companies && res.data.companies.length > 0) {
+          // Firm waiting for approval
+          if (res.data.firm_status === 'pending' || res.data.firm_status === 'rejected') {
+            this.router.navigate(['/pending']);
+          } else if (res.data.companies && res.data.companies.length > 0) {
             this.router.navigate(['/company-selection']);
           } else {
             this.router.navigate([toAppRole(res.data.user.role) === 'employee' ? EMPLOYEE_HOME : EMPLOYER_HOME]);
