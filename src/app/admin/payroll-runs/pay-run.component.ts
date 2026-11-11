@@ -49,7 +49,7 @@ export class PayRunComponent implements OnInit {
     this.busyLine = l.id; this.lineError[l.id] = '';
     this.api.updateLine(this.run.id, l.id, body).subscribe({
       next: r => { this.run = r; this.busyLine = null; delete this.taxEdit[l.id]; if (done) this.alerts.toast(done); },
-      error: e => { this.busyLine = null; const p = toProblem(e); this.lineError[l.id] = p.fieldErrors['hours'] || p.fieldErrors['tax_override'] || p.message; }
+      error: e => { this.busyLine = null; const p = toProblem(e); this.lineError[l.id] = p.fieldErrors['hours'] || p.fieldErrors['tax_override'] || p.fieldErrors['payslip_note'] || p.message; }
     });
   }
 
@@ -59,6 +59,12 @@ export class PayRunComponent implements OnInit {
     if (n !== null && (isNaN(n) || n < 0)) { this.lineError[l.id] = 'Enter hours as a number, for example 38 or 7.5.'; return; }
     if (n === l.hours) return;
     this.change(l, { hours: n });
+  }
+
+  setNote(l: PayRunLine, value: string): void {
+    const v = value.trim();
+    if (v === (l.payslip_note ?? '')) return;
+    this.change(l, { payslip_note: v }, v ? 'Message saved' : 'Message removed');
   }
 
   startTax(l: PayRunLine): void { this.taxEdit[l.id] = l.tax.toFixed(2); }
@@ -77,12 +83,27 @@ export class PayRunComponent implements OnInit {
     { value: 'reimbursement', label: 'Reimbursement', hint: 'Paid back to the employee. No tax and no super.' },
     { value: 'deduction', label: 'Deduction', hint: 'Taken from pay after tax, for example a union fee.' },
   ];
-  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean; multiplier: string; payee: string } | undefined> = {};
+  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean; multiplier: string; payee: string; allowance_type: string; allowance_desc: string } | undefined> = {};
   itemErrors: Record<number, Record<string, string>> = {};
+
+  /** The ATO's allowance types, reported through Single Touch Payroll. */
+  allowanceTypes = [
+    { code: 'KN', label: 'Task allowance', hint: 'For a duty or condition, such as first aid, leading hand, on-call or higher duties' },
+    { code: 'TD', label: 'Tool allowance', hint: 'For tools or equipment the employee supplies' },
+    { code: 'LD', label: 'Laundry allowance', hint: 'For cleaning an approved uniform' },
+    { code: 'QN', label: 'Qualification or certificate allowance', hint: 'For a licence or check, such as a driver licence or working with children check' },
+    { code: 'CD', label: 'Cents per kilometre', hint: 'For business use of the employee\'s own car' },
+    { code: 'RD', label: 'Travel allowance', hint: 'For accommodation, meals and incidentals while travelling' },
+    { code: 'OD', label: 'Other allowance', hint: 'Anything else. You then choose what it is for' },
+  ];
+  allowanceDescs = [
+    { code: 'G1', label: 'General' }, { code: 'ND', label: 'Non-deductible' }, { code: 'V1', label: 'Private vehicle' },
+    { code: 'H1', label: 'Home office equipment and internet' }, { code: 'T1', label: 'Fares' },
+  ];
 
   kindLabel(k: string): string { return k === 'leave' ? 'Leave' : (this.kinds.find(x => x.value === k)?.label ?? k); }
   kindHint(k: ItemKind): string { return this.kinds.find(x => x.value === k)?.hint ?? ''; }
-  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true, multiplier: '', payee: '' }; }
+  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true, multiplier: '', payee: '', allowance_type: '', allowance_desc: '' }; }
 
   /** Fills the overtime rate from the employee's hourly rate, for example 1.5 times $36.00 is $54.00. */
   applyMultiplier(l: PayRunLine, f: { rate: string | number; label: string; multiplier: string }): void {
@@ -102,10 +123,15 @@ export class PayRunComponent implements OnInit {
       if (!(num(f.hours) > 0)) e['hours'] = 'Enter the overtime hours.';
       if (!(num(f.rate) > 0)) e['rate'] = 'Enter the overtime rate per hour.';
     } else if (!(num(f.amount) > 0)) e['amount'] = 'Enter an amount more than 0.';
+    if (f.kind === 'allowance') {
+      if (!f.allowance_type) e['allowance_type'] = 'Choose the allowance type. The ATO needs it.';
+      else if (f.allowance_type === 'OD' && !f.allowance_desc) e['allowance_desc'] = 'Choose what the other allowance is for.';
+    }
     this.itemErrors[l.id] = e;
     if (Object.keys(e).length) return;
     const body: NewItem = { kind: f.kind, label: f.label.trim(), counts_for_super: f.counts_for_super };
     if (f.kind === 'deduction' && f.payee.trim()) body.payee = f.payee.trim();
+    if (f.kind === 'allowance') { body.allowance_type = f.allowance_type; if (f.allowance_type === 'OD') body.allowance_desc = f.allowance_desc; }
     if (f.kind === 'overtime') { body.hours = Number(f.hours); body.rate = Number(f.rate); } else body.amount = Number(f.amount);
     this.busyLine = l.id;
     this.api.addItem(this.run.id, l.id, body).subscribe({

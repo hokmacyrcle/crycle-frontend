@@ -84,6 +84,11 @@ import { PayRunService } from './payrun.service';
       <div *ngIf="!line.super_fund_name" class="mt-1 text-[#3C4663]">Super fund: not recorded yet. Your employer will confirm which fund this is paid to.</div>
     </section>
 
+    <section *ngIf="line.payslip_note" class="mt-5 rounded-[16px] bg-[#F6F4EC] p-4 text-sm print:border print:border-gray-300 print:bg-white">
+      <div class="font-bold">Message from your employer</div>
+      <div class="mt-1">{{ line.payslip_note }}</div>
+    </section>
+
     <div *ngIf="line.ytd" class="mt-4 text-[12px] text-[#5B6478]">Year to date runs from 1 July {{ fyStart }} to this pay date. Super paid so far this year: {{ line.ytd.super | aud }}.</div>
   </article>
 </div>`

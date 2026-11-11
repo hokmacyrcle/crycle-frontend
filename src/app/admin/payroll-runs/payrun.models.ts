@@ -1,6 +1,6 @@
 export type ItemKind = 'allowance' | 'bonus' | 'overtime' | 'leave' | 'reimbursement' | 'deduction';
-export interface LineItem { id: number; kind: ItemKind; label: string; hours: number | null; rate: number | null; amount: number; counts_for_super: boolean; payee: string | null; }
-export interface NewItem { kind: ItemKind; label: string; amount?: number | null; hours?: number | null; rate?: number | null; counts_for_super?: boolean; payee?: string; }
+export interface LineItem { id: number; kind: ItemKind; label: string; hours: number | null; rate: number | null; amount: number; counts_for_super: boolean; payee: string | null; allowance_type: string | null; allowance_desc: string | null; allowance_label: string | null; }
+export interface NewItem { kind: ItemKind; label: string; amount?: number | null; hours?: number | null; rate?: number | null; counts_for_super?: boolean; payee?: string; allowance_type?: string; allowance_desc?: string; }
 
 export interface StpIssue { level: 'blocking' | 'warning'; text: string; }
 export interface StpCheck {
@@ -53,6 +53,7 @@ export interface PayRunLine {
   super_fund_name: string | null;
   super_member_number: string | null;
   ytd: Totals | null;
+  payslip_note: string | null;
   entitlements: { type: string; accrued: number; balance: number }[];
   leave_taken: { type: string; start_date: string; end_date: string; hours: number }[];
 }
@@ -76,7 +77,7 @@ export interface PayRunFull extends PayRunRow {
 }
 
 export interface NewPayRun { frequency: Frequency; period_start: string; period_end: string; pay_date: string; }
-export interface LineChange { confirm_hours?: boolean; hours?: number | null; tax_override?: number; clear_tax_override?: boolean; confirm_tax?: boolean; }
+export interface LineChange { confirm_hours?: boolean; hours?: number | null; tax_override?: number; clear_tax_override?: boolean; confirm_tax?: boolean; payslip_note?: string; }
 
 export type CalcBasis = 'gross' | 'salary' | 'hourly';
 export type CalcSituation = 'threshold' | 'no_threshold' | 'no_tfn_resident' | 'no_tfn_foreign';

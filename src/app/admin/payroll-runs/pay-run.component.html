@@ -87,7 +87,7 @@
           <li *ngFor="let i of l.items" class="flex items-center justify-between gap-3 border-b border-white px-3 py-2 last:border-b-0">
             <span class="min-w-0">
               <span class="font-bold">{{ i.label }}</span>
-              <span class="ml-1.5 text-[12px] text-[#5B6478]">{{ kindLabel(i.kind) }}<span *ngIf="i.kind === 'overtime'"> · {{ i.hours }} h at {{ i.rate | aud }}</span><span *ngIf="(i.kind === 'allowance' || i.kind === 'bonus') && !i.counts_for_super"> · no super</span><span *ngIf="i.payee"> · paid to {{ i.payee }}</span></span>
+              <span class="ml-1.5 text-[12px] text-[#5B6478]">{{ kindLabel(i.kind) }}<span *ngIf="i.kind === 'overtime'"> · {{ i.hours }} h at {{ i.rate | aud }}</span><span *ngIf="(i.kind === 'allowance' || i.kind === 'bonus') && !i.counts_for_super"> · no super</span><span *ngIf="i.payee"> · paid to {{ i.payee }}</span><span *ngIf="i.allowance_label"> · {{ i.allowance_label }}</span></span>
             </span>
             <span class="flex shrink-0 items-center gap-3">
               <span class="font-bold">{{ i.kind === 'deduction' ? '-' : '' }}{{ i.amount | aud }}</span>
@@ -95,6 +95,12 @@
             </span>
           </li>
         </ul>
+
+        <div *ngIf="editable || l.payslip_note" class="mt-3">
+          <label class="block text-[13px] font-bold" [for]="'n' + l.id">Message on the payslip <span *ngIf="editable" class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input *ngIf="editable" [id]="'n' + l.id" type="text" maxlength="200" class="cy-input mt-1" [value]="l.payslip_note ?? ''" (change)="setNote(l, $any($event.target).value)" placeholder="e.g. Happy birthday for Friday!">
+          <div *ngIf="!editable" class="text-sm">{{ l.payslip_note }}</div>
+        </div>
 
         <div *ngIf="editable && l.leave_available.length" class="mt-3 rounded-[12px] border-[1.5px] border-[#B9B39F] p-3 print:hidden">
           <div class="text-[13px] font-bold">Approved leave to pay</div>
@@ -130,6 +136,14 @@
               <input type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [(ngModel)]="f.rate" [name]="'or' + l.id" [class.cy-input-error]="itemErrors[l.id]['rate']">
               <span class="mt-1 block text-[12px] text-[#5B6478]">Include any overtime loading. Pick a loading above or type the rate.</span>
               <span *ngIf="itemErrors[l.id]['rate']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['rate'] }}</span></label>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2" *ngIf="f.kind === 'allowance'">
+            <label class="block"><span class="mb-1 block text-[13px] font-bold">Allowance type</span>
+              <select class="cy-input" [(ngModel)]="f.allowance_type" [name]="'at' + l.id" [class.cy-input-error]="itemErrors[l.id]['allowance_type']"><option value="">Choose a type</option><option *ngFor="let t of allowanceTypes" [value]="t.code">{{ t.label }}</option></select>
+              <span *ngIf="itemErrors[l.id]['allowance_type']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['allowance_type'] }}</span></label>
+            <label class="block" *ngIf="f.allowance_type === 'OD'"><span class="mb-1 block text-[13px] font-bold">What is it for?</span>
+              <select class="cy-input" [(ngModel)]="f.allowance_desc" [name]="'ad' + l.id" [class.cy-input-error]="itemErrors[l.id]['allowance_desc']"><option value="">Choose one</option><option *ngFor="let t of allowanceDescs" [value]="t.code">{{ t.label }}</option></select>
+              <span *ngIf="itemErrors[l.id]['allowance_desc']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['allowance_desc'] }}</span></label>
           </div>
           <label class="block sm:max-w-xs" *ngIf="f.kind !== 'overtime'"><span class="mb-1 block text-[13px] font-bold">Amount ($)</span>
             <input type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [(ngModel)]="f.amount" [name]="'a' + l.id" [class.cy-input-error]="itemErrors[l.id]['amount']">
