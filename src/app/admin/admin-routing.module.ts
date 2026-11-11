@@ -51,6 +51,7 @@ import { PayrollSettingsComponent } from './payroll-runs/payroll-settings.compon
 import { PayHistoryComponent } from './payroll-runs/pay-history.component';
 import { PayrollHomeComponent } from './payroll-runs/payroll-home.component';
 import { TimesheetsComponent } from './payroll-runs/timesheets.component';
+import { LeaveComponent } from './payroll-runs/leave.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
@@ -90,6 +91,7 @@ const routes: Routes = [
       { path: 'runs', component: PayRunListComponent },
       { path: 'employees', component: EmployeeListComponent },
       { path: 'timesheets', component: TimesheetsComponent },
+      { path: 'leave', component: LeaveComponent },
       { path: 'history', component: PayHistoryComponent },
       { path: 'calculator', component: PayCalculatorComponent },
       { path: 'settings', component: PayrollSettingsComponent },

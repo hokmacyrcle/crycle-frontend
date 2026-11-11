@@ -39,6 +39,10 @@ export class PayRunService {
     return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/items`, body, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
+  addLeave(id: number, lineId: number, requestId: number): Observable<PayRunFull> {
+    return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/leave`, { request_id: requestId }, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
   removeItem(id: number, lineId: number, itemId: number): Observable<PayRunFull> {
     return this.http.delete<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/items/${itemId}`, { headers: this.headers() }).pipe(map(r => r.data));
   }

@@ -96,6 +96,15 @@ export class PayRunComponent implements OnInit {
     });
   }
 
+  addLeave(l: PayRunLine, requestId: number): void {
+    if (!this.run) return;
+    this.busyLine = l.id;
+    this.api.addLeave(this.run.id, l.id, requestId).subscribe({
+      next: r => { this.run = r; this.busyLine = null; this.alerts.toast('Leave added'); },
+      error: e => { this.busyLine = null; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
+
   removeItem(l: PayRunLine, itemId: number): void {
     if (!this.run) return;
     this.busyLine = l.id;

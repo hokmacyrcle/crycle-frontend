@@ -31,6 +31,7 @@ export interface PayRunLine {
   reimbursements: number;
   deductions: number;
   items: LineItem[];
+  leave_available: { id: number; type: string; start_date: string; end_date: string; hours: number; amount: number }[];
   hours_source: 'timesheet' | 'estimated' | 'manual' | null;
   hours_confirmed: boolean;
   gross: number;
