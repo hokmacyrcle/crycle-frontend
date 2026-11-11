@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
-  BusinessInfo, CustomerFull, CustomerPayload, CustomerRow, Doc, DocKind, DocList, DocPayload, Meta, PickCustomer, Summary
+  BusinessInfo, CustomerFull, CustomerPayload, CustomerRow, Doc, DocKind, DocList, DocPayload, Meta, PickCustomer, RecurringRow, Summary
 } from './sales.models';
 
 export interface ApiProblem { message: string; fieldErrors: Record<string, string>; status: number; }
@@ -88,6 +88,22 @@ export class SalesService {
 
   removePayment(id: number, paymentId: number): Observable<{ data: Doc; message: string }> {
     return this.http.delete<{ data: Doc; message: string }>(`${this.base}/invoices/${id}/payments/${paymentId}`, { headers: this.headers() });
+  }
+
+  recurringList(): Observable<{ data: RecurringRow[] }> {
+    return this.http.get<{ data: RecurringRow[] }>(`${this.base}/recurring-invoices`, { headers: this.headers() });
+  }
+
+  createRecurring(body: { invoice_id: number; frequency: string; end_date: string | null }): Observable<{ data: RecurringRow; message: string }> {
+    return this.http.post<{ data: RecurringRow; message: string }>(`${this.base}/recurring-invoices`, body, { headers: this.headers() });
+  }
+
+  updateRecurring(id: number, body: { active?: boolean; frequency?: string; end_date?: string | null }): Observable<{ data: RecurringRow; message: string }> {
+    return this.http.put<{ data: RecurringRow; message: string }>(`${this.base}/recurring-invoices/${id}`, body, { headers: this.headers() });
+  }
+
+  stopRecurring(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/recurring-invoices/${id}`, { headers: this.headers() });
   }
 
   setQuoteStatus(id: number, status: 'sent' | 'accepted' | 'declined'): Observable<{ data: Doc; message: string }> {

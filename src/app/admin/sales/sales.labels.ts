@@ -49,3 +49,8 @@ export function dueFromTerm(term: string, issue: string): string | null {
 export function termKeyFor(label: string | null | undefined): string {
   return TERMS.find(t => t.label === label)?.key ?? 'custom';
 }
+
+export const FREQUENCIES: { key: string; label: string }[] = [
+  { key: 'weekly', label: 'Every week' }, { key: 'fortnightly', label: 'Every 2 weeks' }, { key: 'monthly', label: 'Every month' },
+  { key: 'quarterly', label: 'Every 3 months' }, { key: 'yearly', label: 'Every year' },
+];

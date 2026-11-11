@@ -10,5 +10,6 @@ export class SalesComponent {
     { label: 'Overview', link: '/admin/sales', exact: true },
     { label: 'Invoices', link: '/admin/sales/invoices', exact: false },
     { label: 'Quotes', link: '/admin/sales/quotes', exact: false },
+    { label: 'Recurring', link: '/admin/sales/recurring', exact: false },
   ];
 }

@@ -36,6 +36,7 @@ import { SalesOverviewComponent } from './sales/sales-overview.component';
 import { DocListComponent } from './sales/doc-list.component';
 import { DocFormComponent } from './sales/doc-form.component';
 import { DocViewComponent } from './sales/doc-view.component';
+import { RecurringListComponent } from './sales/recurring-list.component';
 import { CustomerListComponent } from './sales/customer-list.component';
 import { CustomerFormComponent } from './sales/customer-form.component';
 
@@ -118,6 +119,7 @@ const routes: Routes = [
       { path: '', component: SalesOverviewComponent },
       { path: 'invoices', component: DocListComponent, data: { kind: 'invoice' } },
       { path: 'quotes', component: DocListComponent, data: { kind: 'quote' } },
+      { path: 'recurring', component: RecurringListComponent },
     ]
   },
 

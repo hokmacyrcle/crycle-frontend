@@ -30,6 +30,7 @@ export interface DocRow {
   total: number;
   amount_due?: number;           // invoices
   status: string;
+  recurring?: boolean;           // invoices made by a repeat schedule
 }
 
 export interface DocList { data: DocRow[]; counts: Record<string, number>; meta: Meta; }
@@ -44,6 +45,7 @@ export interface Payment { id: number; date: string; amount: number; method: str
 
 export interface Doc {
   id: number;
+  recurring?: boolean;
   kind: DocKind;
   title: string;
   number: string;
@@ -100,3 +102,10 @@ export interface CustomerPayload {
 export interface PickCustomer { id: number; name: string; abn: string | null; }
 
 export interface BusinessInfo { name: string; abn: string | null; gst_registered: boolean; has_bank_details: boolean; }
+
+export type Frequency = 'weekly' | 'fortnightly' | 'monthly' | 'quarterly' | 'yearly';
+export interface RecurringRow {
+  id: number; source_invoice_id: number; source_number: string | null; customer: string | null; amount: number;
+  frequency: Frequency; frequency_label: string; next_date: string; end_date: string | null;
+  active: boolean; drafts_created: number; last_run_at: string | null;
+}

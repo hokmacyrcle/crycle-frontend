@@ -36,6 +36,7 @@
           <a *ngIf="doc.status === 'invoiced' && doc.invoice_id" [routerLink]="['/admin/sales/invoices', doc.invoice_id]" class="cy-btn-primary">View invoice</a>
         </ng-container>
 
+        <button *ngIf="isInvoice && doc.status !== 'void'" type="button" class="cy-btn-secondary" (click)="openRepeat()" [disabled]="busy"><app-icon name="clock" [size]="18"></app-icon>Repeat</button>
         <button *ngIf="doc.can['edit']" type="button" class="cy-btn-secondary" (click)="edit()" [disabled]="busy"><app-icon name="edit" [size]="18"></app-icon>Edit</button>
         <button type="button" class="cy-btn-secondary" (click)="print()"><app-icon name="printer" [size]="18"></app-icon>Print or save PDF</button>
 
@@ -56,7 +57,7 @@
     <!-- Helpful notes (screen only) -->
     <div *ngIf="doc.status === 'draft'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-white px-4 py-3 text-sm print:hidden">
       <app-icon name="info" [size]="20"></app-icon>
-      <span>This is a draft. {{ isInvoice ? 'Issue it when it is ready, and it can then be paid.' : 'Mark it as sent when you give it to the customer.' }}</span>
+      <span><ng-container *ngIf="doc.recurring">Created automatically by a repeat schedule. Check the dates and amounts, then issue it. </ng-container>This is a draft. {{ isInvoice ? 'Issue it when it is ready, and it can then be paid.' : 'Mark it as sent when you give it to the customer.' }}</span>
     </div>
     <div *ngIf="doc.status === 'expired'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-[#FBEBC5] px-4 py-3 text-sm font-bold text-[#5C3F00] print:hidden">
       <app-icon name="clock" [size]="20"></app-icon><span>This quote passed its valid-until date. You can still mark it as accepted or create an invoice.</span>
@@ -209,6 +210,33 @@
       <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
         <button type="button" class="cy-btn-secondary" (click)="payOpen = false" [disabled]="busy">Cancel</button>
         <button type="submit" class="cy-btn-primary" [disabled]="busy">{{ busy ? 'Saving…' : 'Record payment' }}</button>
+      </div>
+    </form>
+  </div>
+  <!-- Repeat this invoice -->
+  <div *ngIf="repeatOpen && doc" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 sm:items-center print:hidden" (click)="repeatOpen = false">
+    <form class="w-full max-w-md rounded-t-3xl bg-white p-5 sm:rounded-3xl" (click)="$event.stopPropagation()" (ngSubmit)="submitRepeat()" novalidate
+          role="dialog" aria-modal="true" aria-labelledby="rep-title">
+      <h2 id="rep-title" class="m-0 text-xl font-extrabold">Repeat this invoice</h2>
+      <p class="mb-0 mt-1 text-sm text-[#3C4663]">A draft copy of {{ doc.number }} is created on each date. You check and issue it, nothing is sent automatically.</p>
+      <div class="mt-4 flex flex-col gap-4">
+        <div>
+          <label for="rep-freq" class="cy-label">How often</label>
+          <select id="rep-freq" name="frequency" class="cy-input" [class.invalid]="repeatErrors['frequency']" [(ngModel)]="repeat.frequency">
+            <option *ngFor="let f of frequencies" [value]="f.key">{{ f.label }}</option>
+          </select>
+          <div class="cy-error" *ngIf="repeatErrors['frequency']">{{ repeatErrors['frequency'] }}</div>
+        </div>
+        <div>
+          <label for="rep-end" class="cy-label">Stop after <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="rep-end" name="end_date" type="date" class="cy-input" [class.invalid]="repeatErrors['end_date']" [(ngModel)]="repeat.end_date">
+          <div class="cy-error" *ngIf="repeatErrors['end_date']">{{ repeatErrors['end_date'] }}</div>
+        </div>
+        <div *ngIf="repeatBanner" class="rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ repeatBanner }}</div>
+      </div>
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="repeatOpen = false" [disabled]="busy">Cancel</button>
+        <button type="submit" class="cy-btn-primary" [disabled]="busy">{{ busy ? 'Saving…' : 'Set up repeat' }}</button>
       </div>
     </form>
   </div>

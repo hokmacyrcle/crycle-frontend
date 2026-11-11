@@ -114,13 +114,14 @@ import { SalesOverviewComponent } from './sales/sales-overview.component';
 import { DocListComponent } from './sales/doc-list.component';
 import { DocFormComponent } from './sales/doc-form.component';
 import { DocViewComponent } from './sales/doc-view.component';
+import { RecurringListComponent } from './sales/recurring-list.component';
 import { CustomerListComponent } from './sales/customer-list.component';
 import { CustomerFormComponent } from './sales/customer-form.component';
 
 @NgModule({
   declarations: [
     EmployeeListComponent, EmployeeFormComponent, PayrollShellComponent, PayRunListComponent, PayRunNewComponent, PayRunComponent, PayslipComponent, PayCalculatorComponent, PayrollSettingsComponent, PayHistoryComponent, PayrollHomeComponent, TimesheetsComponent, LeaveComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
-    SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, CustomerListComponent, CustomerFormComponent,
+    SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, RecurringListComponent, CustomerListComponent, CustomerFormComponent,
     DashboardComponent,
     AdminComponent,
     EmployeeHomeComponent,

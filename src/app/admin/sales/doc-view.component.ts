@@ -4,7 +4,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { Doc, DocKind, Payment } from './sales.models';
 import { SalesService, toProblem } from './sales.service';
 import { Totals, computeTotals } from './sales-totals';
-import { PAYMENT_METHODS, STATUS_LABEL, today } from './sales.labels';
+import { FREQUENCIES, PAYMENT_METHODS, STATUS_LABEL, today } from './sales.labels';
 
 /** One invoice or quote: how it will look to the customer, plus what you can do with it. */
 @Component({
@@ -19,6 +19,12 @@ export class DocViewComponent implements OnInit {
   error = '';
   busy = false;
   menuOpen = false;
+
+  repeatOpen = false;
+  frequencies = FREQUENCIES;
+  repeat = { frequency: 'monthly', end_date: '' };
+  repeatErrors: Record<string, string> = {};
+  repeatBanner = '';
 
   payOpen = false;
   methods = PAYMENT_METHODS;
@@ -95,7 +101,20 @@ export class DocViewComponent implements OnInit {
     setTimeout(() => (document.getElementById('pay-amount') as HTMLInputElement | null)?.select());
   }
 
-  @HostListener('document:keydown.escape') onEscape(): void { this.payOpen = false; this.menuOpen = false; }
+  openRepeat(): void {
+    this.repeat = { frequency: 'monthly', end_date: '' }; this.repeatErrors = {}; this.repeatBanner = ''; this.repeatOpen = true;
+  }
+
+  submitRepeat(): void {
+    if (!this.doc) return;
+    this.busy = true; this.repeatErrors = {}; this.repeatBanner = '';
+    this.api.createRecurring({ invoice_id: this.doc.id, frequency: this.repeat.frequency, end_date: this.repeat.end_date || null }).subscribe({
+      next: r => { this.busy = false; this.repeatOpen = false; this.alerts.toast(r.message + ' Next draft: ' + r.data.next_date.split('-').reverse().join('/') + '.'); },
+      error: err => { this.busy = false; const p = toProblem(err); this.repeatErrors = p.fieldErrors; this.repeatBanner = p.message; }
+    });
+  }
+
+  @HostListener('document:keydown.escape') onEscape(): void { this.repeatOpen = false; this.payOpen = false; this.menuOpen = false; }
 
   submitPay(): void {
     if (!this.doc) return;
