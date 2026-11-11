@@ -7,10 +7,18 @@
 </div>
 
 <ng-container *ngIf="s && !loading">
-  <div *ngIf="!accounts.length" class="flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
-    <div class="text-base font-bold">Add your first bank account</div>
-    <div class="text-[13px] leading-snug text-[#3C4663]">Add an account, then import a CSV statement from your bank. Everything that came in and went out will be listed for you to review.</div>
-    <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-primary mt-1 self-start">Add account</a>
+  <div *ngIf="!accounts.length" class="cy-card flex flex-col gap-3">
+    <div class="text-[22px] font-extrabold leading-tight" role="heading" aria-level="2">Automate income and expense tracking</div>
+    <div class="text-sm text-[#3C4663]">Save hours of work by bringing your bank transactions in automatically.</div>
+    <ol class="m-0 flex list-none flex-col gap-2 p-0 text-[15px] font-bold">
+      <li class="flex items-center gap-3"><span class="text-[24px] font-extrabold text-[#1F7A4D]">1</span>Connect a bank or credit card to get started</li>
+      <li class="flex items-center gap-3"><span class="text-[24px] font-extrabold text-[#1F7A4D]">2</span>Review and add your transactions</li>
+      <li class="flex items-center gap-3"><span class="text-[24px] font-extrabold text-[#1F7A4D]">3</span>See how your business is doing</li>
+    </ol>
+    <div class="flex flex-wrap gap-2.5">
+      <a routerLink="/admin/Banktransactions/connect" class="cy-btn-primary">Connect account</a>
+      <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-secondary">Upload transactions</a>
+    </div>
   </div>
 
   <ng-container *ngIf="accounts.length">

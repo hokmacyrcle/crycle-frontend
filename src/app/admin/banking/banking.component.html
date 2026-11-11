@@ -1,7 +1,10 @@
 <div class="mx-auto max-w-5xl text-cyrcle-navy">
   <div class="flex items-center justify-between gap-3">
     <h1 class="m-0 text-[28px] font-extrabold leading-tight">Banking</h1>
-    <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-primary"><app-icon name="plus" [size]="18"></app-icon>Add account</a>
+    <div class="flex gap-2">
+      <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-secondary hidden sm:inline-flex">Add account</a>
+      <a routerLink="/admin/Banktransactions/connect" class="cy-btn-primary"><app-icon name="plus" [size]="18"></app-icon>Connect bank</a>
+    </div>
   </div>
 
   <nav class="mt-4 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-cyrcle-pearl" aria-label="Banking sections">

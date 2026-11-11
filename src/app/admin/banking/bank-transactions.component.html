@@ -9,7 +9,8 @@
         <option [ngValue]="null">All accounts</option>
         <option *ngFor="let a of accounts" [ngValue]="a.id">{{ a.name }}</option>
       </select>
-      <a *ngIf="account" [routerLink]="['/admin/Banktransactions', account.id, 'import']" class="cy-btn-primary">Import statement</a>
+      <button *ngIf="account && account.feed_connected" type="button" class="cy-btn-primary" (click)="update()" [disabled]="syncing">{{ syncing ? 'Updating…' : 'Update' }}</button>
+      <a *ngIf="account && !account.feed_connected" [routerLink]="['/admin/Banktransactions', account.id, 'import']" class="cy-btn-primary">Import statement</a>
     </div>
   </div>
 

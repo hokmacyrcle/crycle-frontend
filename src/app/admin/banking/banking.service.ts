@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { AccountPayload, BankAccount, BankSummary, BankTxn, ColumnMap, ImportPreview, ImportResult, TxnPage, TxnStatus } from './banking.models';
+import { AccountPayload, AccountType, BankAccount, BankSummary, BankTxn, ColumnMap, FeedAccounts, FeedConnectResult, FeedStatus, Institution, ImportPreview, ImportResult, TxnPage, TxnStatus } from './banking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BankingService {
@@ -60,5 +60,30 @@ export class BankingService {
   }
   setStatus(txnId: number, status: 'excluded' | 'review'): Observable<{ data: BankTxn; message: string }> {
     return this.http.post<{ data: BankTxn; message: string }>(`${this.base}/transactions/${txnId}/status`, { status }, { headers: this.headers() });
+  }
+
+  // Live bank connection (through the feed provider)
+  feedStatus(): Observable<FeedStatus> {
+    return this.http.get<{ data: FeedStatus }>(`${this.base}/feed/status`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+  institutions(q: string): Observable<Institution[]> {
+    const params = new HttpParams().set('q', q);
+    return this.http.get<{ data: Institution[] }>(`${this.base}/feed/institutions`, { headers: this.headers(), params }).pipe(map(r => r.data));
+  }
+  startFeed(inst: Institution, returnUrl: string): Observable<{ link_id: number; url: string | null }> {
+    return this.http.post<{ data: { link_id: number; url: string | null } }>(`${this.base}/feed/start`,
+      { institution_id: inst.id, institution_name: inst.name, return_url: returnUrl }, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+  feedAccounts(linkId: number): Observable<FeedAccounts> {
+    return this.http.get<{ data: FeedAccounts }>(`${this.base}/feed/links/${linkId}/accounts`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+  connectFeed(linkId: number, accounts: { ref: string; type: AccountType; name: string }[]): Observable<{ data: FeedConnectResult; message: string }> {
+    return this.http.post<{ data: FeedConnectResult; message: string }>(`${this.base}/feed/links/${linkId}/connect`, { accounts }, { headers: this.headers() });
+  }
+  syncAccount(id: number): Observable<{ data: { imported: number }; message: string }> {
+    return this.http.post<{ data: { imported: number }; message: string }>(`${this.base}/feed/accounts/${id}/sync`, {}, { headers: this.headers() });
+  }
+  disconnectFeed(linkId: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/feed/links/${linkId}`, { headers: this.headers() });
   }
 }

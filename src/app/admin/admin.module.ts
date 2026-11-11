@@ -114,6 +114,7 @@ import { SalesOverviewComponent } from './sales/sales-overview.component';
 import { DocListComponent } from './sales/doc-list.component';
 import { DocFormComponent } from './sales/doc-form.component';
 import { DocViewComponent } from './sales/doc-view.component';
+import { BankConnectComponent } from './banking/bank-connect.component';
 import { BankingComponent } from './banking/banking.component';
 import { BankOverviewComponent } from './banking/bank-overview.component';
 import { BankAccountsComponent } from './banking/bank-accounts.component';
@@ -126,7 +127,7 @@ import { CustomerFormComponent } from './sales/customer-form.component';
 @NgModule({
   declarations: [
     EmployeeListComponent, EmployeeFormComponent, PayrollShellComponent, PayRunListComponent, PayRunNewComponent, PayRunComponent, PayslipComponent, PayCalculatorComponent, PayrollSettingsComponent, PayHistoryComponent, PayrollHomeComponent, TimesheetsComponent, LeaveComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
-    SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, RecurringListComponent, BankingComponent, BankOverviewComponent, BankAccountsComponent, BankImportComponent, BankTransactionsComponent, CustomerListComponent, CustomerFormComponent,
+    SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, RecurringListComponent, BankConnectComponent, BankingComponent, BankOverviewComponent, BankAccountsComponent, BankImportComponent, BankTransactionsComponent, CustomerListComponent, CustomerFormComponent,
     DashboardComponent,
     AdminComponent,
     EmployeeHomeComponent,

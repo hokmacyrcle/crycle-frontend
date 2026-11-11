@@ -68,12 +68,18 @@
             <div class="text-[13px] text-[#5B6478]">{{ a.type_label }}<span *ngIf="a.last4"> · ends {{ a.last4 }}</span></div>
           </div>
         </div>
-        <span *ngIf="a.to_review" class="cy-pill cy-pill-awaiting shrink-0">{{ a.to_review }} to review</span>
+        <span class="flex shrink-0 flex-col items-end gap-1">
+          <span *ngIf="a.to_review" class="cy-pill cy-pill-awaiting">{{ a.to_review }} to review</span>
+          <span *ngIf="a.feed_connected" class="cy-pill cy-pill-paid">Bank feed</span>
+        </span>
       </div>
-      <div class="mt-2 text-[13px] text-[#5B6478]">{{ a.last_imported_at ? 'Last imported ' + (a.last_imported_at | auDate) : 'Nothing imported yet' }}</div>
+      <div *ngIf="a.bank_balance !== null" class="mt-2 text-[13px] text-[#5B6478]">Bank balance <span class="font-bold text-cyrcle-navy">{{ a.bank_balance | aud }}</span></div>
+      <div class="mt-1 text-[13px] text-[#5B6478]">{{ a.last_imported_at ? 'Last imported ' + (a.last_imported_at | auDate) : (a.feed_connected ? 'Connected to your bank' : 'Nothing imported yet') }}</div>
       <div class="mt-1 flex flex-wrap gap-x-5 text-[13px] font-bold text-cyrcle-midnight">
         <a *ngIf="a.active" routerLink="/admin/Banktransactions/transactions" [queryParams]="{ account: a.id }" class="inline-flex min-h-[36px] items-center underline">Transactions</a>
-        <a *ngIf="a.active" [routerLink]="['/admin/Banktransactions', a.id, 'import']" class="inline-flex min-h-[36px] items-center underline">Import statement</a>
+        <a *ngIf="a.active && !a.feed_connected" [routerLink]="['/admin/Banktransactions', a.id, 'import']" class="inline-flex min-h-[36px] items-center underline">Import statement</a>
+        <button type="button" class="min-h-[36px] underline disabled:opacity-50" (click)="update(a)" *ngIf="a.active && a.feed_connected" [disabled]="syncingId === a.id">{{ syncingId === a.id ? 'Updating…' : 'Update' }}</button>
+        <button type="button" class="min-h-[36px] underline" (click)="disconnect(a)" *ngIf="a.active && a.feed_connected">Disconnect bank</button>
         <button type="button" class="min-h-[36px] underline" (click)="openEdit(a)" *ngIf="a.active">Edit</button>
         <button type="button" class="min-h-[36px] underline" (click)="archive(a)">{{ a.active ? 'Archive' : 'Restore' }}</button>
       </div>

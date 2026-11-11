@@ -23,6 +23,7 @@ export class BankTransactionsComponent implements OnInit {
   loading = true;
   error = '';
   busyId: number | null = null;
+  syncing = false;
 
   constructor(private route: ActivatedRoute, private router: Router, private api: BankingService, private alerts: AlertService) { }
 
@@ -56,6 +57,15 @@ export class BankTransactionsComponent implements OnInit {
   }
   find(): void { this.page = 1; this.load(); }
   go(p: number): void { this.page = p; this.load(); }
+
+  update(): void {
+    if (!this.accountId) return;
+    this.syncing = true;
+    this.api.syncAccount(this.accountId).subscribe({
+      next: r => { this.syncing = false; this.alerts.toast(r.message); this.load(); },
+      error: e => { this.syncing = false; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
 
   change(t: BankTxn, to: 'excluded' | 'review'): void {
     this.busyId = t.id;

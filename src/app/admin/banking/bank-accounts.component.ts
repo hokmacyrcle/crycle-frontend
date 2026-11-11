@@ -21,6 +21,7 @@ export class BankAccountsComponent implements OnInit {
   editId: number | null = null;
   m: { name: string; type: AccountType; bsb: string; account_number: string } = this.blank();
   saving = false;
+  syncingId: number | null = null;
   fieldErrors: Record<string, string> = {};
   formError = '';
 
@@ -78,6 +79,23 @@ export class BankAccountsComponent implements OnInit {
 
   private toggleArchive(a: BankAccount, archived: boolean): void {
     this.api.archiveAccount(a.id, archived).subscribe({
+      next: r => { this.alerts.toast(r.message); this.load(); },
+      error: e => this.alerts.DangerSwalnew('That did not work', toProblem(e).message)
+    });
+  }
+
+  update(a: BankAccount): void {
+    this.syncingId = a.id;
+    this.api.syncAccount(a.id).subscribe({
+      next: r => { this.syncingId = null; this.alerts.toast(r.message); this.load(); },
+      error: e => { this.syncingId = null; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
+
+  async disconnect(a: BankAccount): Promise<void> {
+    if (!a.feed_link_id) return;
+    if (!(await this.alerts.confirm('Disconnect your bank?', 'New transactions stop arriving. Everything already brought in stays in your records. You can import CSV statements instead, or connect again later.', 'Disconnect'))) return;
+    this.api.disconnectFeed(a.feed_link_id).subscribe({
       next: r => { this.alerts.toast(r.message); this.load(); },
       error: e => this.alerts.DangerSwalnew('That did not work', toProblem(e).message)
     });
