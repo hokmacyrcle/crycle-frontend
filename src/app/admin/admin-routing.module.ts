@@ -70,6 +70,7 @@ import { PayRunListComponent } from './payroll-runs/pay-run-list.component';
 import { PayRunNewComponent } from './payroll-runs/pay-run-new.component';
 import { PayRunComponent } from './payroll-runs/pay-run.component';
 import { PayslipComponent } from './payroll-runs/payslip.component';
+import { PayCalculatorComponent } from './payroll-runs/pay-calculator.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { roleGuard } from '../core/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
@@ -107,6 +108,7 @@ const routes: Routes = [
     path: 'payroll', component: PayrollShellComponent, children: [
       { path: '', component: PayRunListComponent },
       { path: 'employees', component: EmployeeListComponent },
+      { path: 'calculator', component: PayCalculatorComponent },
     ]
   },
   { path: 'payroll/:rest', redirectTo: 'payroll', pathMatch: 'full' },

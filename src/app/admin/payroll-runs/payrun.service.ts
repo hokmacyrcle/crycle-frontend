@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { LineChange, NewPayRun, PayRunFull, PayRunRow } from './payrun.models';
+import { CalcInput, CalcResult, LineChange, NewPayRun, PayRunFull, PayRunRow } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -45,5 +45,9 @@ export class PayRunService {
 
   remove(id: number): Observable<unknown> {
     return this.http.delete(`${this.base}/${id}`, { headers: this.headers() });
+  }
+
+  calculate(body: CalcInput): Observable<CalcResult> {
+    return this.http.post<{ data: CalcResult }>(`${environment.apiUrl}/payroll/calculator`, body, { headers: this.headers() }).pipe(map(r => r.data));
   }
 }

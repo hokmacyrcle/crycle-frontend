@@ -47,3 +47,8 @@ export interface PayRunFull extends PayRunRow {
 
 export interface NewPayRun { frequency: Frequency; period_start: string; period_end: string; pay_date: string; }
 export interface LineChange { hours?: number | null; tax_override?: number; clear_tax_override?: boolean; confirm_tax?: boolean; }
+
+export type CalcBasis = 'gross' | 'salary' | 'hourly';
+export type CalcSituation = 'threshold' | 'no_threshold' | 'no_tfn_resident' | 'no_tfn_foreign';
+export interface CalcInput { basis: CalcBasis; frequency: Frequency; situation: CalcSituation; amount: number; hours?: number | null; }
+export interface CalcResult { gross: number; tax: number; super: number; net: number; situation_label: string; frequency: Frequency; basis: CalcBasis; }
