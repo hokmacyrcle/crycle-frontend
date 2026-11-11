@@ -53,7 +53,7 @@
       <select name="type" class="cy-input !w-auto" [(ngModel)]="f.type">
         <option value="">All transactions</option><option value="in">Money in</option><option value="out">Money out</option>
       </select></label>
-    <button type="submit" class="cy-btn-secondary"><app-icon name="search" [size]="18"></app-icon>Filter</button>
+    <button type="submit" class="cy-btn-secondary !h-[52px]"><app-icon name="search" [size]="18"></app-icon>Filter</button>
     <button *ngIf="hasFilter" type="button" class="min-h-[40px] text-sm font-bold underline" (click)="clearFilters()">Clear</button>
   </form>
 

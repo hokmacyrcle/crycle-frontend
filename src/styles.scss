@@ -481,6 +481,38 @@ h1, h2, h3, .font-display {
   .cy-input:disabled {
     @apply bg-[#F1EEE3] text-[#5B6478];
   }
+  /* Drop-down lists: our own arrow with room around it, the same in every browser. */
+  select.cy-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.75rem;
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 18px 18px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2301153E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    cursor: pointer;
+  }
+  select.cy-input:disabled {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B6478' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    cursor: not-allowed;
+  }
+  /* File choosers: a proper button instead of the browser's grey one. */
+  input[type='file'].cy-input {
+    @apply flex h-auto min-h-[52px] items-center py-2 text-sm text-[#3C4663];
+    cursor: pointer;
+  }
+  input[type='file'].cy-input::file-selector-button {
+    @apply mr-3 cursor-pointer rounded-full border-0 bg-cyrcle-navy px-4 py-2 text-[13px] font-bold text-white;
+  }
+  input[type='file'].cy-input:hover::file-selector-button {
+    @apply bg-cyrcle-midnight;
+  }
+  input[type='file'].cy-input:disabled {
+    cursor: not-allowed;
+  }
+  input[type='file'].cy-input:disabled::file-selector-button {
+    @apply cursor-not-allowed bg-[#B9B39F] text-white;
+  }
   .cy-label {
     @apply mb-1.5 block text-[13px] font-bold text-cyrcle-navy;
   }
