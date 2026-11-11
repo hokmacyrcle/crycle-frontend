@@ -77,12 +77,20 @@ export class PayRunComponent implements OnInit {
     { value: 'reimbursement', label: 'Reimbursement', hint: 'Paid back to the employee. No tax and no super.' },
     { value: 'deduction', label: 'Deduction', hint: 'Taken from pay after tax, for example a union fee.' },
   ];
-  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean } | undefined> = {};
+  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean; multiplier: string } | undefined> = {};
   itemErrors: Record<number, Record<string, string>> = {};
 
   kindLabel(k: string): string { return k === 'leave' ? 'Leave' : (this.kinds.find(x => x.value === k)?.label ?? k); }
   kindHint(k: ItemKind): string { return this.kinds.find(x => x.value === k)?.hint ?? ''; }
-  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true }; }
+  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true, multiplier: '' }; }
+
+  /** Fills the overtime rate from the employee's hourly rate, for example 1.5 times $36.00 is $54.00. */
+  applyMultiplier(l: PayRunLine, f: { rate: string | number; label: string; multiplier: string }): void {
+    if (!f.multiplier || !l.hourly_rate) return;
+    f.rate = (Math.round(l.hourly_rate * Number(f.multiplier) * 100) / 100).toFixed(2);
+    if (!f.label.trim()) f.label = `Overtime at ${f.multiplier} times`;
+    delete this.itemErrors[l.id]?.['label']; delete this.itemErrors[l.id]?.['rate'];
+  }
   closeItem(l: PayRunLine): void { delete this.itemForm[l.id]; delete this.itemErrors[l.id]; }
 
   saveItem(l: PayRunLine): void {

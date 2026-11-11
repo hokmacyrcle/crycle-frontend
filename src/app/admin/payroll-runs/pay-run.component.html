@@ -118,13 +118,17 @@
               <input type="text" class="cy-input" maxlength="60" [(ngModel)]="f.label" [name]="'d' + l.id" placeholder="e.g. Phone allowance" [class.cy-input-error]="itemErrors[l.id]['label']">
               <span *ngIf="itemErrors[l.id]['label']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['label'] }}</span></label>
           </div>
+          <label class="block sm:max-w-xs" *ngIf="f.kind === 'overtime' && l.hourly_rate"><span class="mb-1 block text-[13px] font-bold">Overtime loading</span>
+            <select class="cy-input" [(ngModel)]="f.multiplier" (ngModelChange)="applyMultiplier(l, f)" [name]="'om' + l.id">
+              <option value="">Enter the rate myself</option><option value="1.5">1.5 times the hourly rate</option><option value="2">2 times the hourly rate</option><option value="2.5">2.5 times the hourly rate</option></select>
+            <span class="mt-1 block text-[12px] text-[#5B6478]">Hourly rate is {{ l.hourly_rate | aud }}. The rate below fills in for you.</span></label>
           <div class="grid gap-3 sm:grid-cols-2" *ngIf="f.kind === 'overtime'">
             <label class="block"><span class="mb-1 block text-[13px] font-bold">Overtime hours</span>
               <input type="number" inputmode="decimal" min="0" step="0.25" class="cy-input" [(ngModel)]="f.hours" [name]="'oh' + l.id" [class.cy-input-error]="itemErrors[l.id]['hours']">
               <span *ngIf="itemErrors[l.id]['hours']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['hours'] }}</span></label>
             <label class="block"><span class="mb-1 block text-[13px] font-bold">Rate per hour ($)</span>
               <input type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [(ngModel)]="f.rate" [name]="'or' + l.id" [class.cy-input-error]="itemErrors[l.id]['rate']">
-              <span class="mt-1 block text-[12px] text-[#5B6478]">Include any overtime loading, for example 1.5 times the normal rate.</span>
+              <span class="mt-1 block text-[12px] text-[#5B6478]">Include any overtime loading. Pick a loading above or type the rate.</span>
               <span *ngIf="itemErrors[l.id]['rate']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['rate'] }}</span></label>
           </div>
           <label class="block sm:max-w-xs" *ngIf="f.kind !== 'overtime'"><span class="mb-1 block text-[13px] font-bold">Amount ($)</span>
