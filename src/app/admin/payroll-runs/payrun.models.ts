@@ -41,6 +41,7 @@ export interface Totals { gross: number; tax: number; super: number; net: number
 
 export interface PayRunFull extends PayRunRow {
   super_due_date: string | null;
+  super_paid_at: string | null;
   finalised_at: string | null;
   super_rate: number;
   employer: { name: string; abn: string | null; gst_registered: boolean; address: string[] };
@@ -61,3 +62,12 @@ export interface PayrollSettings { super_rate: number; default_pay_frequency: Fr
 export interface HistorySlip { run_id: number; line_id: number; reference: string; period_start: string; period_end: string; pay_date: string; gross: number; tax: number; net: number; }
 export interface HistoryEmployee extends Totals { employee_id: number; name: string; payslips: HistorySlip[]; }
 export interface History { fy: number; label: string; from: string; to: string; years: number[]; totals: Totals & { payslips: number }; employees: HistoryEmployee[]; }
+
+export interface OverviewAttention { employee_id: number; name: string; issues: string[]; }
+export interface OverviewDraft { id: number; reference: string; frequency: Frequency; period_start: string; period_end: string; pay_date: string; needs_attention: number; }
+export interface OverviewNext { frequency: Frequency; employees: number; has_draft: boolean; next_start: string | null; next_end: string | null; ready: boolean; }
+export interface OverviewSuper { run_id: number; reference: string; amount: number; due_date: string | null; overdue: boolean; }
+export interface Overview {
+  employees: number; fy_label: string; fy_totals: Totals;
+  attention: OverviewAttention[]; drafts: OverviewDraft[]; up_next: OverviewNext[]; super_owing: OverviewSuper[];
+}

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { toProblem } from '../sales/sales.service';
 import { Frequency } from './payrun.models';
 import { PayRunService } from './payrun.service';
@@ -11,7 +11,7 @@ const addDays = (d: Date, n: number) => { const c = new Date(d); c.setDate(c.get
   selector: 'app-pay-run-new',
   template: `
 <div class="mx-auto max-w-xl">
-  <a routerLink="/admin/payroll" class="inline-flex min-h-[40px] items-center gap-1 text-sm font-bold text-cyrcle-midnight"><app-icon name="arrow-left" [size]="16"></app-icon>Pay runs</a>
+  <a routerLink="/admin/payroll/runs" class="inline-flex min-h-[40px] items-center gap-1 text-sm font-bold text-cyrcle-midnight"><app-icon name="arrow-left" [size]="16"></app-icon>Pay runs</a>
   <div class="m-0 mt-1 text-[22px] font-extrabold" role="heading" aria-level="2">New pay run</div>
   <p class="mt-1 text-sm text-[#3C4663]">Everyone who is paid on this schedule is added for you.</p>
 
@@ -43,7 +43,7 @@ const addDays = (d: Date, n: number) => { const c = new Date(d); c.setDate(c.get
       <span *ngIf="errors['pay_date']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ errors['pay_date'] }}</span></label>
 
     <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-      <a routerLink="/admin/payroll" class="cy-btn-secondary justify-center">Cancel</a>
+      <a routerLink="/admin/payroll/runs" class="cy-btn-secondary justify-center">Cancel</a>
       <button type="submit" class="cy-btn-primary justify-center" [disabled]="busy">{{ busy ? 'Setting up…' : 'Create pay run' }}</button>
     </div>
   </form>
@@ -57,7 +57,16 @@ export class PayRunNewComponent {
   banner = '';
   busy = false;
 
-  constructor(private api: PayRunService, private router: Router) { this.setFrequency('Fortnightly'); }
+  constructor(private api: PayRunService, private router: Router, route: ActivatedRoute) {
+    this.setFrequency('Fortnightly');
+    // The dashboard can open this with the next period already filled in.
+    const q = route.snapshot.queryParamMap, f = q.get('frequency') as Frequency | null;
+    if (f && this.freqs.includes(f)) {
+      this.setFrequency(f);
+      const s = q.get('start'), e = q.get('end');
+      if (s && e && /^\d{4}-\d{2}-\d{2}$/.test(s) && /^\d{4}-\d{2}-\d{2}$/.test(e)) { this.start = s; this.end = e; this.payDate = iso(addDays(new Date(e + 'T00:00:00'), 3)); }
+    }
+  }
 
   /** Suggests dates that line up with the most recent finished period. They can be changed. */
   setFrequency(f: Frequency): void {

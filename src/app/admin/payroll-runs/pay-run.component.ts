@@ -85,12 +85,21 @@ export class PayRunComponent implements OnInit {
     });
   }
 
+  setSuperPaid(paid: boolean): void {
+    if (!this.run) return;
+    this.busy = true;
+    this.api.setSuperPaid(this.run.id, paid).subscribe({
+      next: r => { this.run = r; this.busy = false; this.alerts.toast(paid ? 'Super marked as paid' : 'Super marked as not paid'); },
+      error: e => { this.busy = false; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
+
   async discard(): Promise<void> {
     if (!this.run) return;
     if (!(await this.alerts.confirm('Delete this draft?', 'The draft ' + this.run.reference + ' will be removed. You can start a new one any time.', 'Delete'))) return;
     this.busy = true;
     this.api.remove(this.run.id).subscribe({
-      next: () => { this.router.navigate(['/admin/payroll']); },
+      next: () => { this.router.navigate(['/admin/payroll/runs']); },
       error: e => { this.busy = false; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
     });
   }

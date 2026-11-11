@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { CalcInput, CalcResult, History, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
+import { CalcInput, CalcResult, History, Overview, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -63,5 +63,13 @@ export class PayRunService {
     let params = new HttpParams();
     if (fy) params = params.set('fy', fy);
     return this.http.get<{ data: History }>(`${environment.apiUrl}/payroll/history`, { headers: this.headers(), params }).pipe(map(r => r.data));
+  }
+
+  overview(): Observable<Overview> {
+    return this.http.get<{ data: Overview }>(`${environment.apiUrl}/payroll/overview`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  setSuperPaid(id: number, paid: boolean): Observable<PayRunFull> {
+    return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/super-paid`, { paid }, { headers: this.headers() }).pipe(map(r => r.data));
   }
 }

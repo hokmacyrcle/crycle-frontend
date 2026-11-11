@@ -17,7 +17,8 @@ import { Component } from '@angular/core';
 })
 export class PayrollShellComponent {
   tabs = [
-    { label: 'Pay runs', link: '/admin/payroll' },
+    { label: 'Overview', link: '/admin/payroll' },
+    { label: 'Pay runs', link: '/admin/payroll/runs' },
     { label: 'Employees', link: '/admin/payroll/employees' },
     { label: 'History', link: '/admin/payroll/history' },
     { label: 'Calculator', link: '/admin/payroll/calculator' },
