@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { AlertService } from 'src/app/services/alert.service';
-import { CustomerRow, Meta } from './sales.models';
+import { CustomerRow, Meta, PaymentFlag } from './sales.models';
 import { SalesService, toProblem } from './sales.service';
 
 @Component({
@@ -51,6 +51,9 @@ export class CustomerListComponent implements OnInit, OnDestroy {
       error: e => { this.busyId = null; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
     });
   }
+
+  flagLabel: Record<PaymentFlag, string> = { overdue: 'Overdue', pays_late: 'Usually pays late', reliable: 'Pays on time' };
+  flagClass: Record<PaymentFlag, string> = { overdue: 'cy-pill-overdue', pays_late: 'cy-pill-expired', reliable: 'cy-pill-paid' };
 
   get from(): number { return this.meta.total ? (this.meta.page - 1) * this.meta.per_page + 1 : 0; }
   get to(): number { return Math.min(this.meta.page * this.meta.per_page, this.meta.total); }

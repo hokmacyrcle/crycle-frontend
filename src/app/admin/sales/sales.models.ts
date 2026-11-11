@@ -81,7 +81,12 @@ export interface DocPayload {
   action?: 'draft' | 'issue' | 'send';
 }
 
-export interface CustomerRow { id: number; name: string; type: string; abn: string | null; email: string | null; phone: string | null; status: 'active' | 'archived'; }
+export type PaymentFlag = 'overdue' | 'pays_late' | 'reliable';
+export interface PaymentProfile {
+  invoice_count: number; paid_count: number; late_count: number; avg_days_late: number;
+  outstanding: number; overdue: number; overdue_count: number; oldest_overdue_days: number; flags: PaymentFlag[];
+}
+export interface CustomerRow { id: number; name: string; type: string; abn: string | null; email: string | null; phone: string | null; status: 'active' | 'archived'; payment?: PaymentProfile | null; }
 export interface CustomerFull extends CustomerRow {
   first_name: string | null; last_name: string | null; business_name: string | null; mobile: string | null;
   address_line: string | null; suburb: string | null; state: string | null; postcode: string | null;

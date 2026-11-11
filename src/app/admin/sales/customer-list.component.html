@@ -33,6 +33,12 @@
           </span>
         </span>
       </div>
+      <div *ngIf="c.payment && (c.payment.flags.length || c.payment.outstanding > 0)" class="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 pb-2 pl-[76px] text-[13px] text-[#3C4663]">
+        <span *ngFor="let f of c.payment.flags" class="cy-pill" [ngClass]="flagClass[f]">{{ flagLabel[f] }}</span>
+        <span *ngIf="c.payment.overdue > 0"><b>{{ c.payment.overdue | currency:'AUD':'symbol-narrow':'1.2-2' }}</b> overdue, oldest {{ c.payment.oldest_overdue_days }} day{{ c.payment.oldest_overdue_days === 1 ? '' : 's' }}</span>
+        <span *ngIf="c.payment.overdue <= 0 && c.payment.outstanding > 0">{{ c.payment.outstanding | currency:'AUD':'symbol-narrow':'1.2-2' }} owing</span>
+        <span *ngIf="c.payment.flags.includes('pays_late')">· averages {{ c.payment.avg_days_late }} days late</span>
+      </div>
       <div class="flex flex-wrap gap-x-5 px-4 pb-3 pl-[76px] text-[13px] font-bold text-cyrcle-midnight">
         <button *ngIf="!archived" type="button" class="min-h-[36px] underline" (click)="invoice(c)">New invoice</button>
         <button *ngIf="!archived" type="button" class="min-h-[36px] underline" (click)="edit(c)">Edit</button>
