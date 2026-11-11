@@ -42,6 +42,9 @@ import { BankOverviewComponent } from './banking/bank-overview.component';
 import { BankAccountsComponent } from './banking/bank-accounts.component';
 import { BankImportComponent } from './banking/bank-import.component';
 import { BankTransactionsComponent } from './banking/bank-transactions.component';
+import { BankReceiptsComponent } from './banking/bank-receipts.component';
+import { BankChartComponent } from './banking/bank-chart.component';
+import { BankReconcileComponent } from './banking/bank-reconcile.component';
 import { RecurringListComponent } from './sales/recurring-list.component';
 import { CustomerListComponent } from './sales/customer-list.component';
 import { CustomerFormComponent } from './sales/customer-form.component';
@@ -139,6 +142,9 @@ const routes: Routes = [
     children: [
       { path: '', component: BankOverviewComponent },
       { path: 'transactions', component: BankTransactionsComponent },
+      { path: 'receipts', component: BankReceiptsComponent },
+      { path: 'chart-of-accounts', component: BankChartComponent },
+      { path: 'reconcile', component: BankReconcileComponent },
       { path: 'accounts', component: BankAccountsComponent },
     ]
   },

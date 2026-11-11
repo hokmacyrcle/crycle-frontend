@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { AccountPayload, AccountType, BankAccount, BankSummary, BankTxn, ColumnMap, FeedAccounts, FeedConnectResult, FeedStatus, Institution, ImportPreview, ImportResult, TxnFilter, TxnPage, TxnStatus } from './banking.models';
+import { AccountPayload, AccountType, BankAccount, BankSummary, BankTxn, ColumnMap, FeedAccounts, FeedConnectResult, FeedStatus, Institution, ImportPreview, ImportResult, Receipt, ReceiptPage, ReceiptPayload, ChartAccount, ChartData, ChartPayload, ReconLines, ReconStart, TxnFilter, TxnPage, TxnStatus } from './banking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BankingService {
@@ -101,5 +101,55 @@ export class BankingService {
   }
   disconnectFeed(linkId: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.base}/feed/links/${linkId}`, { headers: this.headers() });
+  }
+
+  // ---- Receipts ----
+  receipts(search: string, page: number): Observable<ReceiptPage> {
+    let params = new HttpParams().set('page', String(page));
+    if (search) params = params.set('search', search);
+    return this.http.get<ReceiptPage>(`${this.base}/receipts`, { headers: this.headers(), params });
+  }
+  uploadReceipts(files: File[]): Observable<{ data: Receipt[]; message: string }> {
+    const f = new FormData();
+    files.forEach(x => f.append('files[]', x));
+    return this.http.post<{ data: Receipt[]; message: string }>(`${this.base}/receipts`, f, { headers: this.headers() });
+  }
+  updateReceipt(id: number, p: ReceiptPayload): Observable<{ data: Receipt; message: string }> {
+    return this.http.put<{ data: Receipt; message: string }>(`${this.base}/receipts/${id}`, p, { headers: this.headers() });
+  }
+  deleteReceipt(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/receipts/${id}`, { headers: this.headers() });
+  }
+  receiptFile(id: number): Observable<Blob> {
+    return this.http.get(`${this.base}/receipts/${id}/file`, { headers: this.headers(), responseType: 'blob' });
+  }
+
+  // ---- Chart of accounts ----
+  chart(): Observable<ChartData> {
+    return this.http.get<ChartData>(`${this.base}/chart-accounts`, { headers: this.headers() });
+  }
+  addChartAccount(p: ChartPayload): Observable<{ data: ChartAccount; message: string }> {
+    return this.http.post<{ data: ChartAccount; message: string }>(`${this.base}/chart-accounts`, p, { headers: this.headers() });
+  }
+  updateChartAccount(id: number, p: ChartPayload): Observable<{ data: ChartAccount; message: string }> {
+    return this.http.put<{ data: ChartAccount; message: string }>(`${this.base}/chart-accounts/${id}`, p, { headers: this.headers() });
+  }
+  archiveChartAccount(id: number, archived: boolean): Observable<{ data: ChartAccount; message: string }> {
+    return this.http.post<{ data: ChartAccount; message: string }>(`${this.base}/chart-accounts/${id}/archive`, { archived }, { headers: this.headers() });
+  }
+
+  // ---- Reconcile ----
+  reconStart(accountId: number): Observable<ReconStart> {
+    return this.http.get<{ data: ReconStart }>(`${this.base}/reconcile/${accountId}`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+  reconLines(accountId: number, to: string): Observable<ReconLines> {
+    const params = new HttpParams().set('to', to);
+    return this.http.get<{ data: ReconLines }>(`${this.base}/reconcile/${accountId}/lines`, { headers: this.headers(), params }).pipe(map(r => r.data));
+  }
+  reconFinish(accountId: number, p: { statement_end: string; closing_balance: number; opening_balance: number | null; ids: number[] }): Observable<{ data: { id: number; line_count: number }; message: string }> {
+    return this.http.post<{ data: { id: number; line_count: number }; message: string }>(`${this.base}/reconcile/${accountId}`, p, { headers: this.headers() });
+  }
+  reconUndo(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/reconcile/${id}`, { headers: this.headers() });
   }
 }

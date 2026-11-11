@@ -43,3 +43,38 @@ export interface FeedAccounts { institution_name: string; consent_expires: strin
 export interface FeedConnectResult { accounts_added: number; transactions: number; consent_expires: string | null; }
 
 export interface TxnFilter { search: string; from: string; to: string; type: '' | 'in' | 'out'; }
+
+export interface Receipt {
+  id: number; file_name: string; is_image: boolean; size: number; description: string | null;
+  date: string | null; amount: number | null; gst: number | null; account_id: number | null;
+  account_name: string | null; created_by: string | null; created_at: string | null;
+}
+
+export interface ReceiptPage {
+  data: Receipt[];
+  meta: { page: number; per_page: number; total: number; last_page: number };
+}
+
+export interface ReceiptPayload { description: string | null; date: string | null; amount: number | null; gst: number | null; account_id: number | null; }
+
+export type ChartType = 'asset' | 'liability' | 'equity' | 'income' | 'expense';
+
+export interface ChartAccount {
+  id: number; code: string | null; name: string; type: ChartType; detail: string; gst_code: string; gst_label: string;
+  description: string | null; parent_id: number | null; parent_name: string | null; locked: boolean; active: boolean;
+}
+export interface ChartTypeInfo { key: ChartType; label: string; details: string[]; }
+export interface GstCodeInfo { key: string; label: string; rate: string; }
+export interface ChartData { data: ChartAccount[]; types: ChartTypeInfo[]; gst_codes: GstCodeInfo[]; }
+export interface ChartPayload { code: string | null; name: string; type: ChartType; detail: string; gst_code: string; description: string | null; parent_id: number | null; }
+
+export interface ReconHistory {
+  id: number; statement_end: string; opening_balance: number; closing_balance: number; line_count: number;
+  finished_by: string | null; finished_at: string | null; can_undo: boolean;
+}
+export interface ReconStart {
+  account: { id: number; name: string; type: AccountType };
+  opening_balance: number | null; last_statement_end: string | null; history: ReconHistory[];
+}
+export interface ReconLine { id: number; date: string; description: string; amount: number; }
+export interface ReconLines { lines: ReconLine[]; total: number; truncated: boolean; }
