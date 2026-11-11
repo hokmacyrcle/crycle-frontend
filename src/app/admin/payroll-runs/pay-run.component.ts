@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from 'src/app/services/alert.service';
 import { toProblem } from '../sales/sales.service';
-import { ItemKind, LineChange, NewItem, PayRunFull, PayRunLine } from './payrun.models';
+import { ItemKind, LineChange, NewItem, PayRunFull, PayRunLine, StpCheck } from './payrun.models';
 import { PayRunService } from './payrun.service';
 
 @Component({
@@ -23,9 +23,18 @@ export class PayRunComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.get(this.route.snapshot.paramMap.get('id') as string).subscribe({
-      next: r => { this.run = r; this.loading = false; },
+      next: r => { this.run = r; this.loading = false; this.checkStp(); },
       error: e => { this.loading = false; this.error = toProblem(e).message; }
     });
+  }
+
+  /** What the ATO's Single Touch Payroll needs for this run, and what is still missing. Nothing is sent from here. */
+  stp: StpCheck | null = null;
+  stpError = '';
+  checkStp(): void {
+    if (!this.run) return;
+    this.stpError = '';
+    this.api.stp(this.run.id).subscribe({ next: s => this.stp = s, error: e => this.stpError = toProblem(e).message });
   }
 
   get editable(): boolean { return !!this.run?.can.edit; }

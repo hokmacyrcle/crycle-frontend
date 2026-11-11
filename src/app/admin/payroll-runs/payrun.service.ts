@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { CalcInput, CalcResult, History, NewItem, Overview, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
+import { CalcInput, CalcResult, History, NewItem, Overview, StpCheck, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -37,6 +37,10 @@ export class PayRunService {
 
   addItem(id: number, lineId: number, body: NewItem): Observable<PayRunFull> {
     return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/items`, body, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  stp(id: number): Observable<StpCheck> {
+    return this.http.get<{ data: StpCheck }>(`${this.base}/${id}/stp`, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
   addLeave(id: number, lineId: number, requestId: number): Observable<PayRunFull> {

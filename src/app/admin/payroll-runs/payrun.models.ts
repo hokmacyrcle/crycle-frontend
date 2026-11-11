@@ -2,6 +2,12 @@ export type ItemKind = 'allowance' | 'bonus' | 'overtime' | 'leave' | 'reimburse
 export interface LineItem { id: number; kind: ItemKind; label: string; hours: number | null; rate: number | null; amount: number; counts_for_super: boolean; }
 export interface NewItem { kind: ItemKind; label: string; amount?: number | null; hours?: number | null; rate?: number | null; counts_for_super?: boolean; }
 
+export interface StpIssue { level: 'blocking' | 'warning'; text: string; }
+export interface StpCheck {
+  ready: boolean; blocking: number; run_issues: StpIssue[];
+  employees: { line_id: number; employee_id: number; employee_name: string; employment_basis: string | null; employment_basis_name: string | null; tax_treatment_code: string | null; issues: StpIssue[] }[];
+}
+
 export type Frequency = 'Weekly' | 'Fortnightly' | 'Monthly';
 
 export interface PayRunRow {
