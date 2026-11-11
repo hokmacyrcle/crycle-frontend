@@ -66,6 +66,8 @@ export interface PayRunFull extends PayRunRow {
   super_due_date: string | null;
   super_paid_at: string | null;
   finalised_at: string | null;
+  finalised_by: string | null;
+  super_paid_by: string | null;
   super_rate: number;
   employer: { name: string; abn: string | null; gst_registered: boolean; address: string[] };
   needs_attention: number;
