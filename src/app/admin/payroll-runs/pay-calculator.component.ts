@@ -38,20 +38,22 @@ import { PayRunService } from './payrun.service';
       <select name="sit" class="cy-input" [(ngModel)]="situation"><option *ngFor="let s of situations" [value]="s.value">{{ s.label }}</option></select></label>
   </div>
 
+  <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="loan" [(ngModel)]="studyLoan">Has a study and training loan (HELP, VSL, SSL or TSL)</label>
+
   <button type="submit" class="cy-btn-primary self-start" [disabled]="busy">{{ busy ? 'Calculating…' : 'Calculate' }}</button>
 </form>
 
 <section *ngIf="result" class="cy-card mt-4" aria-live="polite" aria-label="Result">
   <dl class="m-0 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
     <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Gross pay</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.gross | aud }}</dd></div>
-    <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Tax withheld</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.tax | aud }}</dd></div>
+    <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Tax withheld</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.tax | aud }}</dd><dd *ngIf="result.study_loan > 0" class="m-0 text-[12px] text-[#5B6478]">includes {{ result.study_loan | aud }} study loan</dd></div>
     <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Super ({{ result.super_rate }}%)</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.super | aud }}</dd></div>
     <div class="rounded-[16px] bg-cyrcle-navy px-4 py-3 text-white"><dt class="text-[12px] font-bold uppercase tracking-wide opacity-80">Take-home</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.net | aud }}</dd></div>
   </dl>
   <p class="mb-0 mt-3 text-[13px] leading-snug text-[#3C4663]">{{ result.frequency }} pay · {{ result.situation_label }}. Super is paid on top of gross pay.</p>
 </section>
 
-<p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Calculated with the ATO's tax withholding formulas for 2026–27, including the Medicare levy. It does not include study and training loan repayments, allowances, bonuses or leave, and foreign residents with a tax file number or working holiday makers need separate rates. It is an estimate for planning, and pay runs use the same figures.</p>`
+<p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Calculated with the ATO's tax withholding formulas for 2026–27, including the Medicare levy. Study and training loan repayments are included when you tick the box. It does not include allowances, bonuses or leave, and foreign residents with a tax file number or working holiday makers need separate rates. It is an estimate for planning, and pay runs use the same figures.</p>`
 })
 export class PayCalculatorComponent {
   bases: { value: CalcBasis; label: string }[] = [
@@ -66,6 +68,7 @@ export class PayCalculatorComponent {
   basis: CalcBasis = 'gross';
   frequency: Frequency = 'Fortnightly';
   situation: CalcSituation = 'threshold';
+  studyLoan = false;
   amount: number | null = null;
   hours: number | null = null;
   errors: Record<string, string> = {};
@@ -85,7 +88,7 @@ export class PayCalculatorComponent {
     if (this.basis === 'hourly' && (this.hours === null || (this.hours as unknown) === '')) this.errors['hours'] = 'Enter the hours worked.';
     if (Object.keys(this.errors).length) return;
     this.busy = true;
-    this.api.calculate({ basis: this.basis, frequency: this.frequency, situation: this.situation, amount: Number(this.amount), hours: this.basis === 'hourly' ? Number(this.hours) : null }).subscribe({
+    this.api.calculate({ basis: this.basis, frequency: this.frequency, situation: this.situation, amount: Number(this.amount), hours: this.basis === 'hourly' ? Number(this.hours) : null, study_loan: this.studyLoan }).subscribe({
       next: r => { this.busy = false; this.result = r; },
       error: e => { this.busy = false; const p = toProblem(e); this.errors = p.fieldErrors; this.banner = Object.keys(p.fieldErrors).length ? '' : p.message; }
     });

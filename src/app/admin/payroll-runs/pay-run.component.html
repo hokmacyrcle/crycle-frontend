@@ -78,7 +78,7 @@
 
         <dl class="m-0 mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
           <div><dt class="text-[12px] text-[#5B6478]">Gross</dt><dd class="m-0 font-bold">{{ l.gross | aud }}</dd></div>
-          <div><dt class="text-[12px] text-[#5B6478]">Tax</dt><dd class="m-0 font-bold">{{ l.tax | aud }}<span *ngIf="l.tax_overridden" class="ml-1 text-[12px] font-normal text-[#5B6478]">(entered)</span></dd></div>
+          <div><dt class="text-[12px] text-[#5B6478]">Tax</dt><dd class="m-0 font-bold">{{ l.tax | aud }}<span *ngIf="l.tax_overridden" class="ml-1 text-[12px] font-normal text-[#5B6478]">(entered)</span><span *ngIf="l.study_loan > 0" class="block text-[12px] font-normal text-[#5B6478]">includes {{ l.study_loan | aud }} study loan</span></dd></div>
           <div><dt class="text-[12px] text-[#5B6478]">Super</dt><dd class="m-0 font-bold">{{ l.super_amount | aud }}</dd></div>
           <div><dt class="text-[12px] text-[#5B6478]">Net pay</dt><dd class="m-0 font-bold">{{ l.net | aud }}</dd></div>
         </dl>
@@ -158,7 +158,7 @@
 
     <div *ngIf="!run.lines.length" class="mt-3 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5 text-sm text-[#3C4663]">Everyone has been removed from this run. Delete the draft and start a new one.</div>
 
-    <p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Tax is worked out from the ATO's weekly tax tables for 2026–27 using each employee's tax details. Study and training loan repayments are not included yet. Stapled super and Single Touch Payroll reporting are not part of this version.</p>
+    <p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Tax is worked out from the ATO's weekly tax tables for 2026–27 using each employee's tax details. Study and training loan repayments use ATO Schedule 8. Stapled super and Single Touch Payroll reporting are not part of this version.</p>
 
     <div *ngIf="editable" class="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between print:hidden">
       <button type="button" class="cy-btn-secondary justify-center" (click)="discard()" [disabled]="busy">Delete draft</button>

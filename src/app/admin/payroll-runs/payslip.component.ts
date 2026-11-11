@@ -47,7 +47,7 @@ import { PayRunService } from './payrun.service';
           <td class="py-2.5 text-right">{{ i.amount | aud }}</td>
         </tr>
         <tr class="border-b border-cyrcle-pearl"><td class="py-2.5 font-bold">Gross pay</td><td class="py-2.5 text-right font-bold">{{ line.gross | aud }}</td></tr>
-        <tr class="border-b border-cyrcle-pearl"><td class="py-2.5">Tax withheld (PAYG)</td><td class="py-2.5 text-right">-{{ line.tax | aud }}</td></tr>
+        <tr class="border-b border-cyrcle-pearl"><td class="py-2.5">Tax withheld (PAYG)<span *ngIf="line.study_loan > 0" class="block text-[12px] text-[#5B6478]">includes {{ line.study_loan | aud }} study and training loan repayment</span></td><td class="py-2.5 text-right">-{{ line.tax | aud }}</td></tr>
         <tr *ngFor="let i of reimbursements" class="border-b border-cyrcle-pearl"><td class="py-2.5">{{ i.label }} <span class="text-[#5B6478]">(reimbursement)</span></td><td class="py-2.5 text-right">{{ i.amount | aud }}</td></tr>
         <tr *ngFor="let i of deductions" class="border-b border-cyrcle-pearl"><td class="py-2.5">{{ i.label }} <span class="text-[#5B6478]">(deduction)</span></td><td class="py-2.5 text-right">-{{ i.amount | aud }}</td></tr>
         <tr><td class="py-3 text-[16px] font-extrabold">Net pay</td><td class="py-3 text-right text-[16px] font-extrabold">{{ line.net | aud }}</td></tr>

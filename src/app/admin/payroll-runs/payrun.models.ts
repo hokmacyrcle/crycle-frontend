@@ -36,6 +36,7 @@ export interface PayRunLine {
   hours_confirmed: boolean;
   gross: number;
   tax: number;
+  study_loan: number;
   super_amount: number;
   net: number;
   tax_method: string;
@@ -66,8 +67,8 @@ export interface LineChange { confirm_hours?: boolean; hours?: number | null; ta
 
 export type CalcBasis = 'gross' | 'salary' | 'hourly';
 export type CalcSituation = 'threshold' | 'no_threshold' | 'no_tfn_resident' | 'no_tfn_foreign';
-export interface CalcInput { basis: CalcBasis; frequency: Frequency; situation: CalcSituation; amount: number; hours?: number | null; }
-export interface CalcResult { super_rate: number; gross: number; tax: number; super: number; net: number; situation_label: string; frequency: Frequency; basis: CalcBasis; }
+export interface CalcInput { basis: CalcBasis; frequency: Frequency; situation: CalcSituation; amount: number; hours?: number | null; study_loan?: boolean; }
+export interface CalcResult { super_rate: number; gross: number; tax: number; study_loan: number; super: number; net: number; situation_label: string; frequency: Frequency; basis: CalcBasis; }
 
 export interface PayrollSettings { super_rate: number; default_pay_frequency: Frequency; default_hours_per_week: number; min_super_rate: number; }
 export interface HistorySlip { run_id: number; line_id: number; reference: string; period_start: string; period_end: string; pay_date: string; gross: number; tax: number; net: number; }
