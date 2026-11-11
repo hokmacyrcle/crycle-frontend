@@ -83,7 +83,11 @@
           <div><dt class="text-[12px] text-[#5B6478]">Net pay</dt><dd class="m-0 font-bold">{{ l.net | aud }}</dd></div>
         </dl>
 
-        <ul *ngIf="l.items.length" class="m-0 mt-3 list-none rounded-[12px] bg-[#F6F4EC] p-0 text-sm">
+        <ul *ngIf="l.items.length || l.casual_loading > 0" class="m-0 mt-3 list-none rounded-[12px] bg-[#F6F4EC] p-0 text-sm">
+          <li *ngIf="l.casual_loading > 0" class="flex items-center justify-between gap-3 border-b border-white px-3 py-2 last:border-b-0">
+            <span class="min-w-0"><span class="font-bold">Casual loading</span><span class="ml-1.5 text-[12px] text-[#5B6478]">{{ l.loading_rate }}% of ordinary pay</span></span>
+            <span class="font-bold">{{ l.casual_loading | aud }}</span>
+          </li>
           <li *ngFor="let i of l.items" class="flex items-center justify-between gap-3 border-b border-white px-3 py-2 last:border-b-0">
             <span class="min-w-0">
               <span class="font-bold">{{ i.label }}</span>

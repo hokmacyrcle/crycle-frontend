@@ -71,7 +71,7 @@ export class PayRunService {
     return this.http.get<{ data: PayrollSettings }>(`${environment.apiUrl}/payroll/settings`, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
-  saveSettings(body: Pick<PayrollSettings, 'super_rate' | 'default_pay_frequency' | 'default_hours_per_week'>): Observable<PayrollSettings> {
+  saveSettings(body: Pick<PayrollSettings, 'super_rate' | 'default_pay_frequency' | 'default_hours_per_week' | 'casual_loading'>): Observable<PayrollSettings> {
     return this.http.put<{ data: PayrollSettings }>(`${environment.apiUrl}/payroll/settings`, body, { headers: this.headers() }).pipe(map(r => r.data));
   }
 

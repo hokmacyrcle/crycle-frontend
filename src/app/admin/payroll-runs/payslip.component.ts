@@ -48,6 +48,12 @@ import { PayRunService } from './payrun.service';
           <td class="py-2.5 text-right">{{ line.base_pay | aud }}</td>
           <td class="hidden py-2.5 text-right sm:table-cell">{{ line.ytd ? (line.ytd.base_pay | aud) : '' }}</td>
         </tr>
+        <tr *ngIf="line.casual_loading > 0" class="border-b border-cyrcle-pearl">
+          <td class="py-2.5">Casual loading <span class="text-[#5B6478]">({{ line.loading_rate }}%)</span></td>
+          <td class="hidden py-2.5 text-right sm:table-cell"></td><td class="hidden py-2.5 text-right sm:table-cell"></td>
+          <td class="py-2.5 text-right">{{ line.casual_loading | aud }}</td>
+          <td class="hidden py-2.5 text-right sm:table-cell">{{ line.ytd ? (line.ytd.loading | aud) : '' }}</td>
+        </tr>
         <tr *ngFor="let i of earnings; let n = index" class="border-b border-cyrcle-pearl">
           <td class="py-2.5">{{ i.label }}<span *ngIf="i.label.toLowerCase() !== i.kind" class="text-[#5B6478]"> ({{ kindName(i.kind) }})</span><span *ngIf="i.hours" class="block text-[12px] text-[#5B6478] sm:hidden">{{ i.hours }} hours<span *ngIf="i.rate"> at {{ i.rate | aud }}</span></span></td>
           <td class="hidden py-2.5 text-right sm:table-cell">{{ i.hours ?? '' }}</td>

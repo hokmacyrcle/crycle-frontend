@@ -30,6 +30,11 @@ import { PayRunService } from './payrun.service';
     <span class="mt-1 block text-[13px] text-[#5B6478]">Pre-filled for hourly employees. Pay runs start from each employee's own hours.</span>
     <span *ngIf="errors['default_hours_per_week']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ errors['default_hours_per_week'] }}</span></label>
 
+  <label class="block sm:max-w-xs"><span class="mb-1 block text-sm font-bold">Casual loading (%)</span>
+    <input type="number" inputmode="decimal" step="0.01" min="0" name="loading" class="cy-input" [(ngModel)]="loading_pct" [class.cy-input-error]="errors['casual_loading']">
+    <span class="mt-1 block text-[13px] text-[#5B6478]">Paid on top of the hourly rate to casual employees, shown as its own line on the payslip. It is taxed and earns super like ordinary pay. Enter 0 if your casual hourly rates already include it.</span>
+    <span *ngIf="errors['casual_loading']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ errors['casual_loading'] }}</span></label>
+
   <div><button type="submit" class="cy-btn-primary" [disabled]="busy">{{ busy ? 'Saving…' : 'Save settings' }}</button></div>
   <p class="m-0 text-[12px] leading-snug text-[#5B6478]">A pay run keeps the super rate it was created with. Changing it here does not change runs you already made.</p>
 </form>`
@@ -39,6 +44,7 @@ export class PayrollSettingsComponent implements OnInit {
   rate: number | null = 12;
   frequency: Frequency = 'Fortnightly';
   hours: number | null = 38;
+  loading_pct: number | null = 25;
   min = 12;
   loading = true; loadError = ''; busy = false; banner = '';
   errors: Record<string, string> = {};
@@ -47,7 +53,7 @@ export class PayrollSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.settings().subscribe({
-      next: s => { this.rate = s.super_rate; this.frequency = s.default_pay_frequency; this.hours = s.default_hours_per_week; this.min = s.min_super_rate; this.loading = false; },
+      next: s => { this.rate = s.super_rate; this.frequency = s.default_pay_frequency; this.hours = s.default_hours_per_week; this.loading_pct = s.casual_loading; this.min = s.min_super_rate; this.loading = false; },
       error: e => { this.loading = false; this.loadError = toProblem(e).message; }
     });
   }
@@ -58,10 +64,12 @@ export class PayrollSettingsComponent implements OnInit {
     if (empty(this.rate)) this.errors['super_rate'] = 'Enter the super rate.';
     else if (Number(this.rate) < this.min) this.errors['super_rate'] = 'The super rate cannot be lower than the ' + this.min + '% super guarantee.';
     if (empty(this.hours) || Number(this.hours) <= 0) this.errors['default_hours_per_week'] = 'Enter hours greater than 0.';
+    if (empty(this.loading_pct) || Number(this.loading_pct) < 0) this.errors['casual_loading'] = 'Enter the casual loading. Enter 0 if your casual hourly rates already include it.';
+    else if (Number(this.loading_pct) > 100) this.errors['casual_loading'] = 'The casual loading cannot be more than 100.';
     if (Object.keys(this.errors).length) return;
     this.busy = true;
-    this.api.saveSettings({ super_rate: Number(this.rate), default_pay_frequency: this.frequency, default_hours_per_week: Number(this.hours) }).subscribe({
-      next: s => { this.busy = false; this.rate = s.super_rate; this.hours = s.default_hours_per_week; this.alerts.toast('Settings saved'); },
+    this.api.saveSettings({ super_rate: Number(this.rate), default_pay_frequency: this.frequency, default_hours_per_week: Number(this.hours), casual_loading: Number(this.loading_pct) }).subscribe({
+      next: s => { this.busy = false; this.rate = s.super_rate; this.hours = s.default_hours_per_week; this.loading_pct = s.casual_loading; this.alerts.toast('Settings saved'); },
       error: e => { this.busy = false; const p = toProblem(e); this.errors = p.fieldErrors; this.banner = Object.keys(p.fieldErrors).length ? '' : p.message; }
     });
   }
