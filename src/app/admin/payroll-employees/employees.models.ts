@@ -11,6 +11,9 @@ export interface EmployeeRow {
   pay_summary: string | null;
   start_date: string | null;
   status: 'active' | 'archived';
+  last_day: string | null;
+  cessation_reason: string | null;
+  cessation_label: string | null;
 }
 
 export interface EmployeeFull extends EmployeeRow {

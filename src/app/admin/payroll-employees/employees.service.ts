@@ -37,7 +37,7 @@ export class PayrollEmployeesService {
     return this.http.put<{ data: EmployeeFull }>(`${this.base}/${id}`, body, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
-  archive(id: number, archived: boolean): Observable<EmployeeFull> {
-    return this.http.post<{ data: EmployeeFull }>(`${this.base}/${id}/archive`, { archived }, { headers: this.headers() }).pipe(map(r => r.data));
+  archive(id: number, archived: boolean, leaving?: { last_day: string; reason: string }): Observable<EmployeeFull> {
+    return this.http.post<{ data: EmployeeFull }>(`${this.base}/${id}/archive`, { archived, ...(leaving ?? {}) }, { headers: this.headers() }).pipe(map(r => r.data));
   }
 }

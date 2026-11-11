@@ -29,6 +29,20 @@
     <a *ngIf="!archived && !search" routerLink="/admin/payroll/employees/new" class="cy-btn-primary mt-1 self-start">Add employee</a>
   </div>
 
+  <form *ngIf="leaving as p" class="mt-4 flex flex-col gap-3 rounded-[20px] border-[1.5px] border-[#B9B39F] bg-white p-4" (ngSubmit)="confirmLeaving()" novalidate>
+    <div class="text-[15px] font-bold" role="heading" aria-level="3">Archive {{ p.name }}</div>
+    <p class="m-0 text-[13px] text-[#3C4663]">They will no longer be included in pay runs. Their details and pay history are kept, and you can restore them any time. The ATO needs the last day worked and the reason.</p>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <label class="block"><span class="mb-1 block text-[13px] font-bold">Last day worked</span>
+        <input type="date" class="cy-input" [(ngModel)]="leaveForm.last_day" name="lastDay" [class.cy-input-error]="leaveErrors['last_day']">
+        <span *ngIf="leaveErrors['last_day']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ leaveErrors['last_day'] }}</span></label>
+      <label class="block"><span class="mb-1 block text-[13px] font-bold">Why employment ended</span>
+        <select class="cy-input" [(ngModel)]="leaveForm.reason" name="reason" [class.cy-input-error]="leaveErrors['reason']"><option value="">Choose a reason</option><option *ngFor="let r of reasons" [value]="r.code">{{ r.label }}</option></select>
+        <span *ngIf="leaveErrors['reason']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ leaveErrors['reason'] }}</span></label>
+    </div>
+    <div class="flex gap-2"><button type="submit" class="cy-btn-primary cy-btn-sm" [disabled]="busyId === p.id">Archive</button><button type="button" class="cy-btn-secondary cy-btn-sm" (click)="cancelLeaving()">Cancel</button></div>
+  </form>
+
   <ul *ngIf="rows.length" class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0" [class.opacity-60]="loading">
     <li *ngFor="let e of rows" class="rounded-[20px] bg-white">
       <div class="flex items-center gap-3.5 px-4 pb-2 pt-4">
@@ -39,7 +53,8 @@
             {{ e.job_title || 'No job title' }}<span *ngIf="e.employment_basis"> · {{ e.employment_basis }}</span>
           </span>
           <span class="block truncate text-[13px] text-[#5B6478]">
-            <span *ngIf="e.pay_summary">{{ e.pay_summary }}</span><span *ngIf="!e.pay_summary">No pay rate set</span><span *ngIf="e.pay_frequency"> · paid {{ e.pay_frequency | lowercase }}</span>
+            <span *ngIf="archived && e.last_day">Left {{ e.last_day | auDate }}<span *ngIf="e.cessation_label"> · {{ e.cessation_label }}</span></span>
+            <span *ngIf="!(archived && e.last_day)"><span *ngIf="e.pay_summary">{{ e.pay_summary }}</span><span *ngIf="!e.pay_summary">No pay rate set</span><span *ngIf="e.pay_frequency"> · paid {{ e.pay_frequency | lowercase }}</span></span>
           </span>
         </span>
       </div>

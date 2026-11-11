@@ -20,6 +20,15 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   error = '';
   busyId: number | null = null;
 
+  /** The ATO's reasons for employment ending, reported through Single Touch Payroll. */
+  reasons = [
+    { code: 'V', label: 'Resigned or left by choice' }, { code: 'R', label: 'Redundancy' }, { code: 'C', label: 'Contract ended' },
+    { code: 'F', label: 'Dismissed' }, { code: 'I', label: 'Ill health' }, { code: 'D', label: 'Deceased' }, { code: 'T', label: 'Transferred to another employer' },
+  ];
+  leaving: EmployeeRow | null = null;
+  leaveForm = { last_day: '', reason: '' };
+  leaveErrors: Record<string, string> = {};
+
   private search$ = new Subject<string>();
   private sub = new Subscription();
 
@@ -44,12 +53,35 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
   edit(e: EmployeeRow): void { this.router.navigate(['/admin/payroll/employees', e.id, 'edit']); }
 
-  async toggle(e: EmployeeRow): Promise<void> {
-    if (!this.archived && !(await this.alerts.confirm('Archive ' + e.name + '?', 'They will no longer be included in pay runs. Their details and pay history are kept, and you can restore them any time.', 'Archive'))) return;
+  /** Restoring happens straight away. Archiving first asks for the last day and the reason. */
+  toggle(e: EmployeeRow): void {
+    if (this.archived) { this.send(e, true); return; }
+    this.leaving = e; this.leaveForm = { last_day: new Date().toISOString().slice(0, 10), reason: '' }; this.leaveErrors = {};
+  }
+  cancelLeaving(): void { this.leaving = null; this.leaveErrors = {}; }
+
+  confirmLeaving(): void {
+    if (!this.leaving) return;
+    const err: Record<string, string> = {};
+    if (!this.leaveForm.last_day) err['last_day'] = 'Enter the last day they worked.';
+    if (!this.leaveForm.reason) err['reason'] = 'Choose why employment ended.';
+    this.leaveErrors = err;
+    if (Object.keys(err).length) return;
+    this.send(this.leaving, false);
+  }
+
+  private send(e: EmployeeRow, restore: boolean): void {
     this.busyId = e.id;
-    this.api.archive(e.id, !this.archived).subscribe({
-      next: () => { this.busyId = null; this.alerts.toast(this.archived ? 'Employee restored' : 'Employee archived'); this.load(this.rows.length === 1 && this.meta.page > 1 ? this.meta.page - 1 : this.meta.page); },
-      error: err => { this.busyId = null; this.alerts.DangerSwalnew('That did not work', toProblem(err).message); }
+    this.api.archive(e.id, !restore, restore ? undefined : { last_day: this.leaveForm.last_day, reason: this.leaveForm.reason }).subscribe({
+      next: () => {
+        this.busyId = null; this.leaving = null;
+        this.alerts.toast(restore ? 'Employee restored' : 'Employee archived');
+        this.load(this.rows.length === 1 && this.meta.page > 1 ? this.meta.page - 1 : this.meta.page);
+      },
+      error: err => {
+        this.busyId = null; const p = toProblem(err);
+        if (this.leaving && Object.keys(p.fieldErrors).length) this.leaveErrors = p.fieldErrors; else this.alerts.DangerSwalnew('That did not work', p.message);
+      }
     });
   }
 
