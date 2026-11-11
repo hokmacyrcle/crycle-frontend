@@ -5,24 +5,11 @@ import { UpdateclientComponent } from './updateclient/updateclient.component';
 import { ClientsComponent } from './clients/clients.component';
 import { CompaniesComponent } from './companies/companies.component';
 import { UpdatecompanyComponent } from './updatecompany/updatecompany.component';
-import { EmployeesComponent } from './employees/employees.component';
-import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { InvoiceComponent } from './invoice/invoice.component';
 import { GetallinvoicesComponent } from './getallinvoices/getallinvoices.component';
 import { GetallcustomerComponent } from './getallcustomer/getallcustomer.component';
 import { AddcontactComponent } from './addcontact/addcontact.component';
 
-import { PayrollComponent } from './payroll/payroll.component';
-import { PayrollEmployeeComponent } from './payroll-employee/payroll-employee.component';
-import { PayrollAddEmployeeComponent } from './payroll-add-employee/payroll-add-employee.component';
-import { PayrollEmployeeDetailsComponent } from './payroll-employee-details/payroll-employee-details.component';
-import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
-import { EmployementComponent } from './employement/employement.component';
-import { TaxesComponent } from './taxes/taxes.component';
-import { LeaveComponent } from './leave/leave.component';
-import { BankaccountComponent } from './bankaccount/bankaccount.component';
-import { PayslipsComponent } from './payslips/payslips.component';
-import { PaytemplateComponent } from './paytemplate/paytemplate.component';
 import { OpeningbalanceComponent } from './openingbalance/openingbalance.component';
 import { NotesComponent } from './notes/notes.component';
 import { SalesComponent } from './sales/sales.component';
@@ -37,18 +24,7 @@ import { ReconcileComponent } from './reconcile/reconcile.component';
 import { BankrulestransactionsComponent } from './bankrulestransactions/bankrulestransactions.component';
 import { BankchartofaccountsComponent } from './bankchartofaccounts/bankchartofaccounts.component';
 import { BankRecurringTransactionsComponent } from './bank-recurring-transactions/bank-recurring-transactions.component';
-import { PayrollLeaveComponent } from './payroll-leave/payroll-leave.component';
-import { PayrollTimesheetComponent } from './payroll-timesheet/payroll-timesheet.component';
-import { PayrollTimesheetDetailsComponent } from './payroll-timesheet-details/payroll-timesheet-details.component';
-import { PayEmployeesComponent } from './pay-employees/pay-employees.component';
-import { PayEmployeesDetailsComponent } from './pay-employees-details/pay-employees-details.component';
-import { PayrollHistoryComponent } from './payroll-history/payroll-history.component';
-import { PayrollSettingComponent } from './payroll-setting/payroll-setting.component';
-import { SettingHolidaysComponent } from './setting-holidays/setting-holidays.component';
-import { SettingPayfrequencisComponent } from './setting-payfrequencis/setting-payfrequencis.component';
 import { SettingOrganisationComponent } from './setting-organisation/setting-organisation.component';
-import { SettingPayitemsComponent } from './setting-payitems/setting-payitems.component';
-import { SettingSuperannuationComponent } from './setting-superannuation/setting-superannuation.component';
 import { ExpensesComponent } from './expenses/expenses.component';
 import { ExpenseCreateBillComponent } from './expense-create-bill/expense-create-bill.component';
 import { ExpenseCreateExpenseComponent } from './expense-create-expense/expense-create-expense.component';
@@ -90,9 +66,9 @@ const routes: Routes = [
   { path: 'companies/new', component: ClientBusinessFormComponent },
   { path: 'companies/:id/edit', component: ClientBusinessFormComponent },
   { path: 'updatecompany/:id', component: UpdatecompanyComponent },
-  { path: 'Employees', component: EmployeesComponent },
-  { path: 'AddEmployee', component: AddEmployeeComponent },
-  { path: 'employees/edit/:id', component: AddEmployeeComponent },
+  { path: 'Employees', redirectTo: 'payroll/employees', pathMatch: 'full' },
+  { path: 'AddEmployee', redirectTo: 'payroll/employees/new', pathMatch: 'full' },
+  { path: 'employees/edit/:id', redirectTo: 'payroll/employees', pathMatch: 'full' },
   { path: 'addinvoice', redirectTo: 'sales/invoices/new', pathMatch: 'full' },
   { path: 'create-quote', redirectTo: 'sales/quotes/new', pathMatch: 'full' },
   { path: 'getallinvoice', redirectTo: 'sales/invoices', pathMatch: 'full' },

@@ -29,23 +29,11 @@ import { AddClientComponent } from './add-client/add-client.component';
 import { CompaniesComponent } from './companies/companies.component';
 import { AddCompanyComponent } from './add-company/add-company.component';
 import { UpdatecompanyComponent } from './updatecompany/updatecompany.component';
-import { EmployeesComponent } from './employees/employees.component';
-import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { InvoiceComponent } from './invoice/invoice.component';
 import { GetallinvoicesComponent } from './getallinvoices/getallinvoices.component';
 import { GetallcustomerComponent } from './getallcustomer/getallcustomer.component';
 import { AddcontactComponent } from './addcontact/addcontact.component';
-import { PayrollEmployeeComponent } from './payroll-employee/payroll-employee.component';
-import { PayrollAddEmployeeComponent } from './payroll-add-employee/payroll-add-employee.component';
-import { PayrollEmployeeDetailsComponent } from './payroll-employee-details/payroll-employee-details.component';
-import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
-import { EmployementComponent } from './employement/employement.component';
-import { TaxesComponent } from './taxes/taxes.component';
-import { LeaveComponent } from './leave/leave.component';
-import { BankaccountComponent } from './bankaccount/bankaccount.component';
-import { PayslipsComponent } from './payslips/payslips.component';
-import { PaytemplateComponent } from './paytemplate/paytemplate.component';
 import { OpeningbalanceComponent } from './openingbalance/openingbalance.component';
 import { NotesComponent } from './notes/notes.component';
 import { BanktransactionsComponent } from './banktransactions/banktransactions.component';
@@ -64,20 +52,7 @@ import { ReconcileComponent } from './reconcile/reconcile.component';
 import { BankrulestransactionsComponent } from './bankrulestransactions/bankrulestransactions.component';
 import { BankchartofaccountsComponent } from './bankchartofaccounts/bankchartofaccounts.component';
 import { BankRecurringTransactionsComponent } from './bank-recurring-transactions/bank-recurring-transactions.component';
-import { PayrollLeaveComponent } from './payroll-leave/payroll-leave.component';
-import { PayrollTimesheetComponent } from './payroll-timesheet/payroll-timesheet.component';
-import { PayrollTimesheetDetailsComponent } from './payroll-timesheet-details/payroll-timesheet-details.component';
-import { PayEmployeesComponent } from './pay-employees/pay-employees.component';
-import { PayEmployeesDetailsComponent } from './pay-employees-details/pay-employees-details.component';
-import { PayrollHistoryComponent } from './payroll-history/payroll-history.component';
-import { PayrollSettingComponent } from './payroll-setting/payroll-setting.component';
 import { SettingOrganisationComponent } from './setting-organisation/setting-organisation.component';
-import { SettingPayfrequencisComponent } from './setting-payfrequencis/setting-payfrequencis.component';
-import { SettingHolidaysComponent } from './setting-holidays/setting-holidays.component';
-import { SettingPayitemsComponent } from './setting-payitems/setting-payitems.component';
-import { SettingSuperannuationComponent } from './setting-superannuation/setting-superannuation.component';
-import { PayrollComponent } from './payroll/payroll.component';
-import { PayrollOverviewComponent } from './payroll-overview/payroll-overview.component';
 import { MatMenuModule } from '@angular/material/menu';
 // import { MatDatepickerModule } from '@angular/material/datepicker';
 // import { MatSelectModule } from '@angular/material/select';
@@ -118,7 +93,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { PayrollDashboardComponent } from './payroll-dashboard/payroll-dashboard.component';
 
 import { EmployeeListComponent } from './payroll-employees/employee-list.component';
 import { PayrollShellComponent } from './payroll-runs/payroll-shell.component';
@@ -159,8 +133,6 @@ import { CustomerFormComponent } from './sales/customer-form.component';
     CompaniesComponent,
     AddCompanyComponent,
     UpdatecompanyComponent,
-    EmployeesComponent,
-    AddEmployeeComponent,
     InvoiceComponent,
     GetallinvoicesComponent,
     InvoiceViewEditComponent,
@@ -168,17 +140,6 @@ import { CustomerFormComponent } from './sales/customer-form.component';
     QuoteViewEditComponent,
     GetallcustomerComponent,
     AddcontactComponent,
-    PayrollComponent,
-    PayrollEmployeeComponent,
-    PayrollAddEmployeeComponent,
-    PayrollEmployeeDetailsComponent,
-    EmployeeDetailsComponent,
-    EmployementComponent,
-    TaxesComponent,
-    LeaveComponent,
-    BankaccountComponent,
-    PayslipsComponent,
-    PaytemplateComponent,
     OpeningbalanceComponent,
     NotesComponent,
     BanktransactionsComponent,
@@ -188,9 +149,7 @@ import { CustomerFormComponent } from './sales/customer-form.component';
      BankrulestransactionsComponent,
      BankchartofaccountsComponent,
      BankRecurringTransactionsComponent,
-    PayrollOverviewComponent,
-    AddcontactComponent, SalesComponent, QuotesComponent, QuoteViewComponent,PaymentPopupComponent, PayrollLeaveComponent, PayrollTimesheetComponent, PayrollTimesheetDetailsComponent, PayEmployeesComponent, PayEmployeesDetailsComponent, PayrollHistoryComponent, PayrollSettingComponent, SettingOrganisationComponent, SettingPayfrequencisComponent, SettingHolidaysComponent, SettingPayitemsComponent, SettingSuperannuationComponent, PayrollComponent,
-    AddcontactComponent,
+    AddcontactComponent, SalesComponent, QuotesComponent, QuoteViewComponent,PaymentPopupComponent, SettingOrganisationComponent, AddcontactComponent,
     SalesComponent,
     QuotesComponent,
     QuoteViewComponent,
@@ -207,11 +166,7 @@ import { CustomerFormComponent } from './sales/customer-form.component';
     ExpenseCreateSupplierCreditComponent,
     ExpenseCreateChequeComponent,
     FeedbackDialogComponent,
-    EmployeeDetailsComponent,
-    PayrollDashboardComponent,
-    PayrollTimesheetComponent,
-    PayrollTimesheetDetailsComponent,
-  ],
+    ],
   imports: [
     CommonModule,
     AdminRoutingModule,
@@ -260,8 +215,6 @@ import { CustomerFormComponent } from './sales/customer-form.component';
   ],
 
    exports: [
-    PayrollEmployeeDetailsComponent,
-    EmployeeDetailsComponent
   ],
   // providers: []
   providers: [{ provide: MatDialogRef, useValue: {} }],
