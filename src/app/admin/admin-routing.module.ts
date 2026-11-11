@@ -107,6 +107,8 @@ const routes: Routes = [
   { path: 'sales/quotes/new', component: DocFormComponent, data: { kind: 'quote' } },
   { path: 'sales/quotes/:id/edit', component: DocFormComponent, data: { kind: 'quote' } },
   { path: 'sales/quotes/:id', component: DocViewComponent, data: { kind: 'quote' } },
+  // Customers has its own page: no Sales title, tabs or New quote and New invoice buttons around it
+  { path: 'sales/customers', component: CustomerListComponent },
   { path: 'sales/customers/new', component: CustomerFormComponent },
   { path: 'sales/customers/:id/edit', component: CustomerFormComponent },
   {
@@ -116,7 +118,6 @@ const routes: Routes = [
       { path: '', component: SalesOverviewComponent },
       { path: 'invoices', component: DocListComponent, data: { kind: 'invoice' } },
       { path: 'quotes', component: DocListComponent, data: { kind: 'quote' } },
-      { path: 'customers', component: CustomerListComponent },
     ]
   },
 

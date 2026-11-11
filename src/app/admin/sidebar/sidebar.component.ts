@@ -19,8 +19,10 @@ export class SidebarComponent {
     this.menuItems = sideMenu(session.context); // built once
   }
 
+  /** An item is active when the page is inside it, unless a more specific item also matches (Customers lives under /admin/sales). */
   isActive(item: MenuItem): boolean {
     const url = this.router.url.split('?')[0].toLowerCase();
-    return url === item.route.toLowerCase() || url.startsWith(item.route.toLowerCase() + '/');
+    const inside = (m: MenuItem) => url === m.route.toLowerCase() || url.startsWith(m.route.toLowerCase() + '/');
+    return inside(item) && !this.menuItems.some(o => o !== item && o.route.length > item.route.length && inside(o));
   }
 }
