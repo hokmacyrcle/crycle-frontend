@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { CalcInput, CalcResult, History, Overview, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
+import { CalcInput, CalcResult, History, Overview, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -71,5 +71,23 @@ export class PayRunService {
 
   setSuperPaid(id: number, paid: boolean): Observable<PayRunFull> {
     return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/super-paid`, { paid }, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  timesheets(week?: string): Observable<TimesheetWeekData> {
+    let params = new HttpParams();
+    if (week) params = params.set('week', week);
+    return this.http.get<{ data: TimesheetWeekData }>(`${environment.apiUrl}/payroll/timesheets`, { headers: this.headers(), params }).pipe(map(r => r.data));
+  }
+
+  saveTimesheet(employeeId: number, weekStart: string, hours: Record<string, number | null>): Observable<TimesheetWeekData> {
+    return this.http.put<{ data: TimesheetWeekData }>(`${environment.apiUrl}/payroll/timesheets/${employeeId}`, { week_start: weekStart, hours }, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  approveTimesheet(employeeId: number, weekStart: string, approved: boolean): Observable<TimesheetWeekData> {
+    return this.http.post<{ data: TimesheetWeekData }>(`${environment.apiUrl}/payroll/timesheets/${employeeId}/approve`, { week_start: weekStart, approved }, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  refreshHours(id: number): Observable<{ data: PayRunFull; updated: number }> {
+    return this.http.post<{ data: PayRunFull; updated: number }>(`${this.base}/${id}/refresh-hours`, {}, { headers: this.headers() });
   }
 }

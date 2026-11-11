@@ -42,7 +42,10 @@
       <button type="button" class="shrink-0" [ngClass]="run.super_paid_at ? 'cy-btn-secondary cy-btn-sm' : 'cy-btn-primary cy-btn-sm'" (click)="setSuperPaid(!run.super_paid_at)" [disabled]="busy">{{ run.super_paid_at ? 'Undo' : 'I have paid the super' }}</button>
     </div>
 
-    <div class="mb-0 mt-6 text-[16px] font-extrabold" role="heading" aria-level="3">Employees</div>
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <div class="text-[16px] font-extrabold" role="heading" aria-level="3">Employees</div>
+      <button *ngIf="editable && hasHourly" type="button" class="cy-btn-secondary cy-btn-sm print:hidden" (click)="useTimesheets()" [disabled]="busy">Use timesheet hours</button>
+    </div>
     <ul class="m-0 mt-2 flex list-none flex-col gap-2.5 p-0">
       <li *ngFor="let l of run.lines" class="rounded-[20px] bg-white p-4 print:break-inside-avoid print:border print:border-gray-300"
           [ngClass]="[editable && needs(l) ? 'ring-2 ring-[#E3A83B]' : '', busyLine === l.id ? 'opacity-60' : '']">
@@ -65,6 +68,12 @@
           <input *ngIf="editable" [id]="'h' + l.id" type="number" inputmode="decimal" min="0" step="0.25" class="cy-input mt-1 max-w-[160px]"
                  [value]="l.hours ?? ''" (change)="setHours(l, $any($event.target).value)" placeholder="Enter hours">
           <div *ngIf="!editable" class="text-[15px]">{{ l.hours }}</div>
+          <div *ngIf="l.hours !== null" class="mt-1.5 flex flex-wrap items-center gap-2">
+            <span *ngIf="l.hours_source === 'timesheet'" class="cy-pill cy-pill-paid">From timesheet</span>
+            <span *ngIf="l.hours_source === 'manual'" class="cy-pill cy-pill-draft">Entered by you</span>
+            <span *ngIf="l.hours_source === 'estimated'" class="cy-pill cy-pill-expired">Estimated from usual hours</span>
+            <button *ngIf="editable && !l.hours_confirmed" type="button" class="cy-btn-primary cy-btn-sm print:hidden" (click)="confirmHours(l)">These hours are right</button>
+          </div>
         </div>
 
         <dl class="m-0 mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">

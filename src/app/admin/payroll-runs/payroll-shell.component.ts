@@ -20,6 +20,7 @@ export class PayrollShellComponent {
     { label: 'Overview', link: '/admin/payroll' },
     { label: 'Pay runs', link: '/admin/payroll/runs' },
     { label: 'Employees', link: '/admin/payroll/employees' },
+    { label: 'Timesheets', link: '/admin/payroll/timesheets' },
     { label: 'History', link: '/admin/payroll/history' },
     { label: 'Calculator', link: '/admin/payroll/calculator' },
     { label: 'Settings', link: '/admin/payroll/settings' },

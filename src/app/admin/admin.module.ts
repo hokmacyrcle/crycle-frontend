@@ -104,6 +104,7 @@ import { PayCalculatorComponent } from './payroll-runs/pay-calculator.component'
 import { PayrollSettingsComponent } from './payroll-runs/payroll-settings.component';
 import { PayHistoryComponent } from './payroll-runs/pay-history.component';
 import { PayrollHomeComponent } from './payroll-runs/payroll-home.component';
+import { TimesheetsComponent } from './payroll-runs/timesheets.component';
 import { EmployeeFormComponent } from './payroll-employees/employee-form.component';
 import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
 import { IconComponent } from './ui/icon.component';
@@ -117,7 +118,7 @@ import { CustomerFormComponent } from './sales/customer-form.component';
 
 @NgModule({
   declarations: [
-    EmployeeListComponent, EmployeeFormComponent, PayrollShellComponent, PayRunListComponent, PayRunNewComponent, PayRunComponent, PayslipComponent, PayCalculatorComponent, PayrollSettingsComponent, PayHistoryComponent, PayrollHomeComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
+    EmployeeListComponent, EmployeeFormComponent, PayrollShellComponent, PayRunListComponent, PayRunNewComponent, PayRunComponent, PayslipComponent, PayCalculatorComponent, PayrollSettingsComponent, PayHistoryComponent, PayrollHomeComponent, TimesheetsComponent, SectionPlaceholderComponent, IconComponent, AudPipe, AbnPipe, AuDatePipe,
     SalesOverviewComponent, DocListComponent, DocFormComponent, DocViewComponent, CustomerListComponent, CustomerFormComponent,
     DashboardComponent,
     AdminComponent,

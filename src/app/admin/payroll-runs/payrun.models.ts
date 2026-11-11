@@ -23,6 +23,8 @@ export interface PayRunLine {
   hourly_rate: number | null;
   annual_salary: number | null;
   hours: number | null;
+  hours_source: 'timesheet' | 'estimated' | 'manual' | null;
+  hours_confirmed: boolean;
   gross: number;
   tax: number;
   super_amount: number;
@@ -51,7 +53,7 @@ export interface PayRunFull extends PayRunRow {
 }
 
 export interface NewPayRun { frequency: Frequency; period_start: string; period_end: string; pay_date: string; }
-export interface LineChange { hours?: number | null; tax_override?: number; clear_tax_override?: boolean; confirm_tax?: boolean; }
+export interface LineChange { confirm_hours?: boolean; hours?: number | null; tax_override?: number; clear_tax_override?: boolean; confirm_tax?: boolean; }
 
 export type CalcBasis = 'gross' | 'salary' | 'hourly';
 export type CalcSituation = 'threshold' | 'no_threshold' | 'no_tfn_resident' | 'no_tfn_foreign';
@@ -71,3 +73,6 @@ export interface Overview {
   employees: number; fy_label: string; fy_totals: Totals;
   attention: OverviewAttention[]; drafts: OverviewDraft[]; up_next: OverviewNext[]; super_owing: OverviewSuper[];
 }
+
+export interface TimesheetEmployee { employee_id: number; name: string; hourly_rate: number | null; hours: Record<string, number | null>; total: number; status: 'draft' | 'approved'; locked_in: string | null; }
+export interface TimesheetWeekData { week_start: string; week_end: string; days: string[]; employees: TimesheetEmployee[]; }

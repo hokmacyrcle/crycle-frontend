@@ -32,7 +32,7 @@ export class PayRunComponent implements OnInit {
 
   /** True while a line still needs hours, or tax that a person must check. */
   needs(l: PayRunLine): boolean {
-    return (l.pay_basis === 'hourly' && l.hours === null) || (l.tax_status !== 'auto' && !l.tax_confirmed);
+    return (l.pay_basis === 'hourly' && (l.hours === null || !l.hours_confirmed)) || (l.tax_status !== 'auto' && !l.tax_confirmed);
   }
 
   private change(l: PayRunLine, body: LineChange, done?: string): void {
@@ -60,6 +60,19 @@ export class PayRunComponent implements OnInit {
     this.change(l, { tax_override: n }, 'Tax updated');
   }
   useCalculated(l: PayRunLine): void { this.change(l, { clear_tax_override: true }, 'Back to the calculated tax'); }
+  confirmHours(l: PayRunLine): void { this.change(l, { confirm_hours: true }, 'Hours confirmed'); }
+
+  get hasHourly(): boolean { return !!this.run?.lines.some(l => l.pay_basis === 'hourly'); }
+
+  useTimesheets(): void {
+    if (!this.run) return;
+    this.busy = true;
+    this.api.refreshHours(this.run.id).subscribe({
+      next: r => { this.run = r.data; this.busy = false; this.alerts.toast(r.updated ? 'Hours updated from timesheets for ' + r.updated + (r.updated === 1 ? ' employee' : ' employees') : 'No approved timesheet hours found for this period'); },
+      error: e => { this.busy = false; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
+
   confirmTax(l: PayRunLine): void { this.change(l, { confirm_tax: true }, 'Tax confirmed'); }
 
   async removeLine(l: PayRunLine): Promise<void> {
