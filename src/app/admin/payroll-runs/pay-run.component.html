@@ -87,7 +87,7 @@
           <li *ngFor="let i of l.items" class="flex items-center justify-between gap-3 border-b border-white px-3 py-2 last:border-b-0">
             <span class="min-w-0">
               <span class="font-bold">{{ i.label }}</span>
-              <span class="ml-1.5 text-[12px] text-[#5B6478]">{{ kindLabel(i.kind) }}<span *ngIf="i.kind === 'overtime'"> · {{ i.hours }} h at {{ i.rate | aud }}</span><span *ngIf="(i.kind === 'allowance' || i.kind === 'bonus') && !i.counts_for_super"> · no super</span></span>
+              <span class="ml-1.5 text-[12px] text-[#5B6478]">{{ kindLabel(i.kind) }}<span *ngIf="i.kind === 'overtime'"> · {{ i.hours }} h at {{ i.rate | aud }}</span><span *ngIf="(i.kind === 'allowance' || i.kind === 'bonus') && !i.counts_for_super"> · no super</span><span *ngIf="i.payee"> · paid to {{ i.payee }}</span></span>
             </span>
             <span class="flex shrink-0 items-center gap-3">
               <span class="font-bold">{{ i.kind === 'deduction' ? '-' : '' }}{{ i.amount | aud }}</span>
@@ -134,6 +134,9 @@
           <label class="block sm:max-w-xs" *ngIf="f.kind !== 'overtime'"><span class="mb-1 block text-[13px] font-bold">Amount ($)</span>
             <input type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [(ngModel)]="f.amount" [name]="'a' + l.id" [class.cy-input-error]="itemErrors[l.id]['amount']">
             <span *ngIf="itemErrors[l.id]['amount']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['amount'] }}</span></label>
+          <label class="block" *ngIf="f.kind === 'deduction'"><span class="mb-1 block text-[13px] font-bold">Paid to <span class="font-normal text-[#5B6478]">(optional)</span></span>
+            <input type="text" class="cy-input" maxlength="80" [(ngModel)]="f.payee" [name]="'p' + l.id" placeholder="e.g. Health fund, or the union name">
+            <span class="mt-1 block text-[12px] text-[#5B6478]">Shown on the payslip so the employee knows where the money goes.</span></label>
           <label *ngIf="f.kind === 'allowance' || f.kind === 'bonus'" class="flex items-center gap-2 text-sm"><input type="checkbox" [(ngModel)]="f.counts_for_super" [name]="'s' + l.id">Pay super on this</label>
           <p class="m-0 text-[12px] text-[#5B6478]">{{ kindHint(f.kind) }}</p>
           <div class="flex gap-2"><button type="submit" class="cy-btn-primary cy-btn-sm" [disabled]="busyLine === l.id">Add item</button><button type="button" class="cy-btn-secondary cy-btn-sm" (click)="closeItem(l)">Cancel</button></div>

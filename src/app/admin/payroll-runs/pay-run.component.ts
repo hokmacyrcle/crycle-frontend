@@ -77,12 +77,12 @@ export class PayRunComponent implements OnInit {
     { value: 'reimbursement', label: 'Reimbursement', hint: 'Paid back to the employee. No tax and no super.' },
     { value: 'deduction', label: 'Deduction', hint: 'Taken from pay after tax, for example a union fee.' },
   ];
-  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean; multiplier: string } | undefined> = {};
+  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean; multiplier: string; payee: string } | undefined> = {};
   itemErrors: Record<number, Record<string, string>> = {};
 
   kindLabel(k: string): string { return k === 'leave' ? 'Leave' : (this.kinds.find(x => x.value === k)?.label ?? k); }
   kindHint(k: ItemKind): string { return this.kinds.find(x => x.value === k)?.hint ?? ''; }
-  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true, multiplier: '' }; }
+  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true, multiplier: '', payee: '' }; }
 
   /** Fills the overtime rate from the employee's hourly rate, for example 1.5 times $36.00 is $54.00. */
   applyMultiplier(l: PayRunLine, f: { rate: string | number; label: string; multiplier: string }): void {
@@ -105,6 +105,7 @@ export class PayRunComponent implements OnInit {
     this.itemErrors[l.id] = e;
     if (Object.keys(e).length) return;
     const body: NewItem = { kind: f.kind, label: f.label.trim(), counts_for_super: f.counts_for_super };
+    if (f.kind === 'deduction' && f.payee.trim()) body.payee = f.payee.trim();
     if (f.kind === 'overtime') { body.hours = Number(f.hours); body.rate = Number(f.rate); } else body.amount = Number(f.amount);
     this.busyLine = l.id;
     this.api.addItem(this.run.id, l.id, body).subscribe({
