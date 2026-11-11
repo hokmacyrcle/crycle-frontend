@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from 'src/app/services/alert.service';
 import { toProblem } from '../sales/sales.service';
-import { LineChange, PayRunFull, PayRunLine } from './payrun.models';
+import { ItemKind, LineChange, NewItem, PayRunFull, PayRunLine } from './payrun.models';
 import { PayRunService } from './payrun.service';
 
 @Component({
@@ -60,6 +60,51 @@ export class PayRunComponent implements OnInit {
     this.change(l, { tax_override: n }, 'Tax updated');
   }
   useCalculated(l: PayRunLine): void { this.change(l, { clear_tax_override: true }, 'Back to the calculated tax'); }
+  // ---- extra pay items (allowance, bonus, overtime, reimbursement, deduction)
+  kinds: { value: ItemKind; label: string; hint: string }[] = [
+    { value: 'allowance', label: 'Allowance', hint: 'Taxable. Added to gross pay.' },
+    { value: 'bonus', label: 'Bonus', hint: 'Taxable. Tax is worked out on the new total for this pay period.' },
+    { value: 'overtime', label: 'Overtime', hint: 'Taxable. Super is not paid on overtime.' },
+    { value: 'reimbursement', label: 'Reimbursement', hint: 'Paid back to the employee. No tax and no super.' },
+    { value: 'deduction', label: 'Deduction', hint: 'Taken from pay after tax, for example a union fee.' },
+  ];
+  itemForm: Record<number, { kind: ItemKind; label: string; amount: string | number; hours: string | number; rate: string | number; counts_for_super: boolean } | undefined> = {};
+  itemErrors: Record<number, Record<string, string>> = {};
+
+  kindLabel(k: string): string { return k === 'leave' ? 'Leave' : (this.kinds.find(x => x.value === k)?.label ?? k); }
+  kindHint(k: ItemKind): string { return this.kinds.find(x => x.value === k)?.hint ?? ''; }
+  openItem(l: PayRunLine): void { this.itemErrors[l.id] = {}; this.itemForm[l.id] = { kind: 'allowance', label: '', amount: '', hours: '', rate: '', counts_for_super: true }; }
+  closeItem(l: PayRunLine): void { delete this.itemForm[l.id]; delete this.itemErrors[l.id]; }
+
+  saveItem(l: PayRunLine): void {
+    const f = this.itemForm[l.id]; if (!f || !this.run) return;
+    const e: Record<string, string> = {};
+    const num = (v: unknown) => (v === null || v === undefined || String(v).trim() === '' ? NaN : Number(v));
+    if (!f.label.trim()) e['label'] = 'Describe the item, for example "Phone allowance".';
+    if (f.kind === 'overtime') {
+      if (!(num(f.hours) > 0)) e['hours'] = 'Enter the overtime hours.';
+      if (!(num(f.rate) > 0)) e['rate'] = 'Enter the overtime rate per hour.';
+    } else if (!(num(f.amount) > 0)) e['amount'] = 'Enter an amount more than 0.';
+    this.itemErrors[l.id] = e;
+    if (Object.keys(e).length) return;
+    const body: NewItem = { kind: f.kind, label: f.label.trim(), counts_for_super: f.counts_for_super };
+    if (f.kind === 'overtime') { body.hours = Number(f.hours); body.rate = Number(f.rate); } else body.amount = Number(f.amount);
+    this.busyLine = l.id;
+    this.api.addItem(this.run.id, l.id, body).subscribe({
+      next: r => { this.run = r; this.busyLine = null; this.closeItem(l); this.alerts.toast('Item added'); },
+      error: err => { this.busyLine = null; const p = toProblem(err); this.itemErrors[l.id] = Object.keys(p.fieldErrors).length ? p.fieldErrors : { form: p.message }; }
+    });
+  }
+
+  removeItem(l: PayRunLine, itemId: number): void {
+    if (!this.run) return;
+    this.busyLine = l.id;
+    this.api.removeItem(this.run.id, l.id, itemId).subscribe({
+      next: r => { this.run = r; this.busyLine = null; },
+      error: e => { this.busyLine = null; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
+
   confirmHours(l: PayRunLine): void { this.change(l, { confirm_hours: true }, 'Hours confirmed'); }
 
   get hasHourly(): boolean { return !!this.run?.lines.some(l => l.pay_basis === 'hourly'); }

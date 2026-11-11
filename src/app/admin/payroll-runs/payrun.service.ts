@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { CalcInput, CalcResult, History, Overview, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
+import { CalcInput, CalcResult, History, NewItem, Overview, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -33,6 +33,14 @@ export class PayRunService {
 
   updateLine(id: number, lineId: number, body: LineChange): Observable<PayRunFull> {
     return this.http.put<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}`, body, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  addItem(id: number, lineId: number, body: NewItem): Observable<PayRunFull> {
+    return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/items`, body, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  removeItem(id: number, lineId: number, itemId: number): Observable<PayRunFull> {
+    return this.http.delete<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/items/${itemId}`, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
   removeLine(id: number, lineId: number): Observable<PayRunFull> {

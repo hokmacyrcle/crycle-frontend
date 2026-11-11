@@ -1,3 +1,7 @@
+export type ItemKind = 'allowance' | 'bonus' | 'overtime' | 'leave' | 'reimbursement' | 'deduction';
+export interface LineItem { id: number; kind: ItemKind; label: string; hours: number | null; rate: number | null; amount: number; counts_for_super: boolean; }
+export interface NewItem { kind: ItemKind; label: string; amount?: number | null; hours?: number | null; rate?: number | null; counts_for_super?: boolean; }
+
 export type Frequency = 'Weekly' | 'Fortnightly' | 'Monthly';
 
 export interface PayRunRow {
@@ -23,6 +27,10 @@ export interface PayRunLine {
   hourly_rate: number | null;
   annual_salary: number | null;
   hours: number | null;
+  base_pay: number;
+  reimbursements: number;
+  deductions: number;
+  items: LineItem[];
   hours_source: 'timesheet' | 'estimated' | 'manual' | null;
   hours_confirmed: boolean;
   gross: number;

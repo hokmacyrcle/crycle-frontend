@@ -83,6 +83,48 @@
           <div><dt class="text-[12px] text-[#5B6478]">Net pay</dt><dd class="m-0 font-bold">{{ l.net | aud }}</dd></div>
         </dl>
 
+        <ul *ngIf="l.items.length" class="m-0 mt-3 list-none rounded-[12px] bg-[#F6F4EC] p-0 text-sm">
+          <li *ngFor="let i of l.items" class="flex items-center justify-between gap-3 border-b border-white px-3 py-2 last:border-b-0">
+            <span class="min-w-0">
+              <span class="font-bold">{{ i.label }}</span>
+              <span class="ml-1.5 text-[12px] text-[#5B6478]">{{ kindLabel(i.kind) }}<span *ngIf="i.kind === 'overtime'"> · {{ i.hours }} h at {{ i.rate | aud }}</span><span *ngIf="(i.kind === 'allowance' || i.kind === 'bonus') && !i.counts_for_super"> · no super</span></span>
+            </span>
+            <span class="flex shrink-0 items-center gap-3">
+              <span class="font-bold">{{ i.kind === 'deduction' ? '-' : '' }}{{ i.amount | aud }}</span>
+              <button *ngIf="editable" type="button" class="text-[13px] font-bold text-cyrcle-midnight underline print:hidden" (click)="removeItem(l, i.id)" [attr.aria-label]="'Remove ' + i.label">Remove</button>
+            </span>
+          </li>
+        </ul>
+
+        <div *ngIf="editable && !itemForm[l.id]" class="mt-3 print:hidden">
+          <button type="button" class="cy-btn-secondary cy-btn-sm" (click)="openItem(l)"><app-icon name="plus" [size]="16"></app-icon>Add pay item</button>
+        </div>
+        <form *ngIf="itemForm[l.id] as f" class="mt-3 flex flex-col gap-3 rounded-[16px] border-[1.5px] border-[#B9B39F] p-3 print:hidden" (ngSubmit)="saveItem(l)" novalidate>
+          <div *ngIf="itemErrors[l.id]['form']" class="rounded-[12px] bg-[#FADBD8] px-3 py-2 text-sm font-bold text-[#9B1C1C]" role="alert">{{ itemErrors[l.id]['form'] }}</div>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <label class="block"><span class="mb-1 block text-[13px] font-bold">Type</span>
+              <select class="cy-input" [(ngModel)]="f.kind" [name]="'k' + l.id"><option *ngFor="let k of kinds" [value]="k.value">{{ k.label }}</option></select></label>
+            <label class="block"><span class="mb-1 block text-[13px] font-bold">Description</span>
+              <input type="text" class="cy-input" maxlength="60" [(ngModel)]="f.label" [name]="'d' + l.id" placeholder="e.g. Phone allowance" [class.cy-input-error]="itemErrors[l.id]['label']">
+              <span *ngIf="itemErrors[l.id]['label']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['label'] }}</span></label>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2" *ngIf="f.kind === 'overtime'">
+            <label class="block"><span class="mb-1 block text-[13px] font-bold">Overtime hours</span>
+              <input type="number" inputmode="decimal" min="0" step="0.25" class="cy-input" [(ngModel)]="f.hours" [name]="'oh' + l.id" [class.cy-input-error]="itemErrors[l.id]['hours']">
+              <span *ngIf="itemErrors[l.id]['hours']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['hours'] }}</span></label>
+            <label class="block"><span class="mb-1 block text-[13px] font-bold">Rate per hour ($)</span>
+              <input type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [(ngModel)]="f.rate" [name]="'or' + l.id" [class.cy-input-error]="itemErrors[l.id]['rate']">
+              <span class="mt-1 block text-[12px] text-[#5B6478]">Include any overtime loading, for example 1.5 times the normal rate.</span>
+              <span *ngIf="itemErrors[l.id]['rate']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['rate'] }}</span></label>
+          </div>
+          <label class="block sm:max-w-xs" *ngIf="f.kind !== 'overtime'"><span class="mb-1 block text-[13px] font-bold">Amount ($)</span>
+            <input type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [(ngModel)]="f.amount" [name]="'a' + l.id" [class.cy-input-error]="itemErrors[l.id]['amount']">
+            <span *ngIf="itemErrors[l.id]['amount']" class="mt-1 block text-[13px] font-bold text-[#9B1C1C]">{{ itemErrors[l.id]['amount'] }}</span></label>
+          <label *ngIf="f.kind === 'allowance' || f.kind === 'bonus'" class="flex items-center gap-2 text-sm"><input type="checkbox" [(ngModel)]="f.counts_for_super" [name]="'s' + l.id">Pay super on this</label>
+          <p class="m-0 text-[12px] text-[#5B6478]">{{ kindHint(f.kind) }}</p>
+          <div class="flex gap-2"><button type="submit" class="cy-btn-primary cy-btn-sm" [disabled]="busyLine === l.id">Add item</button><button type="button" class="cy-btn-secondary cy-btn-sm" (click)="closeItem(l)">Cancel</button></div>
+        </form>
+
         <div *ngIf="l.tax_note" class="mt-3 rounded-[12px] px-3 py-2 text-[13px] leading-snug"
              [ngClass]="l.tax_status === 'auto' ? 'bg-[#F1EBDD] text-[#3C4663]' : 'bg-[#FBEBC5] text-[#5C3F00]'">{{ l.tax_note }}</div>
         <div *ngIf="!l.super_fund_name" class="mt-2 text-[13px] text-[#5B6478]">No super fund on file. Add one on the employee so you know where to pay this super.</div>
@@ -106,7 +148,7 @@
 
     <div *ngIf="!run.lines.length" class="mt-3 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5 text-sm text-[#3C4663]">Everyone has been removed from this run. Delete the draft and start a new one.</div>
 
-    <p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Tax is worked out from the ATO's weekly tax tables for 2026–27 using each employee's tax details. Study and training loan repayments, allowances, bonuses and leave are not included yet. Stapled super and Single Touch Payroll reporting are not part of this version.</p>
+    <p class="mt-4 text-[12px] leading-snug text-[#5B6478]">Tax is worked out from the ATO's weekly tax tables for 2026–27 using each employee's tax details. Study and training loan repayments are not included yet. Stapled super and Single Touch Payroll reporting are not part of this version.</p>
 
     <div *ngIf="editable" class="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between print:hidden">
       <button type="button" class="cy-btn-secondary justify-center" (click)="discard()" [disabled]="busy">Delete draft</button>

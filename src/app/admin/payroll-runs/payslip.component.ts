@@ -40,10 +40,16 @@ import { PayRunService } from './payrun.service';
             <ng-container *ngIf="line.pay_basis === 'hourly'">Ordinary hours: {{ line.hours }} hours at {{ line.hourly_rate | aud }}</ng-container>
             <ng-container *ngIf="line.pay_basis === 'salary'">Salary for the period</ng-container>
           </td>
-          <td class="py-2.5 text-right">{{ line.gross | aud }}</td>
+          <td class="py-2.5 text-right">{{ line.base_pay | aud }}</td>
+        </tr>
+        <tr *ngFor="let i of earnings" class="border-b border-cyrcle-pearl">
+          <td class="py-2.5">{{ i.label }} <span class="text-[#5B6478]">({{ kindName(i.kind) }}<span *ngIf="i.kind === 'overtime'">, {{ i.hours }} hours at {{ i.rate | aud }}</span>)</span></td>
+          <td class="py-2.5 text-right">{{ i.amount | aud }}</td>
         </tr>
         <tr class="border-b border-cyrcle-pearl"><td class="py-2.5 font-bold">Gross pay</td><td class="py-2.5 text-right font-bold">{{ line.gross | aud }}</td></tr>
         <tr class="border-b border-cyrcle-pearl"><td class="py-2.5">Tax withheld (PAYG)</td><td class="py-2.5 text-right">-{{ line.tax | aud }}</td></tr>
+        <tr *ngFor="let i of reimbursements" class="border-b border-cyrcle-pearl"><td class="py-2.5">{{ i.label }} <span class="text-[#5B6478]">(reimbursement)</span></td><td class="py-2.5 text-right">{{ i.amount | aud }}</td></tr>
+        <tr *ngFor="let i of deductions" class="border-b border-cyrcle-pearl"><td class="py-2.5">{{ i.label }} <span class="text-[#5B6478]">(deduction)</span></td><td class="py-2.5 text-right">-{{ i.amount | aud }}</td></tr>
         <tr><td class="py-3 text-[16px] font-extrabold">Net pay</td><td class="py-3 text-right text-[16px] font-extrabold">{{ line.net | aud }}</td></tr>
       </tbody>
     </table>
@@ -91,6 +97,11 @@ export class PayslipComponent implements OnInit {
       error: e => { this.loading = false; this.error = toProblem(e).message; }
     });
   }
+
+  get earnings() { return (this.line?.items ?? []).filter(i => i.kind !== 'reimbursement' && i.kind !== 'deduction'); }
+  get reimbursements() { return (this.line?.items ?? []).filter(i => i.kind === 'reimbursement'); }
+  get deductions() { return (this.line?.items ?? []).filter(i => i.kind === 'deduction'); }
+  kindName(k: string): string { return k === 'leave' ? 'leave' : k; }
 
   /** The calendar year the financial year started in. */
   get fyStart(): number {
