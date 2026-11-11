@@ -109,3 +109,7 @@ export interface RecurringRow {
   frequency: Frequency; frequency_label: string; next_date: string; end_date: string | null;
   active: boolean; drafts_created: number; last_run_at: string | null;
 }
+
+export interface FirmOverdueInvoice { id: number; number: string; customer_name: string; due_date: string; days_overdue: number; amount_due: number; }
+export interface FirmOverdueClient { company_id: number; company_name: string; overdue: number; count: number; oldest_days: number; invoices: FirmOverdueInvoice[]; }
+export interface FirmOverdue { total: number; count: number; client_count: number; clients: FirmOverdueClient[]; }

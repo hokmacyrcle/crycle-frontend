@@ -36,6 +36,36 @@
     </a>
   </div>
 
+  <section *ngIf="clients.length" class="mt-7" aria-labelledby="od-h">
+    <h2 id="od-h" class="m-0 text-lg font-extrabold">Overdue across your clients</h2>
+    <p *ngIf="!overdue && !overdueError" class="mt-2 text-sm text-[#5B6478]">Loading…</p>
+    <p *ngIf="overdueError" class="mt-2 text-sm text-[#3C4663]">We could not load overdue invoices right now. Please refresh the page to try again.</p>
+    <div *ngIf="overdue && !overdue.clients.length" class="mt-3 rounded-[20px] bg-white p-4 text-sm text-[#3C4663]">No overdue invoices. Every client is up to date.</div>
+
+    <ng-container *ngIf="overdue && overdue.clients.length">
+      <p class="mb-0 mt-2 text-sm text-[#3C4663]"><b class="text-[#9B1C1C]">{{ overdue.total | aud }}</b> overdue on {{ overdue.count }} invoice{{ overdue.count === 1 ? '' : 's' }} across {{ overdue.clients.length }} client{{ overdue.clients.length === 1 ? '' : 's' }}.</p>
+      <ul class="m-0 mt-3 flex list-none flex-col gap-2.5 p-0">
+        <li *ngFor="let c of overdue.clients" class="rounded-[20px] bg-white">
+          <button type="button" class="flex w-full items-center gap-3 p-4 text-left" (click)="toggleClient(c)" [attr.aria-expanded]="openId === c.company_id">
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-[15px] font-bold">{{ c.company_name }}</span>
+              <span class="block text-[13px] text-[#5B6478]">{{ c.count }} invoice{{ c.count === 1 ? '' : 's' }} · oldest {{ c.oldest_days }} day{{ c.oldest_days === 1 ? '' : 's' }} late</span>
+            </span>
+            <span class="shrink-0 text-[15px] font-extrabold text-[#9B1C1C]">{{ c.overdue | aud }}</span>
+          </button>
+          <div *ngIf="openId === c.company_id" class="border-t border-cyrcle-pearl px-4 pb-3 pt-2">
+            <div *ngFor="let i of c.invoices" class="flex items-center gap-3 py-2 text-[13px]">
+              <span class="min-w-0 flex-1"><span class="block truncate font-bold">{{ i.customer_name }}</span><span class="block text-[#5B6478]">{{ i.number }} · due {{ i.due_date | auDate }} · {{ i.days_overdue }} day{{ i.days_overdue === 1 ? '' : 's' }} late</span></span>
+              <span class="shrink-0 font-bold">{{ i.amount_due | aud }}</span>
+            </div>
+            <p *ngIf="c.count > c.invoices.length" class="m-0 py-1 text-[13px] text-[#5B6478]">and {{ c.count - c.invoices.length }} more.</p>
+            <button type="button" class="mt-1 min-h-[40px] text-[13px] font-bold text-cyrcle-midnight underline" (click)="openClient(c, '/admin/sales/invoices', 'overdue')" [disabled]="opening">Open {{ c.company_name }}'s overdue invoices</button>
+          </div>
+        </li>
+      </ul>
+    </ng-container>
+  </section>
+
   </ng-container>
 
   <div class="mt-7"><h2 class="m-0 text-lg font-extrabold">This week</h2></div>
