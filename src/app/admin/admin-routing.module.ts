@@ -36,6 +36,8 @@ import { SalesOverviewComponent } from './sales/sales-overview.component';
 import { DocListComponent } from './sales/doc-list.component';
 import { DocFormComponent } from './sales/doc-form.component';
 import { DocViewComponent } from './sales/doc-view.component';
+import { BankingComponent } from './banking/banking.component';
+import { BankOverviewComponent } from './banking/bank-overview.component';
 import { BankAccountsComponent } from './banking/bank-accounts.component';
 import { BankImportComponent } from './banking/bank-import.component';
 import { BankTransactionsComponent } from './banking/bank-transactions.component';
@@ -126,10 +128,17 @@ const routes: Routes = [
     ]
   },
 
-  // Banking
-  { path: 'Banktransactions', component: BankAccountsComponent },
-  { path: 'Banktransactions/:id', component: BankTransactionsComponent },
+  // Banking: same frame as Sales (title, tabs, pages inside)
   { path: 'Banktransactions/:id/import', component: BankImportComponent },
+  {
+    path: 'Banktransactions',
+    component: BankingComponent,
+    children: [
+      { path: '', component: BankOverviewComponent },
+      { path: 'transactions', component: BankTransactionsComponent },
+      { path: 'accounts', component: BankAccountsComponent },
+    ]
+  },
   // Expenses is not built yet; the old screens held sample data and are no longer routed.
   {
     path: 'expenses', component: SectionPlaceholderComponent,

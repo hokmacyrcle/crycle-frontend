@@ -69,10 +69,10 @@ export class BankImportComponent implements OnInit {
     if (!this.result) return;
     if (!(await this.alerts.confirm('Undo this import?', 'The transactions from this file that you have not reviewed are removed.', 'Undo import'))) return;
     this.api.undoImport(this.result.import_id).subscribe({
-      next: r => { this.alerts.toast(r.message); this.router.navigate(['/admin/Banktransactions', this.accountId]); },
+      next: r => { this.alerts.toast(r.message); this.router.navigate(['/admin/Banktransactions/transactions'], { queryParams: { account: this.accountId } }); },
       error: e => this.alerts.DangerSwalnew('That did not work', toProblem(e).message)
     });
   }
 
-  done(): void { this.router.navigate(['/admin/Banktransactions', this.accountId]); }
+  done(): void { this.router.navigate(['/admin/Banktransactions/transactions'], { queryParams: { account: this.accountId } }); }
 }

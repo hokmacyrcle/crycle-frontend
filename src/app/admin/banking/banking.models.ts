@@ -16,7 +16,9 @@ export interface AccountPayload { name: string; type: AccountType; bsb: string |
 
 export type TxnStatus = 'review' | 'done' | 'excluded';
 
-export interface BankTxn { id: number; date: string; description: string; amount: number; status: TxnStatus; }
+export interface BankTxn { id: number; date: string; description: string; amount: number; status: TxnStatus; account_id?: number; account_name?: string; }
+
+export interface BankSummary { accounts: number; to_review: number; money_in_30: number; money_out_30: number; recent: BankTxn[]; }
 
 export interface TxnPage {
   data: BankTxn[];

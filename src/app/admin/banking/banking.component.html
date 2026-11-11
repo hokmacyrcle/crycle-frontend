@@ -1,0 +1,15 @@
+<div class="mx-auto max-w-5xl text-cyrcle-navy">
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="m-0 text-[28px] font-extrabold leading-tight">Banking</h1>
+    <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-primary"><app-icon name="plus" [size]="18"></app-icon>Add account</a>
+  </div>
+
+  <nav class="mt-4 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-cyrcle-pearl" aria-label="Banking sections">
+    <a *ngFor="let t of tabs" [routerLink]="t.link" routerLinkActive #rla="routerLinkActive" [routerLinkActiveOptions]="{ exact: t.exact }"
+       class="-mb-px whitespace-nowrap border-b-[3px] px-3 py-3 text-sm sm:px-4 font-bold"
+       [ngClass]="rla.isActive ? 'border-cyrcle-poppy text-cyrcle-navy' : 'border-transparent text-[#5B6478] hover:text-cyrcle-navy'"
+       [attr.aria-current]="rla.isActive ? 'page' : null">{{ t.label }}</a>
+  </nav>
+
+  <div class="mt-5"><router-outlet></router-outlet></div>
+</div>

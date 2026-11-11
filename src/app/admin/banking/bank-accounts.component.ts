@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AlertService } from 'src/app/services/alert.service';
 import { toProblem } from '../sales/sales.service';
 import { ACCOUNT_TYPES, AccountPayload, AccountType, BankAccount } from './banking.models';
@@ -23,9 +24,13 @@ export class BankAccountsComponent implements OnInit {
   fieldErrors: Record<string, string> = {};
   formError = '';
 
-  constructor(private api: BankingService, private alerts: AlertService) { }
+  constructor(private api: BankingService, private alerts: AlertService, private route: ActivatedRoute) { }
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+    // The Add account button in the Banking frame links here with ?add=1, also when this page is already open.
+    this.route.queryParamMap.subscribe(q => { if (q.get('add')) this.openAdd(); });
+  }
 
   private blank() { return { name: '', type: 'everyday' as AccountType, bsb: '', account_number: '' }; }
   get isCard(): boolean { return this.m.type === 'credit_card'; }

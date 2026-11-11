@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { AccountPayload, BankAccount, BankTxn, ColumnMap, ImportPreview, ImportResult, TxnPage, TxnStatus } from './banking.models';
+import { AccountPayload, BankAccount, BankSummary, BankTxn, ColumnMap, ImportPreview, ImportResult, TxnPage, TxnStatus } from './banking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BankingService {
@@ -47,10 +47,16 @@ export class BankingService {
     return this.http.delete<{ message: string }>(`${this.base}/imports/${importId}`, { headers: this.headers() });
   }
 
-  transactions(id: number, status: TxnStatus, search: string, page: number): Observable<TxnPage> {
+  summary(): Observable<BankSummary> {
+    return this.http.get<{ data: BankSummary }>(`${this.base}/summary`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  /** Transactions of every account, or of one when accountId is given. */
+  transactions(accountId: number | null, status: TxnStatus, search: string, page: number): Observable<TxnPage> {
     let params = new HttpParams().set('status', status).set('page', String(page));
     if (search) params = params.set('search', search);
-    return this.http.get<TxnPage>(`${this.base}/accounts/${id}/transactions`, { headers: this.headers(), params });
+    if (accountId) params = params.set('account', String(accountId));
+    return this.http.get<TxnPage>(`${this.base}/transactions`, { headers: this.headers(), params });
   }
   setStatus(txnId: number, status: 'excluded' | 'review'): Observable<{ data: BankTxn; message: string }> {
     return this.http.post<{ data: BankTxn; message: string }>(`${this.base}/transactions/${txnId}/status`, { status }, { headers: this.headers() });

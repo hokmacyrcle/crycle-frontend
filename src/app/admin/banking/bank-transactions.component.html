@@ -1,22 +1,25 @@
-<div class="mx-auto max-w-3xl text-cyrcle-navy">
-  <a routerLink="/admin/Banktransactions" class="inline-flex min-h-[40px] items-center gap-1.5 text-sm font-bold underline"><app-icon name="arrow-left" [size]="18"></app-icon>Banking</a>
-  <div class="flex items-start justify-between gap-3">
-    <div class="min-w-0">
-      <h1 class="m-0 mt-1 truncate text-[28px] font-extrabold leading-tight">{{ account ? account.name : 'Transactions' }}</h1>
-      <p *ngIf="account" class="m-0 text-sm text-[#5B6478]">{{ account.type_label }}<span *ngIf="account.last4"> · ends {{ account.last4 }}</span></p>
+<div class="text-cyrcle-navy">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <form class="flex flex-1 gap-2 sm:max-w-md" (ngSubmit)="find()" role="search">
+      <input type="search" name="q" class="cy-input" aria-label="Search descriptions" placeholder="Search descriptions" [(ngModel)]="search">
+      <button type="submit" class="cy-btn-secondary shrink-0"><app-icon name="search" [size]="18"></app-icon>Search</button>
+    </form>
+    <div class="flex gap-2">
+      <select class="cy-input !w-auto" aria-label="Bank account" [ngModel]="accountId" (ngModelChange)="setAccount($event)" name="acct">
+        <option [ngValue]="null">All accounts</option>
+        <option *ngFor="let a of accounts" [ngValue]="a.id">{{ a.name }}</option>
+      </select>
+      <a *ngIf="account" [routerLink]="['/admin/Banktransactions', account.id, 'import']" class="cy-btn-primary">Import statement</a>
     </div>
-    <a [routerLink]="['/admin/Banktransactions', accountId, 'import']" class="cy-btn-primary shrink-0">Import statement</a>
   </div>
 
-  <div class="mt-4 flex flex-wrap gap-2" role="tablist">
-    <button *ngFor="let t of tabs" type="button" role="tab" class="min-h-[40px] rounded-full px-4 text-sm font-bold" [attr.aria-selected]="status === t.key"
-            [ngClass]="status === t.key ? 'bg-cyrcle-navy text-white' : 'bg-white'" (click)="setTab(t.key)">{{ t.label }} ({{ count(t.key) }})</button>
+  <div class="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label="Transaction status">
+    <button *ngFor="let t of tabs" type="button" role="tab" [attr.aria-selected]="status === t.key" (click)="setTab(t.key)"
+      class="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-[13px] font-bold"
+      [ngClass]="status === t.key ? 'border-cyrcle-navy bg-cyrcle-navy text-white' : 'border-[#B9B39F] bg-white text-cyrcle-navy hover:border-cyrcle-navy'">
+      {{ t.label }}<span class="text-[12px] font-semibold opacity-80">{{ count(t.key) }}</span>
+    </button>
   </div>
-
-  <form class="mt-3 flex gap-2" (ngSubmit)="find()" role="search">
-    <input type="search" name="q" class="cy-input" aria-label="Search descriptions" placeholder="Search descriptions" [(ngModel)]="search">
-    <button type="submit" class="cy-btn-secondary shrink-0"><app-icon name="search" [size]="18"></app-icon>Search</button>
-  </form>
 
   <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
     <div class="font-bold">We could not load the transactions</div>
@@ -28,28 +31,50 @@
 
   <div *ngIf="data && !data.data.length && !error" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
     <div class="text-base font-bold">{{ search ? 'No transactions match your search' : status === 'review' ? 'Nothing to review' : status === 'done' ? 'Nothing done yet' : 'Nothing excluded' }}</div>
-    <div *ngIf="!search && status === 'review' && !count('done') && !count('excluded')" class="text-[13px] text-[#3C4663]">Import a CSV statement to see transactions here.</div>
+    <div *ngIf="!search && status === 'review' && !count('done') && !count('excluded')" class="text-[13px] leading-snug text-[#3C4663]">
+      Import a CSV statement from your bank to see transactions here.
+    </div>
+    <a *ngIf="!search && status === 'review' && !count('done') && !count('excluded') && !account" routerLink="/admin/Banktransactions/accounts" class="cy-btn-primary mt-1 self-start">Go to accounts</a>
   </div>
 
-  <ul *ngIf="data && data.data.length" class="m-0 mt-4 flex list-none flex-col gap-2 p-0" [class.opacity-60]="loading">
-    <li *ngFor="let t of data.data" class="rounded-[20px] bg-white p-4">
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <div class="text-[15px] font-bold [overflow-wrap:anywhere]">{{ t.description }}</div>
-          <div class="text-[13px] text-[#5B6478]">{{ t.date | auDate }}</div>
+  <div *ngIf="data && data.data.length" class="mt-4 overflow-hidden rounded-[20px] bg-white" [class.opacity-60]="loading">
+    <div class="hidden grid-cols-[110px_1fr_160px_120px_100px] gap-3 border-b border-cyrcle-pearl px-5 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
+      <div>Date</div><div>Description</div><div>Account</div><div class="text-right">Amount</div><div></div>
+    </div>
+    <div *ngFor="let t of data.data" class="border-b border-cyrcle-pearl last:border-0">
+      <!-- phone -->
+      <div class="flex flex-col gap-1 px-4 py-3.5 md:hidden">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-[15px] font-bold [overflow-wrap:anywhere]">{{ t.description }}</div>
+            <div class="text-[13px] text-[#5B6478]">{{ t.date | auDate }} · {{ t.account_name }}</div>
+          </div>
+          <div class="shrink-0 text-right text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</div>
         </div>
-        <div class="shrink-0 text-right text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</div>
+        <div class="flex gap-5 text-[13px] font-bold text-cyrcle-midnight">
+          <button *ngIf="t.status === 'review'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'excluded')">Exclude</button>
+          <button *ngIf="t.status === 'excluded'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'review')">Put back</button>
+        </div>
       </div>
-      <div class="mt-1 flex gap-5 text-[13px] font-bold text-cyrcle-midnight" *ngIf="t.status !== 'done'">
-        <button *ngIf="t.status === 'review'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'excluded')">Exclude</button>
-        <button *ngIf="t.status === 'excluded'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'review')">Put back</button>
+      <!-- desktop -->
+      <div class="hidden grid-cols-[110px_1fr_160px_120px_100px] items-center gap-3 px-5 py-3.5 md:grid">
+        <div class="text-sm">{{ t.date | auDate }}</div>
+        <div class="min-w-0 truncate text-[15px] font-bold" [title]="t.description">{{ t.description }}</div>
+        <div class="truncate text-sm text-[#5B6478]">{{ t.account_name }}</div>
+        <div class="text-right text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</div>
+        <div class="text-right text-[13px] font-bold text-cyrcle-midnight">
+          <button *ngIf="t.status === 'review'" type="button" class="underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'excluded')">Exclude</button>
+          <button *ngIf="t.status === 'excluded'" type="button" class="underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'review')">Put back</button>
+        </div>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
 
-  <div *ngIf="data && data.meta.last_page > 1" class="mt-4 flex items-center justify-between text-sm">
-    <button type="button" class="cy-btn-secondary" [disabled]="page <= 1" (click)="go(page - 1)">Previous</button>
-    <span>Page {{ data.meta.page }} of {{ data.meta.last_page }}</span>
-    <button type="button" class="cy-btn-secondary" [disabled]="page >= data.meta.last_page" (click)="go(page + 1)">Next</button>
+  <div *ngIf="data && data.meta.total > data.meta.per_page" class="mt-4 flex items-center justify-between gap-3 text-sm">
+    <span class="text-[#5B6478]">{{ from }}–{{ to }} of {{ data.meta.total }}</span>
+    <div class="flex gap-2">
+      <button type="button" class="cy-btn-secondary cy-btn-sm" [disabled]="page <= 1 || loading" (click)="go(page - 1)"><app-icon name="chevron-left" [size]="16"></app-icon>Previous</button>
+      <button type="button" class="cy-btn-secondary cy-btn-sm" [disabled]="page >= data.meta.last_page || loading" (click)="go(page + 1)">Next<app-icon name="chevron-right" [size]="16"></app-icon></button>
+    </div>
   </div>
 </div>

@@ -1,0 +1,79 @@
+<div *ngIf="loading" class="text-sm text-[#5B6478]">Loading your banking…</div>
+
+<div *ngIf="error" class="cy-card flex flex-col gap-3">
+  <div class="font-bold">We could not load your banking</div>
+  <div class="text-sm text-[#3C4663]">{{ error }}</div>
+  <button type="button" class="cy-btn-secondary self-start" (click)="load()">Try again</button>
+</div>
+
+<ng-container *ngIf="s && !loading">
+  <div *ngIf="!accounts.length" class="flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">Add your first bank account</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]">Add an account, then import a CSV statement from your bank. Everything that came in and went out will be listed for you to review.</div>
+    <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-primary mt-1 self-start">Add account</a>
+  </div>
+
+  <ng-container *ngIf="accounts.length">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <a routerLink="/admin/Banktransactions/transactions" class="cy-card block !p-4 hover:shadow-sm">
+        <div class="text-[13px] font-bold text-[#5B6478]">To review</div>
+        <div class="mt-1 text-[24px] font-extrabold leading-tight">{{ s.to_review }}</div>
+        <div class="text-[13px] text-[#5B6478]">{{ s.to_review === 1 ? 'transaction' : 'transactions' }}</div>
+      </a>
+      <div class="cy-card !p-4">
+        <div class="text-[13px] font-bold text-[#5B6478]">Money in, last 30 days</div>
+        <div class="mt-1 text-[24px] font-extrabold leading-tight text-[#1F7A4D]">{{ s.money_in_30 | aud }}</div>
+      </div>
+      <div class="cy-card !p-4">
+        <div class="text-[13px] font-bold text-[#5B6478]">Money out, last 30 days</div>
+        <div class="mt-1 text-[24px] font-extrabold leading-tight">{{ s.money_out_30 | aud }}</div>
+      </div>
+      <a routerLink="/admin/Banktransactions/accounts" class="cy-card block !p-4 hover:shadow-sm">
+        <div class="text-[13px] font-bold text-[#5B6478]">Bank accounts</div>
+        <div class="mt-1 text-[24px] font-extrabold leading-tight">{{ s.accounts }}</div>
+        <div class="text-[13px] text-[#5B6478]">{{ s.accounts === 1 ? 'account' : 'accounts' }}</div>
+      </a>
+    </div>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-2">
+      <section class="cy-card" aria-labelledby="acc-h">
+        <div class="flex items-center justify-between">
+          <h2 id="acc-h" class="m-0 text-base font-extrabold">Your accounts</h2>
+          <a routerLink="/admin/Banktransactions/accounts" class="text-[13px] font-bold underline">Manage</a>
+        </div>
+        <ul class="m-0 mt-2 list-none p-0">
+          <li *ngFor="let a of accounts" class="border-b border-cyrcle-pearl last:border-0">
+            <a routerLink="/admin/Banktransactions/transactions" [queryParams]="{ account: a.id }" class="flex items-center justify-between gap-3 py-3">
+              <span class="flex min-w-0 items-center gap-3">
+                <app-icon [name]="a.type === 'credit_card' ? 'expenses' : 'bank'" [size]="20"></app-icon>
+                <span class="min-w-0">
+                  <span class="block truncate text-[15px] font-bold">{{ a.name }}</span>
+                  <span class="block text-[13px] text-[#5B6478]">{{ a.type_label }}<span *ngIf="a.last4"> · ends {{ a.last4 }}</span></span>
+                </span>
+              </span>
+              <span *ngIf="a.to_review" class="cy-pill cy-pill-awaiting shrink-0">{{ a.to_review }} to review</span>
+              <span *ngIf="!a.to_review" class="shrink-0 text-[13px] text-[#5B6478]">All reviewed</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="cy-card" aria-labelledby="rec-h">
+        <div class="flex items-center justify-between">
+          <h2 id="rec-h" class="m-0 text-base font-extrabold">Latest to review</h2>
+          <a *ngIf="s.recent.length" routerLink="/admin/Banktransactions/transactions" class="text-[13px] font-bold underline">View all</a>
+        </div>
+        <div *ngIf="!s.recent.length" class="mt-3 flex items-center gap-2 text-sm text-[#3C4663]"><app-icon name="check" [size]="18"></app-icon> Nothing to review. Import a statement to see new transactions.</div>
+        <ul *ngIf="s.recent.length" class="m-0 mt-2 list-none p-0">
+          <li *ngFor="let t of s.recent" class="flex items-center justify-between gap-3 border-b border-cyrcle-pearl py-3 last:border-0">
+            <span class="min-w-0">
+              <span class="block truncate text-[15px] font-bold">{{ t.description }}</span>
+              <span class="block text-[13px] text-[#5B6478]">{{ t.date | auDate }} · {{ t.account_name }}</span>
+            </span>
+            <span class="shrink-0 text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </ng-container>
+</ng-container>
