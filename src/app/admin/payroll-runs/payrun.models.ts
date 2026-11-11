@@ -2,6 +2,8 @@ export type ItemKind = 'allowance' | 'bonus' | 'overtime' | 'leave' | 'reimburse
 export interface LineItem { id: number; kind: ItemKind; label: string; hours: number | null; rate: number | null; amount: number; counts_for_super: boolean; payee: string | null; allowance_type: string | null; allowance_desc: string | null; allowance_label: string | null; }
 export interface NewItem { kind: ItemKind; label: string; amount?: number | null; hours?: number | null; rate?: number | null; counts_for_super?: boolean; payee?: string; allowance_type?: string; allowance_desc?: string; }
 
+export interface BankFile { filename: string; content: string; payments: number; total: number; pay_date: string; skipped: { name: string; reason: string }[]; }
+
 export interface StpIssue { level: 'blocking' | 'warning'; text: string; }
 export interface StpCheck {
   ready: boolean; blocking: number; run_issues: StpIssue[];
@@ -86,7 +88,7 @@ export type CalcSituation = 'threshold' | 'no_threshold' | 'no_tfn_resident' | '
 export interface CalcInput { basis: CalcBasis; frequency: Frequency; situation: CalcSituation; amount: number; hours?: number | null; study_loan?: boolean; }
 export interface CalcResult { super_rate: number; gross: number; tax: number; study_loan: number; super: number; net: number; situation_label: string; frequency: Frequency; basis: CalcBasis; }
 
-export interface PayrollSettings { super_rate: number; default_pay_frequency: Frequency; default_hours_per_week: number; casual_loading: number; min_super_rate: number; }
+export interface PayrollSettings { super_rate: number; default_pay_frequency: Frequency; default_hours_per_week: number; casual_loading: number; min_super_rate: number; bank_code: string | null; bank_user_id: string | null; bank_balancing: boolean; }
 export interface HistorySlip { run_id: number; line_id: number; reference: string; period_start: string; period_end: string; pay_date: string; gross: number; tax: number; net: number; }
 export interface HistoryEmployee extends Totals { employee_id: number; name: string; payslips: HistorySlip[]; }
 export interface History { fy: number; label: string; from: string; to: string; years: number[]; totals: Totals & { payslips: number }; employees: HistoryEmployee[]; }

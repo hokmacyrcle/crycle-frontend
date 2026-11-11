@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from 'src/app/services/alert.service';
 import { toProblem } from '../sales/sales.service';
-import { ItemKind, LineChange, NewItem, PayRunFull, PayRunLine, StpCheck } from './payrun.models';
+import { BankFile, ItemKind, LineChange, NewItem, PayRunFull, PayRunLine, StpCheck } from './payrun.models';
 import { PayRunService } from './payrun.service';
 
 @Component({
@@ -25,6 +25,25 @@ export class PayRunComponent implements OnInit {
     this.api.get(this.route.snapshot.paramMap.get('id') as string).subscribe({
       next: r => { this.run = r; this.loading = false; this.checkStp(); },
       error: e => { this.loading = false; this.error = toProblem(e).message; }
+    });
+  }
+
+  /** The bank payment file: one upload to the bank pays every employee who has bank details. */
+  bankResult: BankFile | null = null;
+  bankError = '';
+  bankBusy = false;
+  downloadBankFile(): void {
+    if (!this.run) return;
+    this.bankBusy = true; this.bankError = ''; this.bankResult = null;
+    this.api.bankFile(this.run.id).subscribe({
+      next: f => {
+        this.bankBusy = false; this.bankResult = f;
+        const url = URL.createObjectURL(new Blob([f.content], { type: 'text/plain' }));
+        const a = document.createElement('a');
+        a.href = url; a.download = f.filename; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      },
+      error: e => { this.bankBusy = false; this.bankError = toProblem(e).message; }
     });
   }
 

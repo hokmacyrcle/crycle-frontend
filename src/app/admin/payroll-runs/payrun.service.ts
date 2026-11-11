@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { CalcInput, CalcResult, History, NewItem, Overview, StpCheck, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
+import { BankFile, CalcInput, CalcResult, History, NewItem, Overview, StpCheck, TimesheetWeekData, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -39,6 +39,10 @@ export class PayRunService {
     return this.http.post<{ data: PayRunFull }>(`${this.base}/${id}/lines/${lineId}/items`, body, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
+  bankFile(id: number): Observable<BankFile> {
+    return this.http.get<{ data: BankFile }>(`${this.base}/${id}/bank-file`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
   stp(id: number): Observable<StpCheck> {
     return this.http.get<{ data: StpCheck }>(`${this.base}/${id}/stp`, { headers: this.headers() }).pipe(map(r => r.data));
   }
@@ -71,7 +75,7 @@ export class PayRunService {
     return this.http.get<{ data: PayrollSettings }>(`${environment.apiUrl}/payroll/settings`, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
-  saveSettings(body: Pick<PayrollSettings, 'super_rate' | 'default_pay_frequency' | 'default_hours_per_week' | 'casual_loading'>): Observable<PayrollSettings> {
+  saveSettings(body: Pick<PayrollSettings, 'super_rate' | 'default_pay_frequency' | 'default_hours_per_week' | 'casual_loading' | 'bank_code' | 'bank_user_id' | 'bank_balancing'>): Observable<PayrollSettings> {
     return this.http.put<{ data: PayrollSettings }>(`${environment.apiUrl}/payroll/settings`, body, { headers: this.headers() }).pipe(map(r => r.data));
   }
 
