@@ -1,0 +1,90 @@
+<div class="mx-auto max-w-3xl text-cyrcle-navy">
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <h1 class="m-0 text-[28px] font-extrabold leading-tight">Banking</h1>
+      <p class="m-0 mt-1 text-sm text-[#3C4663]">Add your bank accounts and import statements. Live bank connections will be added later.</p>
+    </div>
+    <button type="button" class="cy-btn-primary shrink-0" (click)="openAdd()" *ngIf="!showArchived"><app-icon name="plus" [size]="18"></app-icon>Add account</button>
+  </div>
+
+  <div class="mt-4 flex gap-2" role="tablist">
+    <button type="button" role="tab" class="min-h-[40px] rounded-full px-4 text-sm font-bold" [attr.aria-selected]="!showArchived"
+            [ngClass]="!showArchived ? 'bg-cyrcle-navy text-white' : 'bg-white'" (click)="setArchived(false)">Active</button>
+    <button type="button" role="tab" class="min-h-[40px] rounded-full px-4 text-sm font-bold" [attr.aria-selected]="showArchived"
+            [ngClass]="showArchived ? 'bg-cyrcle-navy text-white' : 'bg-white'" (click)="setArchived(true)">Archived</button>
+  </div>
+
+  <form *ngIf="formOpen" class="cy-card mt-4 flex flex-col gap-4" (ngSubmit)="save()" novalidate autocomplete="off" aria-label="Bank account details">
+    <div role="heading" aria-level="2" class="text-lg font-extrabold">{{ editId ? 'Edit account' : 'Add account' }}</div>
+    <fieldset class="m-0 border-0 p-0">
+      <legend class="cy-label">Type of account</legend>
+      <div class="grid gap-2.5 sm:grid-cols-3">
+        <label *ngFor="let t of types" class="flex cursor-pointer flex-col rounded-[16px] border-[1.5px] p-3.5"
+               [ngClass]="m.type === t.key ? 'border-cyrcle-navy bg-[#F6F4EC]' : 'border-[#B9B39F] bg-white'">
+          <input type="radio" class="sr-only" name="type" [value]="t.key" [(ngModel)]="m.type">
+          <span class="text-[15px] font-bold">{{ t.label }}</span>
+          <span class="text-[13px] text-[#5B6478]">{{ t.hint }}</span>
+        </label>
+      </div>
+      <div class="cy-error" *ngIf="err('type')">{{ err('type') }}</div>
+    </fieldset>
+    <div>
+      <label for="an" class="cy-label">Account name</label>
+      <input id="an" name="name" type="text" class="cy-input" [class.invalid]="err('name')" maxlength="100" placeholder="Business everyday" [(ngModel)]="m.name">
+      <div class="cy-error" *ngIf="err('name')">{{ err('name') }}</div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div *ngIf="!isCard">
+        <label for="bsb" class="cy-label">BSB <span class="font-normal text-[#5B6478]">(optional)</span></label>
+        <input id="bsb" name="bsb" type="text" inputmode="numeric" class="cy-input" [class.invalid]="err('bsb')" maxlength="7" placeholder="062-000" [(ngModel)]="m.bsb">
+        <div class="cy-error" *ngIf="err('bsb')">{{ err('bsb') }}</div>
+      </div>
+      <div>
+        <label for="acc" class="cy-label">{{ isCard ? 'Last 4 digits of the card' : 'Account number' }} <span class="font-normal text-[#5B6478]">(optional)</span></label>
+        <input id="acc" name="account_number" type="text" inputmode="numeric" class="cy-input" [class.invalid]="err('account_number')" [maxLength]="isCard ? 4 : 10" [(ngModel)]="m.account_number">
+        <div class="cy-error" *ngIf="err('account_number')">{{ err('account_number') }}</div>
+      </div>
+    </div>
+    <div class="cy-error" *ngIf="formError && !fieldErrors['name'] && !fieldErrors['bsb'] && !fieldErrors['account_number'] && !fieldErrors['type']">{{ formError }}</div>
+    <div class="flex gap-2.5">
+      <button type="submit" class="cy-btn-primary" [disabled]="saving">{{ saving ? 'Saving…' : 'Save account' }}</button>
+      <button type="button" class="cy-btn-secondary" (click)="formOpen = false">Cancel</button>
+    </div>
+  </form>
+
+  <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
+    <div class="font-bold">We could not load your accounts</div>
+    <div class="text-sm text-[#3C4663]">{{ error }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="load()">Try again</button>
+  </div>
+
+  <div *ngIf="loading && !accounts.length && !error" class="mt-5 text-sm text-[#5B6478]">Loading…</div>
+
+  <div *ngIf="!loading && !error && !accounts.length && !formOpen" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">{{ showArchived ? 'No archived accounts' : 'No bank accounts yet' }}</div>
+    <div *ngIf="!showArchived" class="text-[13px] leading-snug text-[#3C4663]">Add an account, then import a CSV statement from your bank to see what came in and went out.</div>
+    <button *ngIf="!showArchived" type="button" class="cy-btn-primary mt-1 self-start" (click)="openAdd()">Add account</button>
+  </div>
+
+  <ul *ngIf="accounts.length" class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0" [class.opacity-60]="loading">
+    <li *ngFor="let a of accounts" class="rounded-[20px] bg-white p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex min-w-0 items-start gap-3">
+          <span class="mt-0.5 shrink-0"><app-icon [name]="a.type === 'credit_card' ? 'expenses' : 'bank'" [size]="22"></app-icon></span>
+          <div class="min-w-0">
+            <div class="truncate text-[15px] font-bold">{{ a.name }}</div>
+            <div class="text-[13px] text-[#5B6478]">{{ a.type_label }}<span *ngIf="a.last4"> · ends {{ a.last4 }}</span></div>
+          </div>
+        </div>
+        <span *ngIf="a.to_review" class="cy-pill cy-pill-awaiting shrink-0">{{ a.to_review }} to review</span>
+      </div>
+      <div class="mt-2 text-[13px] text-[#5B6478]">{{ a.last_imported_at ? 'Last imported ' + (a.last_imported_at | auDate) : 'Nothing imported yet' }}</div>
+      <div class="mt-1 flex flex-wrap gap-x-5 text-[13px] font-bold text-cyrcle-midnight">
+        <a *ngIf="a.active" [routerLink]="['/admin/Banktransactions', a.id]" class="inline-flex min-h-[36px] items-center underline">Transactions</a>
+        <a *ngIf="a.active" [routerLink]="['/admin/Banktransactions', a.id, 'import']" class="inline-flex min-h-[36px] items-center underline">Import statement</a>
+        <button type="button" class="min-h-[36px] underline" (click)="openEdit(a)" *ngIf="a.active">Edit</button>
+        <button type="button" class="min-h-[36px] underline" (click)="archive(a)">{{ a.active ? 'Archive' : 'Restore' }}</button>
+      </div>
+    </li>
+  </ul>
+</div>

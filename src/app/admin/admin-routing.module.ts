@@ -36,6 +36,9 @@ import { SalesOverviewComponent } from './sales/sales-overview.component';
 import { DocListComponent } from './sales/doc-list.component';
 import { DocFormComponent } from './sales/doc-form.component';
 import { DocViewComponent } from './sales/doc-view.component';
+import { BankAccountsComponent } from './banking/bank-accounts.component';
+import { BankImportComponent } from './banking/bank-import.component';
+import { BankTransactionsComponent } from './banking/bank-transactions.component';
 import { RecurringListComponent } from './sales/recurring-list.component';
 import { CustomerListComponent } from './sales/customer-list.component';
 import { CustomerFormComponent } from './sales/customer-form.component';
@@ -123,19 +126,11 @@ const routes: Routes = [
     ]
   },
 
-  // Banking and Expenses are not built yet; the old screens held sample data and are no longer routed.
-  {
-    path: 'Banktransactions', component: SectionPlaceholderComponent,
-    data: {
-      title: 'Banking', icon: 'bank',
-      blurb: 'See what came in and went out of your bank account.',
-      planned: [
-        'Connect your bank account',
-        'Match bank transactions to invoices and bills',
-        'Reconcile your accounts each month'
-      ]
-    }
-  },
+  // Banking
+  { path: 'Banktransactions', component: BankAccountsComponent },
+  { path: 'Banktransactions/:id', component: BankTransactionsComponent },
+  { path: 'Banktransactions/:id/import', component: BankImportComponent },
+  // Expenses is not built yet; the old screens held sample data and are no longer routed.
   {
     path: 'expenses', component: SectionPlaceholderComponent,
     data: {
