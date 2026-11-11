@@ -45,7 +45,7 @@ import { PayRunService } from './payrun.service';
   <dl class="m-0 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
     <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Gross pay</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.gross | aud }}</dd></div>
     <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Tax withheld</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.tax | aud }}</dd></div>
-    <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Super (12%)</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.super | aud }}</dd></div>
+    <div class="rounded-[16px] bg-[#F6F4EC] px-4 py-3"><dt class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Super ({{ result.super_rate }}%)</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.super | aud }}</dd></div>
     <div class="rounded-[16px] bg-cyrcle-navy px-4 py-3 text-white"><dt class="text-[12px] font-bold uppercase tracking-wide opacity-80">Take-home</dt><dd class="m-0 mt-0.5 text-[18px] font-extrabold">{{ result.net | aud }}</dd></div>
   </dl>
   <p class="mb-0 mt-3 text-[13px] leading-snug text-[#3C4663]">{{ result.frequency }} pay · {{ result.situation_label }}. Super is paid on top of gross pay.</p>

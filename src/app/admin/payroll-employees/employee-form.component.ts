@@ -4,6 +4,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { AU_STATES } from '../sales/sales.labels';
 import { toProblem } from '../sales/sales.service';
 import { EmployeeFull, EmployeePayload } from './employees.models';
+import { PayRunService } from '../payroll-runs/payrun.service';
 import { PayrollEmployeesService } from './employees.service';
 import { isValidTfn } from './tfn';
 
@@ -77,7 +78,7 @@ export class EmployeeFormComponent implements OnInit {
     bank_account_name: '', bank_bsb: '', bank_account_number: ''
   };
 
-  constructor(private api: PayrollEmployeesService, private route: ActivatedRoute, private router: Router, private alerts: AlertService) { }
+  constructor(private api: PayrollEmployeesService, private route: ActivatedRoute, private router: Router, private alerts: AlertService, private settingsApi: PayRunService) { }
 
   get editing(): boolean { return this.id !== null; }
   get foreign(): boolean { return this.m.residency === 'Foreign resident'; }
@@ -85,11 +86,23 @@ export class EmployeeFormComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.id = id ? +id : null;
-    if (!this.id) return;
+    if (!this.id) { this.applyDefaults(); return; }
     this.loading = true;
     this.api.get(this.id).subscribe({
       next: e => { this.fill(e); this.loading = false; },
       error: err => { this.loading = false; this.loadError = toProblem(err).message; }
+    });
+  }
+
+  /** A new employee starts from the business's Payroll settings. If they cannot be loaded the built-in defaults stay. */
+  private applyDefaults(): void {
+    this.settingsApi.settings().subscribe({
+      next: s => {
+        this.superRate = s.super_rate;
+        this.m.pay_frequency = s.default_pay_frequency;
+        if (!this.m.hours_per_week) this.m.hours_per_week = String(s.default_hours_per_week);
+      },
+      error: () => { }
     });
   }
 

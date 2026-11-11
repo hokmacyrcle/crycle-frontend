@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Meta } from '../payroll-employees/employees.models';
-import { CalcInput, CalcResult, LineChange, NewPayRun, PayRunFull, PayRunRow } from './payrun.models';
+import { CalcInput, CalcResult, History, LineChange, NewPayRun, PayRunFull, PayRunRow, PayrollSettings } from './payrun.models';
 
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -49,5 +49,19 @@ export class PayRunService {
 
   calculate(body: CalcInput): Observable<CalcResult> {
     return this.http.post<{ data: CalcResult }>(`${environment.apiUrl}/payroll/calculator`, body, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  settings(): Observable<PayrollSettings> {
+    return this.http.get<{ data: PayrollSettings }>(`${environment.apiUrl}/payroll/settings`, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  saveSettings(body: Pick<PayrollSettings, 'super_rate' | 'default_pay_frequency' | 'default_hours_per_week'>): Observable<PayrollSettings> {
+    return this.http.put<{ data: PayrollSettings }>(`${environment.apiUrl}/payroll/settings`, body, { headers: this.headers() }).pipe(map(r => r.data));
+  }
+
+  history(fy?: number): Observable<History> {
+    let params = new HttpParams();
+    if (fy) params = params.set('fy', fy);
+    return this.http.get<{ data: History }>(`${environment.apiUrl}/payroll/history`, { headers: this.headers(), params }).pipe(map(r => r.data));
   }
 }

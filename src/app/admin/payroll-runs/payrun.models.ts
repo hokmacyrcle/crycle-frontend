@@ -34,11 +34,15 @@ export interface PayRunLine {
   tax_confirmed: boolean;
   super_fund_name: string | null;
   super_member_number: string | null;
+  ytd: Totals | null;
 }
+
+export interface Totals { gross: number; tax: number; super: number; net: number; }
 
 export interface PayRunFull extends PayRunRow {
   super_due_date: string | null;
   finalised_at: string | null;
+  super_rate: number;
   employer: { name: string; abn: string | null; gst_registered: boolean; address: string[] };
   needs_attention: number;
   can: { edit: boolean; finalise: boolean; delete: boolean };
@@ -51,4 +55,9 @@ export interface LineChange { hours?: number | null; tax_override?: number; clea
 export type CalcBasis = 'gross' | 'salary' | 'hourly';
 export type CalcSituation = 'threshold' | 'no_threshold' | 'no_tfn_resident' | 'no_tfn_foreign';
 export interface CalcInput { basis: CalcBasis; frequency: Frequency; situation: CalcSituation; amount: number; hours?: number | null; }
-export interface CalcResult { gross: number; tax: number; super: number; net: number; situation_label: string; frequency: Frequency; basis: CalcBasis; }
+export interface CalcResult { super_rate: number; gross: number; tax: number; super: number; net: number; situation_label: string; frequency: Frequency; basis: CalcBasis; }
+
+export interface PayrollSettings { super_rate: number; default_pay_frequency: Frequency; default_hours_per_week: number; min_super_rate: number; }
+export interface HistorySlip { run_id: number; line_id: number; reference: string; period_start: string; period_end: string; pay_date: string; gross: number; tax: number; net: number; }
+export interface HistoryEmployee extends Totals { employee_id: number; name: string; payslips: HistorySlip[]; }
+export interface History { fy: number; label: string; from: string; to: string; years: number[]; totals: Totals & { payslips: number }; employees: HistoryEmployee[]; }

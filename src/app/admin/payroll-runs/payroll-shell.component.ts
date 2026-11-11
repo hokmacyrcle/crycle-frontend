@@ -19,6 +19,8 @@ export class PayrollShellComponent {
   tabs = [
     { label: 'Pay runs', link: '/admin/payroll' },
     { label: 'Employees', link: '/admin/payroll/employees' },
+    { label: 'History', link: '/admin/payroll/history' },
     { label: 'Calculator', link: '/admin/payroll/calculator' },
+    { label: 'Settings', link: '/admin/payroll/settings' },
   ];
 }

@@ -50,8 +50,20 @@ import { PayRunService } from './payrun.service';
 
     <section class="mt-6 rounded-[16px] bg-[#F6F4EC] p-4 text-sm print:border print:border-gray-300 print:bg-white">
       <div class="font-bold">Superannuation</div>
-      <div class="mt-1">{{ line.super_amount | aud }} (12%) paid on top of your pay<span *ngIf="run.super_due_date">, due to your fund by {{ run.super_due_date | auDate }}</span>.</div>
+      <div class="mt-1">{{ line.super_amount | aud }} ({{ run.super_rate }}%) paid on top of your pay<span *ngIf="run.super_due_date">, due to your fund by {{ run.super_due_date | auDate }}</span>.</div>
       <div *ngIf="line.super_fund_name" class="mt-1 text-[#3C4663]">{{ line.super_fund_name }}<span *ngIf="line.super_member_number"> · Member {{ line.super_member_number }}</span></div>
+    </section>
+
+    <section *ngIf="line.ytd" class="mt-5 text-sm">
+      <div class="font-bold">Year to date <span class="font-normal text-[#5B6478]">(1 July {{ fyStart }} to this pay date)</span></div>
+      <table class="mt-2 w-full border-collapse">
+        <tbody>
+          <tr class="border-b border-cyrcle-pearl"><td class="py-1.5">Gross pay</td><td class="py-1.5 text-right">{{ line.ytd.gross | aud }}</td></tr>
+          <tr class="border-b border-cyrcle-pearl"><td class="py-1.5">Tax withheld</td><td class="py-1.5 text-right">{{ line.ytd.tax | aud }}</td></tr>
+          <tr class="border-b border-cyrcle-pearl"><td class="py-1.5">Super</td><td class="py-1.5 text-right">{{ line.ytd.super | aud }}</td></tr>
+          <tr><td class="py-1.5 font-bold">Net pay</td><td class="py-1.5 text-right font-bold">{{ line.ytd.net | aud }}</td></tr>
+        </tbody>
+      </table>
     </section>
   </article>
 </div>`
@@ -78,6 +90,12 @@ export class PayslipComponent implements OnInit {
       },
       error: e => { this.loading = false; this.error = toProblem(e).message; }
     });
+  }
+
+  /** The calendar year the financial year started in. */
+  get fyStart(): number {
+    const d = new Date((this.run?.pay_date ?? '') + 'T00:00:00');
+    return d.getMonth() >= 6 ? d.getFullYear() : d.getFullYear() - 1;
   }
 
   print(): void {
