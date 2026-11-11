@@ -53,9 +53,14 @@ export interface PayRunLine {
   super_fund_name: string | null;
   super_member_number: string | null;
   ytd: Totals | null;
+  entitlements: { type: string; accrued: number; balance: number }[];
+  leave_taken: { type: string; start_date: string; end_date: string; hours: number }[];
 }
 
-export interface Totals { gross: number; tax: number; super: number; net: number; }
+export interface Totals {
+  gross: number; tax: number; super: number; net: number; base_pay: number; study_loan: number;
+  items: Record<ItemKind, number>;
+}
 
 export interface PayRunFull extends PayRunRow {
   super_due_date: string | null;
