@@ -1,25 +1,67 @@
 <div class="text-cyrcle-navy">
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <form class="flex flex-1 gap-2 sm:max-w-md" (ngSubmit)="find()" role="search">
-      <input type="search" name="q" class="cy-input" aria-label="Search descriptions" placeholder="Search descriptions" [(ngModel)]="search">
-      <button type="submit" class="cy-btn-secondary shrink-0"><app-icon name="search" [size]="18"></app-icon>Search</button>
-    </form>
+  <!-- Account strip -->
+  <div class="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2" role="tablist" aria-label="Bank account">
+    <button type="button" role="tab" [attr.aria-selected]="!accountId" (click)="setAccount(null)"
+      class="min-w-[170px] shrink-0 rounded-[16px] border-2 bg-white p-3.5 text-left"
+      [ngClass]="!accountId ? 'border-[#1F7A4D]' : 'border-transparent hover:border-[#B9B39F]'">
+      <div class="text-[13px] font-bold text-[#5B6478]">All accounts</div>
+      <div class="mt-1 text-[22px] font-extrabold leading-tight">{{ count('review') }}</div>
+      <div class="text-[12px] text-[#5B6478]">to review</div>
+    </button>
+    <button *ngFor="let a of accounts" type="button" role="tab" [attr.aria-selected]="accountId === a.id" (click)="setAccount(a.id)"
+      class="min-w-[210px] shrink-0 rounded-[16px] border-2 bg-white p-3.5 text-left"
+      [ngClass]="accountId === a.id ? 'border-[#1F7A4D]' : 'border-transparent hover:border-[#B9B39F]'">
+      <div class="flex items-center justify-between gap-2">
+        <span class="truncate text-[13px] font-bold text-[#5B6478]">{{ a.name }}</span>
+        <span *ngIf="a.to_review" class="rounded-md bg-[#3C4663] px-1.5 text-[12px] font-bold text-white">{{ a.to_review }}</span>
+      </div>
+      <div class="mt-1 text-[18px] font-extrabold leading-tight">
+        <ng-container *ngIf="a.bank_balance !== null">Bank: {{ a.bank_balance | aud }}</ng-container>
+        <ng-container *ngIf="a.bank_balance === null">{{ a.type_label }}<span *ngIf="a.last4" class="text-[14px] font-bold text-[#5B6478]"> · {{ a.last4 }}</span></ng-container>
+      </div>
+      <div class="text-[12px] text-[#5B6478]">{{ updated(a) }}</div>
+    </button>
+    <a routerLink="/admin/Banktransactions/accounts" class="flex min-w-[56px] shrink-0 items-center justify-center rounded-[16px] border-2 border-dashed border-[#B9B39F] px-3 text-[13px] font-bold underline" aria-label="Manage accounts">Manage</a>
+  </div>
+
+  <!-- Tabs + account actions -->
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex gap-2 overflow-x-auto" role="tablist" aria-label="Transaction status">
+      <button *ngFor="let t of tabs" type="button" role="tab" [attr.aria-selected]="status === t.key" (click)="setTab(t.key)"
+        class="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-[13px] font-bold"
+        [ngClass]="status === t.key ? 'border-cyrcle-navy bg-cyrcle-navy text-white' : 'border-[#B9B39F] bg-white text-cyrcle-navy hover:border-cyrcle-navy'">
+        {{ t.label }}<span class="text-[12px] font-semibold opacity-80">{{ count(t.key) }}</span>
+      </button>
+    </div>
     <div class="flex gap-2">
-      <select class="cy-input !w-auto" aria-label="Bank account" [ngModel]="accountId" (ngModelChange)="setAccount($event)" name="acct">
-        <option [ngValue]="null">All accounts</option>
-        <option *ngFor="let a of accounts" [ngValue]="a.id">{{ a.name }}</option>
-      </select>
-      <button *ngIf="account && account.feed_connected" type="button" class="cy-btn-primary" (click)="update()" [disabled]="syncing">{{ syncing ? 'Updating…' : 'Update' }}</button>
-      <a *ngIf="account && !account.feed_connected" [routerLink]="['/admin/Banktransactions', account.id, 'import']" class="cy-btn-primary">Import statement</a>
+      <button *ngIf="account && account.feed_connected" type="button" class="cy-btn-secondary" (click)="update()" [disabled]="syncing">{{ syncing ? 'Updating…' : 'Update' }}</button>
+      <a *ngIf="account && !account.feed_connected" [routerLink]="['/admin/Banktransactions', account.id, 'import']" class="cy-btn-secondary">Import statement</a>
+      <a routerLink="/admin/Banktransactions/connect" class="cy-btn-primary">Link account</a>
     </div>
   </div>
 
-  <div class="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label="Transaction status">
-    <button *ngFor="let t of tabs" type="button" role="tab" [attr.aria-selected]="status === t.key" (click)="setTab(t.key)"
-      class="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-[13px] font-bold"
-      [ngClass]="status === t.key ? 'border-cyrcle-navy bg-cyrcle-navy text-white' : 'border-[#B9B39F] bg-white text-cyrcle-navy hover:border-cyrcle-navy'">
-      {{ t.label }}<span class="text-[12px] font-semibold opacity-80">{{ count(t.key) }}</span>
-    </button>
+  <!-- Filters -->
+  <form class="mt-3 flex flex-wrap items-end gap-2.5" (ngSubmit)="find()" role="search">
+    <label class="min-w-[180px] flex-1 sm:max-w-xs"><span class="sr-only">Search descriptions</span>
+      <input type="search" name="q" class="cy-input" placeholder="Search descriptions" [(ngModel)]="f.search"></label>
+    <label><span class="mb-0.5 block text-[12px] font-bold text-[#5B6478]">From</span>
+      <input type="date" name="from" class="cy-input !w-auto" [(ngModel)]="f.from"></label>
+    <label><span class="mb-0.5 block text-[12px] font-bold text-[#5B6478]">To</span>
+      <input type="date" name="to" class="cy-input !w-auto" [(ngModel)]="f.to"></label>
+    <label><span class="sr-only">Money in or out</span>
+      <select name="type" class="cy-input !w-auto" [(ngModel)]="f.type">
+        <option value="">All transactions</option><option value="in">Money in</option><option value="out">Money out</option>
+      </select></label>
+    <button type="submit" class="cy-btn-secondary"><app-icon name="search" [size]="18"></app-icon>Filter</button>
+    <button *ngIf="hasFilter" type="button" class="min-h-[40px] text-sm font-bold underline" (click)="clearFilters()">Clear</button>
+  </form>
+
+  <!-- Bulk bar -->
+  <div *ngIf="selected.size" class="mt-3 flex flex-wrap items-center gap-3 rounded-[14px] bg-[#E6F2EC] px-4 py-2.5 text-sm" role="status">
+    <span class="font-bold">{{ selected.size }} selected</span>
+    <button *ngIf="status === 'review'" type="button" class="min-h-[36px] font-bold underline" (click)="bulk('excluded')">Exclude</button>
+    <button *ngIf="status === 'excluded'" type="button" class="min-h-[36px] font-bold underline" (click)="bulk('review')">Put back</button>
+    <button type="button" class="min-h-[36px] underline" (click)="toggleAll(false)">Clear selection</button>
   </div>
 
   <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
@@ -31,38 +73,46 @@
   <div *ngIf="loading && !data && !error" class="mt-5 text-sm text-[#5B6478]">Loading…</div>
 
   <div *ngIf="data && !data.data.length && !error" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
-    <div class="text-base font-bold">{{ search ? 'No transactions match your search' : status === 'review' ? 'Nothing to review' : status === 'done' ? 'Nothing done yet' : 'Nothing excluded' }}</div>
-    <div *ngIf="!search && status === 'review' && !count('done') && !count('excluded')" class="text-[13px] leading-snug text-[#3C4663]">
-      Import a CSV statement from your bank to see transactions here.
-    </div>
-    <a *ngIf="!search && status === 'review' && !count('done') && !count('excluded') && !account" routerLink="/admin/Banktransactions/accounts" class="cy-btn-primary mt-1 self-start">Go to accounts</a>
+    <div class="text-base font-bold">{{ hasFilter ? 'No transactions match' : status === 'review' ? 'Nothing to review' : status === 'done' ? 'Nothing done yet' : 'Nothing excluded' }}</div>
+    <div *ngIf="hasFilter" class="text-[13px] text-[#3C4663]">Try a different filter or search.</div>
+    <div *ngIf="!hasFilter && status === 'review' && !count('done') && !count('excluded')" class="text-[13px] leading-snug text-[#3C4663]">Connect your bank or import a CSV statement to see transactions here.</div>
   </div>
 
-  <div *ngIf="data && data.data.length" class="mt-4 overflow-hidden rounded-[20px] bg-white" [class.opacity-60]="loading">
-    <div class="hidden grid-cols-[110px_1fr_160px_120px_100px] gap-3 border-b border-cyrcle-pearl px-5 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
-      <div>Date</div><div>Description</div><div>Account</div><div class="text-right">Amount</div><div></div>
+  <div *ngIf="data && data.data.length" class="mt-3 overflow-hidden rounded-[20px] bg-white" [class.opacity-60]="loading">
+    <div class="flex items-center justify-between gap-3 border-b border-cyrcle-pearl px-4 py-2.5 text-[13px] text-[#5B6478]">
+      <span>{{ from }}–{{ to }} of {{ data.meta.total }}</span>
+      <span *ngIf="data.meta.last_page > 1">Page {{ data.meta.page }} of {{ data.meta.last_page }}</span>
     </div>
-    <div *ngFor="let t of data.data" class="border-b border-cyrcle-pearl last:border-0">
+    <div class="hidden grid-cols-[28px_100px_1fr_150px_110px_110px_90px] items-center gap-3 border-b border-cyrcle-pearl bg-[#F1F4F7] px-4 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
+      <input type="checkbox" class="h-4 w-4" aria-label="Select all on this page" [checked]="allSelected" (change)="toggleAll($any($event.target).checked)">
+      <div>Date</div><div>Bank description</div><div>Account</div><div class="text-right">Spent</div><div class="text-right">Received</div><div class="text-right">Action</div>
+    </div>
+    <div *ngFor="let t of data.data" class="border-b border-cyrcle-pearl last:border-0" [class.bg-[#F2F8F5]]="selected.has(t.id)">
       <!-- phone -->
-      <div class="flex flex-col gap-1 px-4 py-3.5 md:hidden">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <div class="text-[15px] font-bold [overflow-wrap:anywhere]">{{ t.description }}</div>
-            <div class="text-[13px] text-[#5B6478]">{{ t.date | auDate }} · {{ t.account_name }}</div>
+      <div class="flex gap-3 px-4 py-3.5 md:hidden">
+        <input type="checkbox" class="mt-1 h-5 w-5 shrink-0" [attr.aria-label]="'Select ' + t.description" [checked]="selected.has(t.id)" (change)="toggle(t, $any($event.target).checked)">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-[15px] font-bold [overflow-wrap:anywhere]">{{ t.description }}</div>
+              <div class="text-[13px] text-[#5B6478]">{{ t.date | auDate }} · {{ t.account_name }}</div>
+            </div>
+            <div class="shrink-0 text-right text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</div>
           </div>
-          <div class="shrink-0 text-right text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</div>
-        </div>
-        <div class="flex gap-5 text-[13px] font-bold text-cyrcle-midnight">
-          <button *ngIf="t.status === 'review'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'excluded')">Exclude</button>
-          <button *ngIf="t.status === 'excluded'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'review')">Put back</button>
+          <div class="mt-1 flex gap-5 text-[13px] font-bold text-cyrcle-midnight">
+            <button *ngIf="t.status === 'review'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'excluded')">Exclude</button>
+            <button *ngIf="t.status === 'excluded'" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'review')">Put back</button>
+          </div>
         </div>
       </div>
       <!-- desktop -->
-      <div class="hidden grid-cols-[110px_1fr_160px_120px_100px] items-center gap-3 px-5 py-3.5 md:grid">
+      <div class="hidden grid-cols-[28px_100px_1fr_150px_110px_110px_90px] items-center gap-3 px-4 py-3 md:grid">
+        <input type="checkbox" class="h-4 w-4" [attr.aria-label]="'Select ' + t.description" [checked]="selected.has(t.id)" (change)="toggle(t, $any($event.target).checked)">
         <div class="text-sm">{{ t.date | auDate }}</div>
         <div class="min-w-0 truncate text-[15px] font-bold" [title]="t.description">{{ t.description }}</div>
-        <div class="truncate text-sm text-[#5B6478]">{{ t.account_name }}</div>
-        <div class="text-right text-[15px] font-extrabold" [class.text-[#1F7A4D]]="t.amount > 0">{{ t.amount | aud }}</div>
+        <div class="truncate text-sm text-[#5B6478]" [title]="t.account_name">{{ t.account_name }}</div>
+        <div class="text-right text-[15px] font-semibold">{{ t.amount < 0 ? (-t.amount | aud) : '' }}</div>
+        <div class="text-right text-[15px] font-semibold text-[#1F7A4D]">{{ t.amount > 0 ? (t.amount | aud) : '' }}</div>
         <div class="text-right text-[13px] font-bold text-cyrcle-midnight">
           <button *ngIf="t.status === 'review'" type="button" class="underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'excluded')">Exclude</button>
           <button *ngIf="t.status === 'excluded'" type="button" class="underline disabled:opacity-50" [disabled]="busyId === t.id" (click)="change(t, 'review')">Put back</button>

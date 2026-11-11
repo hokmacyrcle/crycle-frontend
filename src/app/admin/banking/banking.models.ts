@@ -41,3 +41,5 @@ export interface Institution { id: string; name: string; }
 export interface FeedAccount { ref: string; name: string; mask: string | null; bsb: string | null; type: AccountType | null; balance: number | null; already_connected: boolean; }
 export interface FeedAccounts { institution_name: string; consent_expires: string | null; accounts: FeedAccount[]; }
 export interface FeedConnectResult { accounts_added: number; transactions: number; consent_expires: string | null; }
+
+export interface TxnFilter { search: string; from: string; to: string; type: '' | 'in' | 'out'; }

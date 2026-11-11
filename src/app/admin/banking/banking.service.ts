@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { AccountPayload, AccountType, BankAccount, BankSummary, BankTxn, ColumnMap, FeedAccounts, FeedConnectResult, FeedStatus, Institution, ImportPreview, ImportResult, TxnPage, TxnStatus } from './banking.models';
+import { AccountPayload, AccountType, BankAccount, BankSummary, BankTxn, ColumnMap, FeedAccounts, FeedConnectResult, FeedStatus, Institution, ImportPreview, ImportResult, TxnFilter, TxnPage, TxnStatus } from './banking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BankingService {
@@ -52,11 +52,17 @@ export class BankingService {
   }
 
   /** Transactions of every account, or of one when accountId is given. */
-  transactions(accountId: number | null, status: TxnStatus, search: string, page: number): Observable<TxnPage> {
+  transactions(accountId: number | null, status: TxnStatus, f: TxnFilter, page: number): Observable<TxnPage> {
     let params = new HttpParams().set('status', status).set('page', String(page));
-    if (search) params = params.set('search', search);
     if (accountId) params = params.set('account', String(accountId));
+    if (f.search) params = params.set('search', f.search);
+    if (f.from) params = params.set('from', f.from);
+    if (f.to) params = params.set('to', f.to);
+    if (f.type) params = params.set('type', f.type);
     return this.http.get<TxnPage>(`${this.base}/transactions`, { headers: this.headers(), params });
+  }
+  bulkStatus(ids: number[], status: 'excluded' | 'review'): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/transactions/bulk-status`, { ids, status }, { headers: this.headers() });
   }
   setStatus(txnId: number, status: 'excluded' | 'review'): Observable<{ data: BankTxn; message: string }> {
     return this.http.post<{ data: BankTxn; message: string }>(`${this.base}/transactions/${txnId}/status`, { status }, { headers: this.headers() });
