@@ -47,11 +47,12 @@ export interface TxnFilter { search: string; from: string; to: string; type: '' 
 export interface Receipt {
   id: number; file_name: string; is_image: boolean; size: number; description: string | null;
   date: string | null; amount: number | null; gst: number | null; account_id: number | null;
-  account_name: string | null; created_by: string | null; created_at: string | null;
+  account_name: string | null; scan_status: 'none' | 'done' | 'failed'; created_by: string | null; created_at: string | null;
 }
 
 export interface ReceiptPage {
   data: Receipt[];
+  scan_available: boolean;
   meta: { page: number; per_page: number; total: number; last_page: number };
 }
 

@@ -5,9 +5,11 @@
        (dragover)="$event.preventDefault(); dragging = true" (dragleave)="dragging = false" (drop)="onDrop($event)">
     <div role="heading" aria-level="2" class="text-lg font-extrabold">Add receipts</div>
     <p class="m-0 mt-1 max-w-[28rem] text-center text-[13px] leading-snug text-[#3C4663]">Drag photos or PDFs here, or choose them from your computer or phone. You can add up to 20 at a time, 10 MB each.</p>
-    <label class="cy-btn-primary mt-3 inline-flex cursor-pointer" [class.opacity-60]="uploading">
+    <p *ngIf="scanAvailable" class="m-0 mt-1 max-w-[28rem] text-center text-[13px] leading-snug text-[#3C4663]">We read each receipt for you and fill in the supplier, date, total and GST. You check them before you save.</p>
+    <div *ngIf="reading" class="mt-3 text-[13px] font-bold" role="status">{{ reading }}</div>
+    <label class="cy-btn-primary mt-3 inline-flex cursor-pointer" [class.opacity-60]="uploading || reading">
       {{ uploading ? 'Uploading…' : 'Choose receipts' }}
-      <input #pick type="file" class="sr-only" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,image/*,application/pdf" [disabled]="uploading" (change)="onPick(pick)" aria-label="Choose receipt files">
+      <input #pick type="file" class="sr-only" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,image/*,application/pdf" [disabled]="uploading || !!reading" (change)="onPick(pick)" aria-label="Choose receipt files">
     </label>
     <ul *ngIf="uploadNotes.length" class="m-0 mt-3 w-full max-w-[36rem] list-none space-y-1 p-0 text-left text-[13px] text-[#B42318]" role="alert">
       <li *ngFor="let n of uploadNotes">{{ n }}</li>
@@ -26,6 +28,9 @@
   <form *ngIf="editing" class="cy-card mt-4 flex flex-col gap-4" (ngSubmit)="save()" novalidate autocomplete="off" aria-label="Receipt details">
     <div role="heading" aria-level="2" class="text-lg font-extrabold">Receipt details</div>
     <div class="text-[13px] text-[#5B6478] [overflow-wrap:anywhere]">{{ editing.file_name }}</div>
+    <div *ngIf="editing.scan_status === 'done'" class="rounded-[12px] bg-[#E6F2EC] px-3.5 py-2.5 text-[13px] leading-snug" role="status">Some of these details were read from the receipt. Please check them against the receipt before you save.</div>
+    <div *ngIf="editing.scan_status === 'failed'" class="rounded-[12px] bg-[#FBEFD5] px-3.5 py-2.5 text-[13px] leading-snug" role="status">We could not read this receipt, so please fill in the details by hand.</div>
+    <button *ngIf="scanAvailable" type="button" class="cy-btn-secondary self-start" (click)="readNow()" [disabled]="scanning">{{ scanning ? 'Reading…' : 'Read receipt' }}</button>
     <div>
       <label for="rd" class="cy-label">What was it for <span class="font-normal text-[#5B6478]">(supplier or description)</span></label>
       <input id="rd" name="description" type="text" class="cy-input" [class.invalid]="err('description')" maxlength="255" [(ngModel)]="m.description">
@@ -81,8 +86,8 @@
       <span>{{ from }}–{{ to }} of {{ data.meta.total }}</span>
       <span *ngIf="data.meta.last_page > 1">Page {{ data.meta.page }} of {{ data.meta.last_page }}</span>
     </div>
-    <div class="hidden grid-cols-[100px_1fr_150px_130px_130px_130px] items-center gap-3 border-b border-cyrcle-pearl bg-[#F1F4F7] px-4 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
-      <div>Date</div><div>Receipt</div><div>Paid from</div><div class="text-right">Total / GST</div><div>Added by</div><div class="text-right">Actions</div>
+    <div class="hidden grid-cols-[100px_1fr_150px_120px_180px_130px] items-center gap-3 border-b border-cyrcle-pearl bg-[#F1F4F7] px-4 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
+      <div>Date</div><div>Receipt</div><div>Paid from</div><div class="text-right">Total / GST</div><div class="pl-4">Added by</div><div class="text-right">Actions</div>
     </div>
     <div *ngFor="let r of data.data" class="border-b border-cyrcle-pearl last:border-0">
       <!-- phone -->
@@ -101,7 +106,7 @@
         </div>
       </div>
       <!-- desktop -->
-      <div class="hidden grid-cols-[100px_1fr_150px_130px_130px_130px] items-center gap-3 px-4 py-3 md:grid">
+      <div class="hidden grid-cols-[100px_1fr_150px_120px_180px_130px] items-center gap-3 px-4 py-3 md:grid">
         <div class="text-sm">{{ r.date ? (r.date | auDate) : '—' }}</div>
         <div class="min-w-0">
           <div class="truncate text-[15px] font-bold" [title]="r.description || r.file_name">{{ r.description || r.file_name }}</div>
@@ -112,7 +117,7 @@
           <div class="font-semibold">{{ r.amount !== null ? (r.amount | aud) : '—' }}</div>
           <div *ngIf="r.gst !== null" class="text-[12px] text-[#5B6478]">GST {{ r.gst | aud }}</div>
         </div>
-        <div class="truncate text-sm text-[#5B6478]" [title]="r.created_by || ''">{{ r.created_by || '—' }}</div>
+        <div class="truncate pl-4 text-sm text-[#5B6478]" [title]="r.created_by || ''">{{ r.created_by || '—' }}</div>
         <div class="flex justify-end gap-3 text-[13px] font-bold text-cyrcle-midnight">
           <button type="button" class="underline disabled:opacity-50" [disabled]="busyId === r.id" [attr.aria-label]="'View ' + r.file_name" (click)="view(r)">View</button>
           <button type="button" class="underline" [attr.aria-label]="'Edit ' + r.file_name" (click)="edit(r)">Edit</button>

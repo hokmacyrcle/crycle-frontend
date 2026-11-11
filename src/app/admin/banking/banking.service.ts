@@ -120,6 +120,10 @@ export class BankingService {
   deleteReceipt(id: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.base}/receipts/${id}`, { headers: this.headers() });
   }
+  /** Reads the receipt automatically and fills in the empty details. */
+  scanReceipt(id: number): Observable<{ data: Receipt; message: string }> {
+    return this.http.post<{ data: Receipt; message: string }>(`${this.base}/receipts/${id}/scan`, {}, { headers: this.headers() });
+  }
   receiptFile(id: number): Observable<Blob> {
     return this.http.get(`${this.base}/receipts/${id}/file`, { headers: this.headers(), responseType: 'blob' });
   }

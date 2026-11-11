@@ -22,6 +22,9 @@ export class BankReceiptsComponent implements OnInit {
 
   dragging = false;
   uploading = false;
+  reading = '';              // "Reading receipt 2 of 3…" while the details are being read
+  scanAvailable = false;
+  scanning = false;          // the Read receipt button in the edit form
   uploadNotes: string[] = [];
 
   editing: Receipt | null = null;
@@ -45,7 +48,7 @@ export class BankReceiptsComponent implements OnInit {
   load(): void {
     this.loading = true; this.error = '';
     this.api.receipts(this.search.trim(), this.page).subscribe({
-      next: d => { this.data = d; this.loading = false; },
+      next: d => { this.data = d; this.scanAvailable = !!d.scan_available; this.loading = false; },
       error: e => { this.loading = false; this.error = toProblem(e).message; }
     });
   }
@@ -77,13 +80,52 @@ export class BankReceiptsComponent implements OnInit {
     if (ok.length > 20) { this.uploadNotes.push('Upload up to 20 receipts at a time. The first 20 were sent.'); ok.length = 20; }
     this.uploading = true;
     this.api.uploadReceipts(ok).subscribe({
-      next: r => { this.uploading = false; this.alerts.successSwalnew('Done', r.message); this.page = 1; this.load(); },
+      next: r => {
+        this.uploading = false; this.page = 1; this.load();
+        if (this.scanAvailable && r.data.length) this.readAll(r.data.map(x => x.id));
+        else this.alerts.successSwalnew('Done', r.message);
+      },
       error: e => {
         this.uploading = false;
         const pr = toProblem(e);
         const detail = Object.values(pr.fieldErrors);
         this.uploadNotes.push(...(detail.length ? detail : [pr.message]));
       }
+    });
+  }
+
+  /** Reads the new receipts one after another so each gets its own answer. */
+  private readAll(ids: number[]): void {
+    let failed = 0, i = 0;
+    const next = () => {
+      if (i >= ids.length) {
+        this.reading = ''; this.load();
+        const n = ids.length;
+        this.alerts.successSwalnew('Done', (n === 1 ? 'Receipt uploaded.' : `${n} receipts uploaded.`)
+          + (failed ? ` ${failed} could not be read, so open Edit to fill ${failed === 1 ? 'it' : 'them'} in.` : ' Open Edit to check the details that were read.'));
+        return;
+      }
+      this.reading = `Reading receipt ${i + 1} of ${ids.length}…`;
+      this.api.scanReceipt(ids[i++]).subscribe({ next: () => next(), error: () => { failed++; next(); } });
+    };
+    next();
+  }
+
+  /** The Read receipt button: fills only the boxes that are still empty. */
+  readNow(): void {
+    if (!this.editing || this.scanning) return;
+    this.scanning = true; this.formError = '';
+    this.api.scanReceipt(this.editing.id).subscribe({
+      next: r => {
+        this.scanning = false;
+        const d = r.data;
+        if (!this.m.description && d.description) this.m.description = d.description;
+        if (!this.m.date && d.date) this.m.date = d.date;
+        if (!this.m.amount && d.amount !== null) this.m.amount = String(d.amount);
+        if (!this.m.gst && d.gst !== null) this.m.gst = String(d.gst);
+        this.editing = d; this.load();
+      },
+      error: e => { this.scanning = false; this.formError = toProblem(e).message; }
     });
   }
 
