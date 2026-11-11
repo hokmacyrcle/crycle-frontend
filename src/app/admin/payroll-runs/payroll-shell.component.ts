@@ -5,8 +5,8 @@ import { Component } from '@angular/core';
   selector: 'app-payroll-shell',
   template: `
 <div class="mx-auto max-w-4xl text-cyrcle-navy">
-  <h1 class="m-0 text-[28px] font-extrabold leading-tight">Payroll</h1>
-  <nav class="mt-4 flex gap-1 overflow-x-auto border-b border-cyrcle-pearl" aria-label="Payroll sections">
+  <div class="m-0 text-[28px] font-extrabold leading-tight" role="heading" aria-level="1">Payroll</div>
+  <nav class="mt-4 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-cyrcle-pearl" aria-label="Payroll sections">
     <a *ngFor="let t of tabs" [routerLink]="t.link" routerLinkActive #rla="routerLinkActive" [routerLinkActiveOptions]="{ exact: true }"
        class="-mb-px whitespace-nowrap border-b-[3px] px-3 py-3 text-sm font-bold sm:px-4"
        [ngClass]="rla.isActive ? 'border-cyrcle-poppy text-cyrcle-navy' : 'border-transparent text-[#5B6478] hover:text-cyrcle-navy'"
