@@ -81,6 +81,7 @@ import { PayRunService } from './payrun.service';
       <div class="font-bold">Superannuation</div>
       <div class="mt-1">{{ line.super_amount | aud }} ({{ run.super_rate }}%) paid on top of your pay<span *ngIf="run.super_due_date">, due to your fund by {{ run.super_due_date | auDate }}</span>.</div>
       <div *ngIf="line.super_fund_name" class="mt-1 text-[#3C4663]">{{ line.super_fund_name }}<span *ngIf="line.super_member_number"> · Member {{ line.super_member_number }}</span></div>
+      <div *ngIf="!line.super_fund_name" class="mt-1 text-[#3C4663]">Super fund: not recorded yet. Your employer will confirm which fund this is paid to.</div>
     </section>
 
     <div *ngIf="line.ytd" class="mt-4 text-[12px] text-[#5B6478]">Year to date runs from 1 July {{ fyStart }} to this pay date. Super paid so far this year: {{ line.ytd.super | aud }}.</div>
