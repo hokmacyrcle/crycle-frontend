@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
-  BusinessInfo, CustomerFull, CustomerPayload, CustomerRow, Doc, DocKind, DocList, DocPayload, FirmOverdue, Meta, PickCustomer, RecurringRow, Summary
+  BusinessInfo, CustomerFull, CustomerPayload, CustomerRow, Doc, DocKind, DocList, DocPayload, FirmOverdue, Meta, PickCustomer, RecurringRow, ReminderDraft, Summary
 } from './sales.models';
 
 export interface ApiProblem { message: string; fieldErrors: Record<string, string>; status: number; }
@@ -88,6 +88,14 @@ export class SalesService {
 
   removePayment(id: number, paymentId: number): Observable<{ data: Doc; message: string }> {
     return this.http.delete<{ data: Doc; message: string }>(`${this.base}/invoices/${id}/payments/${paymentId}`, { headers: this.headers() });
+  }
+
+  reminderDraft(id: number): Observable<{ data: ReminderDraft }> {
+    return this.http.get<{ data: ReminderDraft }>(`${this.base}/invoices/${id}/reminder`, { headers: this.headers() });
+  }
+
+  recordReminder(id: number, body: { subject: string; body: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/invoices/${id}/reminders`, body, { headers: this.headers() });
   }
 
   firmOverdue(): Observable<{ data: FirmOverdue }> {

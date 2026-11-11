@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from 'src/app/services/alert.service';
-import { Doc, DocKind, Payment } from './sales.models';
+import { Doc, DocKind, Payment, ReminderDraft } from './sales.models';
 import { SalesService, toProblem } from './sales.service';
 import { Totals, computeTotals } from './sales-totals';
 import { FREQUENCIES, PAYMENT_METHODS, STATUS_LABEL, today } from './sales.labels';
@@ -19,6 +19,12 @@ export class DocViewComponent implements OnInit {
   error = '';
   busy = false;
   menuOpen = false;
+
+  remindOpen = false;
+  remind: ReminderDraft | null = null;
+  remindForm = { subject: '', body: '' };
+  remindErrors: Record<string, string> = {};
+  remindBanner = '';
 
   repeatOpen = false;
   frequencies = FREQUENCIES;
@@ -101,6 +107,46 @@ export class DocViewComponent implements OnInit {
     setTimeout(() => (document.getElementById('pay-amount') as HTMLInputElement | null)?.select());
   }
 
+  openRemind(): void {
+    if (!this.doc) return;
+    this.busy = true; this.remindErrors = {}; this.remindBanner = '';
+    this.api.reminderDraft(this.doc.id).subscribe({
+      next: r => { this.busy = false; this.remind = r.data; this.remindForm = { subject: r.data.subject, body: r.data.body }; this.remindOpen = true; },
+      error: e => { this.busy = false; this.alerts.DangerSwalnew('That did not work', toProblem(e).message); }
+    });
+  }
+
+  /** Checks the message, runs the action (copy or open email) straight away while the tap is still fresh, then records the reminder. */
+  private sendReminder(action: (subject: string, body: string) => void): void {
+    if (!this.doc) return;
+    const subject = this.remindForm.subject.trim(), body = this.remindForm.body.trim();
+    const e: Record<string, string> = {};
+    if (!subject) e['subject'] = 'Enter a subject.';
+    if (!body) e['body'] = 'Enter the message.';
+    this.remindErrors = e; this.remindBanner = '';
+    if (Object.keys(e).length) return;
+    action(subject, body);
+    this.busy = true;
+    this.api.recordReminder(this.doc.id, { subject, body }).subscribe({
+      next: () => { this.busy = false; this.remindOpen = false; this.load(this.doc!.id); },
+      error: err => { this.busy = false; const p = toProblem(err); this.remindErrors = p.fieldErrors; this.remindBanner = p.message; }
+    });
+  }
+
+  openInEmailApp(): void {
+    this.sendReminder((subject, body) => {
+      window.location.href = 'mailto:' + encodeURIComponent(this.remind?.to || '') + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    });
+  }
+
+  copyReminder(): void {
+    this.sendReminder((subject, body) => {
+      navigator.clipboard?.writeText(subject + '\n\n' + body).then(
+        () => this.alerts.toast('Message copied. Paste it into your email or text.'),
+        () => this.alerts.toast('Reminder recorded, but the message could not be copied.'));
+    });
+  }
+
   openRepeat(): void {
     this.repeat = { frequency: 'monthly', end_date: '' }; this.repeatErrors = {}; this.repeatBanner = ''; this.repeatOpen = true;
   }
@@ -114,7 +160,7 @@ export class DocViewComponent implements OnInit {
     });
   }
 
-  @HostListener('document:keydown.escape') onEscape(): void { this.repeatOpen = false; this.payOpen = false; this.menuOpen = false; }
+  @HostListener('document:keydown.escape') onEscape(): void { this.remindOpen = false; this.repeatOpen = false; this.payOpen = false; this.menuOpen = false; }
 
   submitPay(): void {
     if (!this.doc) return;

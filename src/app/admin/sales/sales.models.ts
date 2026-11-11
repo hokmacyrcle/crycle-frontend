@@ -46,6 +46,7 @@ export interface Payment { id: number; date: string; amount: number; method: str
 export interface Doc {
   id: number;
   recurring?: boolean;
+  last_reminder?: string | null;
   kind: DocKind;
   title: string;
   number: string;
@@ -113,3 +114,8 @@ export interface RecurringRow {
 export interface FirmOverdueInvoice { id: number; number: string; customer_name: string; due_date: string; days_overdue: number; amount_due: number; }
 export interface FirmOverdueClient { company_id: number; company_name: string; overdue: number; count: number; oldest_days: number; invoices: FirmOverdueInvoice[]; }
 export interface FirmOverdue { total: number; count: number; client_count: number; clients: FirmOverdueClient[]; }
+
+export interface ReminderDraft {
+  tone: 'friendly' | 'follow_up' | 'final'; subject: string; body: string; to: string | null; days_overdue: number;
+  history: { id: number; date: string; tone: string; channel: string }[];
+}

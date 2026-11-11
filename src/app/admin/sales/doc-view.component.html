@@ -36,6 +36,7 @@
           <a *ngIf="doc.status === 'invoiced' && doc.invoice_id" [routerLink]="['/admin/sales/invoices', doc.invoice_id]" class="cy-btn-primary">View invoice</a>
         </ng-container>
 
+        <button *ngIf="doc.can['remind']" type="button" class="cy-btn-primary" (click)="openRemind()" [disabled]="busy"><app-icon name="send" [size]="18"></app-icon>Send reminder</button>
         <button *ngIf="isInvoice && doc.status !== 'void'" type="button" class="cy-btn-secondary" (click)="openRepeat()" [disabled]="busy"><app-icon name="clock" [size]="18"></app-icon>Repeat</button>
         <button *ngIf="doc.can['edit']" type="button" class="cy-btn-secondary" (click)="edit()" [disabled]="busy"><app-icon name="edit" [size]="18"></app-icon>Edit</button>
         <button type="button" class="cy-btn-secondary" (click)="print()"><app-icon name="printer" [size]="18"></app-icon>Print or save PDF</button>
@@ -58,6 +59,9 @@
     <div *ngIf="doc.status === 'draft'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-white px-4 py-3 text-sm print:hidden">
       <app-icon name="info" [size]="20"></app-icon>
       <span><ng-container *ngIf="doc.recurring">Created automatically by a repeat schedule. Check the dates and amounts, then issue it. </ng-container>This is a draft. {{ isInvoice ? 'Issue it when it is ready, and it can then be paid.' : 'Mark it as sent when you give it to the customer.' }}</span>
+    </div>
+    <div *ngIf="doc.status === 'overdue' && doc.last_reminder" class="mt-4 flex items-start gap-3 rounded-[16px] bg-white px-4 py-3 text-sm print:hidden">
+      <app-icon name="info" [size]="20"></app-icon><span>Last reminder recorded on {{ doc.last_reminder | auDate }}.</span>
     </div>
     <div *ngIf="doc.status === 'expired'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-[#FBEBC5] px-4 py-3 text-sm font-bold text-[#5C3F00] print:hidden">
       <app-icon name="clock" [size]="20"></app-icon><span>This quote passed its valid-until date. You can still mark it as accepted or create an invoice.</span>
@@ -213,6 +217,35 @@
       </div>
     </form>
   </div>
+  <!-- Overdue reminder -->
+  <div *ngIf="remindOpen && doc && remind" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 sm:items-center print:hidden" (click)="remindOpen = false">
+    <form class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 sm:rounded-3xl" (click)="$event.stopPropagation()" novalidate
+          role="dialog" aria-modal="true" aria-labelledby="rem-title">
+      <h2 id="rem-title" class="m-0 text-xl font-extrabold">Send a reminder</h2>
+      <p class="mb-0 mt-1 text-sm text-[#3C4663]">{{ doc.number }} is {{ remind.days_overdue }} day{{ remind.days_overdue === 1 ? '' : 's' }} overdue. Edit the message if you like, then send it from your own email. We keep a record that it went out.</p>
+      <div class="mt-4 flex flex-col gap-4">
+        <div class="text-sm"><span class="font-bold">To:</span> {{ remind.to || 'No email address saved for this customer. You can add one on the customer, or copy the message.' }}</div>
+        <div>
+          <label for="rem-subject" class="cy-label">Subject</label>
+          <input id="rem-subject" name="subject" type="text" maxlength="200" class="cy-input" [class.invalid]="remindErrors['subject']" [(ngModel)]="remindForm.subject">
+          <div class="cy-error" *ngIf="remindErrors['subject']">{{ remindErrors['subject'] }}</div>
+        </div>
+        <div>
+          <label for="rem-body" class="cy-label">Message</label>
+          <textarea id="rem-body" name="body" rows="12" class="cy-input" [class.invalid]="remindErrors['body']" [(ngModel)]="remindForm.body"></textarea>
+          <div class="cy-error" *ngIf="remindErrors['body']">{{ remindErrors['body'] }}</div>
+        </div>
+        <div *ngIf="remind.history.length" class="text-[13px] text-[#5B6478]">Earlier reminders: {{ remind.history.length }}, the last on {{ remind.history[0].date | auDate }}.</div>
+        <div *ngIf="remindBanner" class="rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ remindBanner }}</div>
+      </div>
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="remindOpen = false" [disabled]="busy">Cancel</button>
+        <button type="button" class="cy-btn-secondary" (click)="copyReminder()" [disabled]="busy">Copy message</button>
+        <button type="button" class="cy-btn-primary" (click)="openInEmailApp()" [disabled]="busy">Open in my email app</button>
+      </div>
+    </form>
+  </div>
+
   <!-- Repeat this invoice -->
   <div *ngIf="repeatOpen && doc" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 sm:items-center print:hidden" (click)="repeatOpen = false">
     <form class="w-full max-w-md rounded-t-3xl bg-white p-5 sm:rounded-3xl" (click)="$event.stopPropagation()" (ngSubmit)="submitRepeat()" novalidate
