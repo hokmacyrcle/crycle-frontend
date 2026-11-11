@@ -4,6 +4,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { toProblem } from '../sales/sales.service';
 import { BankAccount, ColumnMap, ImportPreview, ImportResult } from './banking.models';
 import { BankingService } from './banking.service';
+import { downloadSample, SampleKind } from './sample-csv';
 
 /** Import a CSV statement: choose the file, check the columns, import. */
 @Component({
@@ -13,6 +14,7 @@ import { BankingService } from './banking.service';
 export class BankImportComponent implements OnInit {
   accountId = 0;
   account: BankAccount | null = null;
+  accounts: BankAccount[] = [];
   file: File | null = null;
   preview: ImportPreview | null = null;
   map: ColumnMap = { date: null, description: null, amount: null, debit: null, credit: null, balance: null };
@@ -26,16 +28,25 @@ export class BankImportComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router: Router, private api: BankingService, private alerts: AlertService) { }
 
   ngOnInit(): void {
-    this.accountId = Number(this.route.snapshot.paramMap.get('id'));
+    this.accountId = Number(this.route.snapshot.paramMap.get('id')) || 0;
     this.api.accounts().subscribe({
-      next: a => { this.account = a.find(x => x.id === this.accountId) || null; if (!this.account) this.error = 'We could not find that account.'; },
+      next: a => { this.accounts = a; this.pick(this.accountId); if (this.accountId && !this.account) this.error = 'We could not find that account.'; },
       error: e => this.error = toProblem(e).message
     });
   }
 
+  /** Choose which account the file belongs to. Changing it starts the file choice again. */
+  pick(id: number | null): void {
+    this.accountId = id || 0;
+    this.account = this.accounts.find(x => x.id === this.accountId) || null;
+    this.file = null; this.preview = null; this.error = '';
+  }
+
+  sample(kind: SampleKind): void { downloadSample(kind); }
+
   chooseFile(ev: Event): void {
     const f = (ev.target as HTMLInputElement).files?.[0];
-    if (!f) return;
+    if (!f || !this.accountId) return;
     this.file = f; this.preview = null; this.error = ''; this.busy = true;
     this.api.previewImport(this.accountId, f).subscribe({
       next: p => {

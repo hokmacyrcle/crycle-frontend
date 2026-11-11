@@ -35,7 +35,8 @@
     </div>
     <div class="flex gap-2">
       <button *ngIf="account && account.feed_connected" type="button" class="cy-btn-secondary" (click)="update()" [disabled]="syncing">{{ syncing ? 'Updating…' : 'Update' }}</button>
-      <a *ngIf="account && !account.feed_connected" [routerLink]="['/admin/Banktransactions', account.id, 'import']" class="cy-btn-secondary">Import statement</a>
+      <button type="button" class="cy-btn-secondary" (click)="export()" [disabled]="exporting || !data || !data.meta.total"><app-icon name="download" [size]="18"></app-icon>{{ exporting ? 'Preparing…' : 'Export' }}</button>
+      <a [routerLink]="account ? ['/admin/Banktransactions', account.id, 'import'] : ['/admin/Banktransactions/import']" class="cy-btn-secondary">Import CSV</a>
       <a routerLink="/admin/Banktransactions/connect" class="cy-btn-primary">Link account</a>
     </div>
   </div>

@@ -61,6 +61,16 @@ export class BankingService {
     if (f.type) params = params.set('type', f.type);
     return this.http.get<TxnPage>(`${this.base}/transactions`, { headers: this.headers(), params });
   }
+  /** The table as a CSV file: same account, tab and filters as on screen. */
+  exportTransactions(accountId: number | null, status: TxnStatus, f: TxnFilter): Observable<Blob> {
+    let params = new HttpParams().set('status', status);
+    if (accountId) params = params.set('account', String(accountId));
+    if (f.search) params = params.set('search', f.search);
+    if (f.from) params = params.set('from', f.from);
+    if (f.to) params = params.set('to', f.to);
+    if (f.type) params = params.set('type', f.type);
+    return this.http.get(`${this.base}/transactions/export`, { headers: this.headers(), params, responseType: 'blob' });
+  }
   bulkStatus(ids: number[], status: 'excluded' | 'review'): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/transactions/bulk-status`, { ids, status }, { headers: this.headers() });
   }

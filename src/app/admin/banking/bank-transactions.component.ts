@@ -4,6 +4,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { toProblem } from '../sales/sales.service';
 import { BankAccount, BankTxn, TxnFilter, TxnPage, TxnStatus } from './banking.models';
 import { BankingService } from './banking.service';
+import { saveBlob } from './sample-csv';
 
 /** Bank transactions: an account strip on top, then a table in three tabs (For review, Done, Excluded). */
 @Component({
@@ -24,6 +25,7 @@ export class BankTransactionsComponent implements OnInit {
   error = '';
   busyId: number | null = null;
   syncing = false;
+  exporting = false;
   selected = new Set<number>();
 
   constructor(private route: ActivatedRoute, private router: Router, private api: BankingService, private alerts: AlertService) { }
@@ -78,6 +80,15 @@ export class BankTransactionsComponent implements OnInit {
   find(): void { this.page = 1; this.load(); }
   clearFilters(): void { this.f = { search: '', from: '', to: '', type: '' }; this.find(); }
   go(p: number): void { this.page = p; this.load(); }
+
+  /** Downloads exactly what the table shows now (account, tab and filters), not just this page. */
+  export(): void {
+    this.exporting = true;
+    this.api.exportTransactions(this.accountId, this.status, { ...this.f, search: this.f.search.trim() }).subscribe({
+      next: blob => { this.exporting = false; saveBlob(blob, 'cyrcle-bank-transactions.csv'); },
+      error: () => { this.exporting = false; this.alerts.DangerSwalnew('That did not work', 'We could not prepare the file. Please try again.'); }
+    });
+  }
 
   update(): void {
     if (!this.accountId) return;

@@ -131,6 +131,7 @@ const routes: Routes = [
 
   // Banking: same frame as Sales (title, tabs, pages inside)
   { path: 'Banktransactions/connect', component: BankConnectComponent },
+  { path: 'Banktransactions/import', component: BankImportComponent },
   { path: 'Banktransactions/:id/import', component: BankImportComponent },
   {
     path: 'Banktransactions',
