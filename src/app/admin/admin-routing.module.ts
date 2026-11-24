@@ -5,24 +5,11 @@ import { UpdateclientComponent } from './updateclient/updateclient.component';
 import { ClientsComponent } from './clients/clients.component';
 import { CompaniesComponent } from './companies/companies.component';
 import { UpdatecompanyComponent } from './updatecompany/updatecompany.component';
-import { EmployeesComponent } from './employees/employees.component';
-import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { InvoiceComponent } from './invoice/invoice.component';
 import { GetallinvoicesComponent } from './getallinvoices/getallinvoices.component';
 import { GetallcustomerComponent } from './getallcustomer/getallcustomer.component';
 import { AddcontactComponent } from './addcontact/addcontact.component';
 
-import { PayrollComponent } from './payroll/payroll.component';
-import { PayrollEmployeeComponent } from './payroll-employee/payroll-employee.component';
-import { PayrollAddEmployeeComponent } from './payroll-add-employee/payroll-add-employee.component';
-import { PayrollEmployeeDetailsComponent } from './payroll-employee-details/payroll-employee-details.component';
-import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
-import { EmployementComponent } from './employement/employement.component';
-import { TaxesComponent } from './taxes/taxes.component';
-import { LeaveComponent } from './leave/leave.component';
-import { BankaccountComponent } from './bankaccount/bankaccount.component';
-import { PayslipsComponent } from './payslips/payslips.component';
-import { PaytemplateComponent } from './paytemplate/paytemplate.component';
 import { OpeningbalanceComponent } from './openingbalance/openingbalance.component';
 import { NotesComponent } from './notes/notes.component';
 import { SalesComponent } from './sales/sales.component';
@@ -37,18 +24,7 @@ import { ReconcileComponent } from './reconcile/reconcile.component';
 import { BankrulestransactionsComponent } from './bankrulestransactions/bankrulestransactions.component';
 import { BankchartofaccountsComponent } from './bankchartofaccounts/bankchartofaccounts.component';
 import { BankRecurringTransactionsComponent } from './bank-recurring-transactions/bank-recurring-transactions.component';
-import { PayrollLeaveComponent } from './payroll-leave/payroll-leave.component';
-import { PayrollTimesheetComponent } from './payroll-timesheet/payroll-timesheet.component';
-import { PayrollTimesheetDetailsComponent } from './payroll-timesheet-details/payroll-timesheet-details.component';
-import { PayEmployeesComponent } from './pay-employees/pay-employees.component';
-import { PayEmployeesDetailsComponent } from './pay-employees-details/pay-employees-details.component';
-import { PayrollHistoryComponent } from './payroll-history/payroll-history.component';
-import { PayrollSettingComponent } from './payroll-setting/payroll-setting.component';
-import { SettingHolidaysComponent } from './setting-holidays/setting-holidays.component';
-import { SettingPayfrequencisComponent } from './setting-payfrequencis/setting-payfrequencis.component';
 import { SettingOrganisationComponent } from './setting-organisation/setting-organisation.component';
-import { SettingPayitemsComponent } from './setting-payitems/setting-payitems.component';
-import { SettingSuperannuationComponent } from './setting-superannuation/setting-superannuation.component';
 import { ExpensesComponent } from './expenses/expenses.component';
 import { ExpenseCreateBillComponent } from './expense-create-bill/expense-create-bill.component';
 import { ExpenseCreateExpenseComponent } from './expense-create-expense/expense-create-expense.component';
@@ -56,113 +32,162 @@ import { ExpenseCreatePurchaseOrderComponent } from './expense-create-purchase-o
 import { ExpenseCreateSupplierCreditComponent } from './expense-create-supplier-credit/expense-create-supplier-credit.component';
 import { ExpenseCreateChequeComponent } from './expense-create-cheque/expense-create-cheque.component';
 import { FeedbackDialogComponent } from './feedback-dialog/feedback-dialog.component';
+import { SalesOverviewComponent } from './sales/sales-overview.component';
+import { DocListComponent } from './sales/doc-list.component';
+import { DocFormComponent } from './sales/doc-form.component';
+import { DocViewComponent } from './sales/doc-view.component';
+import { BankConnectComponent } from './banking/bank-connect.component';
+import { BankingComponent } from './banking/banking.component';
+import { BankOverviewComponent } from './banking/bank-overview.component';
+import { BankAccountsComponent } from './banking/bank-accounts.component';
+import { BankImportComponent } from './banking/bank-import.component';
+import { BankTransactionsComponent } from './banking/bank-transactions.component';
+import { BankReceiptsComponent } from './banking/bank-receipts.component';
+import { BankChartComponent } from './banking/bank-chart.component';
+import { BankReconcileComponent } from './banking/bank-reconcile.component';
+import { RecurringListComponent } from './sales/recurring-list.component';
+import { CustomerListComponent } from './sales/customer-list.component';
+import { CustomerFormComponent } from './sales/customer-form.component';
+
+import { EmployeeListComponent } from './payroll-employees/employee-list.component';
+import { EmployeeFormComponent } from './payroll-employees/employee-form.component';
+import { PayrollShellComponent } from './payroll-runs/payroll-shell.component';
+import { PayRunListComponent } from './payroll-runs/pay-run-list.component';
+import { PayRunNewComponent } from './payroll-runs/pay-run-new.component';
+import { PayRunComponent } from './payroll-runs/pay-run.component';
+import { PayslipComponent } from './payroll-runs/payslip.component';
+import { PayCalculatorComponent } from './payroll-runs/pay-calculator.component';
+import { PayrollSettingsComponent } from './payroll-runs/payroll-settings.component';
+import { PayHistoryComponent } from './payroll-runs/pay-history.component';
+import { PayrollHomeComponent } from './payroll-runs/payroll-home.component';
+import { TimesheetsComponent } from './payroll-runs/timesheets.component';
+import { LeaveComponent } from './payroll-runs/leave.component';
+import { SectionPlaceholderComponent } from './section-placeholder/section-placeholder.component';
+import { roleGuard } from '../core/auth.guard';
+import { SettingsComponent } from './settings/settings.component';
+import { ClientBusinessesComponent } from './client-businesses/client-businesses.component';
+import { ClientBusinessFormComponent } from './client-business-form/client-business-form.component';
+import { EmployeeHomeComponent } from './employee-home/employee-home.component';
 
 const routes: Routes = [
   { path: 'Dashboard', component: DashboardComponent },
-  { path: 'clients', component: ClientsComponent },
+  { path: 'my-home', component: EmployeeHomeComponent },
+  { path: 'settings', component: SettingsComponent },
   { path: 'updateclient/:id', component: UpdateclientComponent },
-  { path: 'companies', component: CompaniesComponent },
+  { path: 'companies', component: ClientBusinessesComponent },
+  { path: 'companies/new', component: ClientBusinessFormComponent },
+  { path: 'companies/:id/edit', component: ClientBusinessFormComponent },
   { path: 'updatecompany/:id', component: UpdatecompanyComponent },
-  { path: 'Employees', component: EmployeesComponent },
-  { path: 'AddEmployee', component: AddEmployeeComponent },
-  { path: 'employees/edit/:id', component: AddEmployeeComponent },
-  { path: 'addinvoice', component: InvoiceComponent },
-  { path: 'getallinvoice', component: GetallinvoicesComponent },
-  { path: 'contacts', component: GetallcustomerComponent },
-  { path: 'invoices/:id', component: InvoiceComponent },
+  { path: 'Employees', redirectTo: 'payroll/employees', pathMatch: 'full' },
+  { path: 'AddEmployee', redirectTo: 'payroll/employees/new', pathMatch: 'full' },
+  { path: 'employees/edit/:id', redirectTo: 'payroll/employees', pathMatch: 'full' },
+  { path: 'addinvoice', redirectTo: 'sales/invoices/new', pathMatch: 'full' },
+  { path: 'create-quote', redirectTo: 'sales/quotes/new', pathMatch: 'full' },
+  { path: 'getallinvoice', redirectTo: 'sales/invoices', pathMatch: 'full' },
+  { path: 'clients', redirectTo: 'sales/customers', pathMatch: 'full' },
+  { path: 'contacts', redirectTo: 'sales/customers', pathMatch: 'full' },
   { path: 'add-contact', component: AddcontactComponent },
   { path: 'update-contact/:id', component: AddcontactComponent },
 
-  // Payroll Routes
+  // Payroll: pay runs and employees share one frame with tabs; forms and payslips open on their own.
+  { path: 'payroll/employees/new', component: EmployeeFormComponent },
+  { path: 'payroll/employees/:id/edit', component: EmployeeFormComponent },
+  { path: 'payroll/runs/new', component: PayRunNewComponent },
+  { path: 'payroll/runs/:id/payslip/:lineId', component: PayslipComponent },
+  { path: 'payroll/runs/:id', component: PayRunComponent },
   {
-    path: 'payroll',
-    component: PayrollComponent,
+    path: 'payroll', component: PayrollShellComponent, children: [
+      { path: '', component: PayrollHomeComponent },
+      { path: 'runs', component: PayRunListComponent },
+      { path: 'employees', component: EmployeeListComponent },
+      { path: 'timesheets', component: TimesheetsComponent },
+      { path: 'leave', component: LeaveComponent },
+      { path: 'history', component: PayHistoryComponent },
+      { path: 'calculator', component: PayCalculatorComponent },
+      { path: 'settings', component: PayrollSettingsComponent },
+    ]
+  },
+  { path: 'payroll/:rest', redirectTo: 'payroll', pathMatch: 'full' },
+
+  // Other routes
+  // Sales: form and document pages first, then the tabbed shell
+  { path: 'sales/invoices/new', component: DocFormComponent, data: { kind: 'invoice' } },
+  { path: 'sales/invoices/:id/edit', component: DocFormComponent, data: { kind: 'invoice' } },
+  { path: 'sales/invoices/:id', component: DocViewComponent, data: { kind: 'invoice' } },
+  { path: 'sales/quotes/new', component: DocFormComponent, data: { kind: 'quote' } },
+  { path: 'sales/quotes/:id/edit', component: DocFormComponent, data: { kind: 'quote' } },
+  { path: 'sales/quotes/:id', component: DocViewComponent, data: { kind: 'quote' } },
+  // Customers has its own page: no Sales title, tabs or New quote and New invoice buttons around it
+  { path: 'sales/customers', component: CustomerListComponent },
+  { path: 'sales/customers/new', component: CustomerFormComponent },
+  { path: 'sales/customers/:id/edit', component: CustomerFormComponent },
+  {
+    path: 'sales',
+    component: SalesComponent,
     children: [
-      {
-        path: 'payrollemployee',
-        component: PayrollEmployeeComponent,
-        children: [
-          { path: 'employees/add', component: PayrollAddEmployeeComponent, },
-          {
-            path: 'payrollemployeedetails/:id',
-            component: PayrollEmployeeDetailsComponent,
-            children: [
-              { path: 'details', component: EmployeeDetailsComponent },
-              { path: 'employment', component: EmployementComponent },
-              { path: 'taxes', component: TaxesComponent },
-              { path: 'leave', component: LeaveComponent },
-              { path: 'bankaccount', component: BankaccountComponent },
-              { path: 'payslips', component: PayslipsComponent },
-              { path: 'paytemplate', component: PaytemplateComponent },
-              { path: 'openingbalance', component: OpeningbalanceComponent },
-              { path: 'notes', component: NotesComponent },
-              // Default redirect
-              { path: '', redirectTo: 'details', pathMatch: 'full' }
-            ]
-          }
-        ]
-      },
-      { path: 'payroll-leave', component: PayrollLeaveComponent },
-      {
-        path: 'payroll-timesheet', component: PayrollTimesheetComponent, children: [
-          { path: 'payroll-timesheet-details', component: PayrollTimesheetDetailsComponent },
-        ]
-      },
-      {
-        path: 'pay-employees', component: PayEmployeesComponent, children: [
-          { path: 'pay-employees-details', component: PayEmployeesDetailsComponent },
-        ]
-      },
-      { path: 'payroll-history', component: PayrollHistoryComponent },
-      {
-        path: 'payrollsetting',
-        component: PayrollSettingComponent,
-        children: [
-          { path: 'organisation', component: SettingOrganisationComponent },
-          { path: 'payfrequencis', component: SettingPayfrequencisComponent },
-          { path: 'holidays', component: SettingHolidaysComponent },
-          { path: 'payitems', component: SettingPayitemsComponent },
-          { path: 'superannuation', component: SettingSuperannuationComponent },
-          // Default redirect
-          { path: '', redirectTo: 'organisation', pathMatch: 'full' }
-        ]
-      },
+      { path: '', component: SalesOverviewComponent },
+      { path: 'invoices', component: DocListComponent, data: { kind: 'invoice' } },
+      { path: 'quotes', component: DocListComponent, data: { kind: 'quote' } },
+      { path: 'recurring', component: RecurringListComponent },
     ]
   },
 
-  // Other routes
-  { path: 'sales', component: SalesComponent },
-  { path: 'quote/:id', component: QuoteViewComponent },
-  { path: 'invoice/:id', component: InvoiceViewEditComponent },
-  { path: 'create-quote', component: CreateQuoteComponent },
-
-  // Bank Transactions
-  { path: 'Banktransactions', component: BanktransactionsComponent },
-  { path: 'Banktransactionstable', component: BanktransactiontableComponent },
-  { path: 'Bankapptransactions', component: BankapptransactionsComponent },
-  { path: 'Banktransactionsreceipt', component: BanktransactionreceiptsComponent },
-  { path: 'Reconcile', component: ReconcileComponent },
-  { path: 'Bankrules', component: BankrulestransactionsComponent },
-  { path: 'Bankcharts', component: BankchartofaccountsComponent },
-  { path: 'BankRecurring', component: BankRecurringTransactionsComponent },
-
-  // Expenses routes
-  { path: 'expenses', component: ExpensesComponent },
-  { path: 'expense-create-bill', component: ExpenseCreateBillComponent },
-  { path: 'expense-create-expense', component: ExpenseCreateExpenseComponent },
-  { path: 'expense-create-purchase-order', component: ExpenseCreatePurchaseOrderComponent },
-  { path: 'expense-create-supplier-credit', component: ExpenseCreateSupplierCreditComponent },
-  { path: 'expense-create-cheque', component: ExpenseCreateChequeComponent },
+  // Banking: same frame as Sales (title, tabs, pages inside)
+  { path: 'Banktransactions/connect', component: BankConnectComponent },
+  { path: 'Banktransactions/import', component: BankImportComponent },
+  { path: 'Banktransactions/:id/import', component: BankImportComponent },
+  {
+    path: 'Banktransactions',
+    component: BankingComponent,
+    children: [
+      { path: '', component: BankOverviewComponent },
+      { path: 'transactions', component: BankTransactionsComponent },
+      { path: 'receipts', component: BankReceiptsComponent },
+      { path: 'chart-of-accounts', component: BankChartComponent },
+      { path: 'reconcile', component: BankReconcileComponent },
+      { path: 'accounts', component: BankAccountsComponent },
+    ]
+  },
+  // Expenses is not built yet; the old screens held sample data and are no longer routed.
+  {
+    path: 'expenses', component: SectionPlaceholderComponent,
+    data: {
+      title: 'Expenses', icon: 'expenses',
+      blurb: 'Keep track of what you spend and what you owe.',
+      planned: [
+        'Record bills from suppliers and pay them',
+        'Claim GST credits on what you buy',
+        'Keep receipts with each expense',
+        'See what you owe and when it is due'
+      ]
+    }
+  },
+  { path: 'Banktransactionstable', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Bankapptransactions', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Banktransactionsreceipt', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Reconcile', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Bankrules', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'Bankcharts', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'BankRecurring', redirectTo: 'Banktransactions', pathMatch: 'full' },
+  { path: 'expense-create-bill', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-expense', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-purchase-order', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-supplier-credit', redirectTo: 'expenses', pathMatch: 'full' },
+  { path: 'expense-create-cheque', redirectTo: 'expenses', pathMatch: 'full' },
 
   // Feedback dialog
   { path: 'feedback-dialog', component: FeedbackDialogComponent },
 
   // Default redirect
-  { path: '', redirectTo: '/Dashboard', pathMatch: 'full' }
+  { path: '', redirectTo: '/admin/Dashboard', pathMatch: 'full' }
+];
+
+const guardedRoutes: Routes = [
+  { path: '', canActivateChild: [roleGuard], children: routes }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(guardedRoutes)],
   exports: [RouterModule]
 })
 export class AdminRoutingModule { }

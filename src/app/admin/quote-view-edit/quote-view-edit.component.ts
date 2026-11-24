@@ -203,7 +203,7 @@ export class QuoteViewEditComponent implements OnInit {
   }
 
   openImagePreview(path: string): void {
-    const baseUrl = 'https://absdev-api.hokma.xyz/public/';
+    const baseUrl = 'https://cyrcle-api.hokma.co.in/';
     this.selectedImageUrl = this.sanitizer.bypassSecurityTrustUrl(baseUrl + path);
     this.showImagePreview = true;
   }

@@ -1,14 +1,10 @@
-<!-- sidebar.component.html -->
-<aside id="sidebar" class="bg-white w-[130px] space-y-1 shadow-lg absolute md:relative md:translate-x-0"
-     [ngClass]="{'-translate-x-full': !isSidebarOpen, 'translate-x-0': isSidebarOpen}"
-     [ngStyle]="{'transition': 'transform 300ms ease-in-out', 'z-index': isSidebarOpen ? '20' : 'auto'}">
-     <div *ngFor="let menu of menuItems" [routerLink]="menu.route"
-          class="menu-item relative flex flex-col border-b text-center items-center py-3 hover:text-purple-500 cursor-pointer"
-          [ngClass]="{'text-purple-500': activeSection === menu.section}" (click)="setActiveSection(menu.section)">
-          <img [src]="menu.icon" class="w-10 h-10 mb-1" [alt]="menu.label" />
-          <span class="text-sm font-medium">{{ menu.label }}</span>
-          <img src="assets/images/Dashboard/clicked.png" alt="Active"
-               class="active-indicator size-[22px] absolute bottom-0 right-0"
-               [ngClass]="{'hidden': activeSection !== menu.section}" />
-     </div>
+<aside id="sidebar" class="w-[140px] bg-white" aria-label="Main menu">
+  <a *ngFor="let menu of menuItems" [routerLink]="menu.route"
+     class="relative flex min-h-[84px] flex-col items-center justify-center gap-1.5 border-b border-cyrcle-pearl px-2 text-center text-[13px] text-cyrcle-navy hover:bg-[#F6F4EC]"
+     [ngClass]="isActive(menu) ? 'bg-[#F6F4EC] font-extrabold text-cyrcle-royal' : 'font-semibold'"
+     [attr.aria-current]="isActive(menu) ? 'page' : null">
+    <span *ngIf="isActive(menu)" class="absolute inset-y-3.5 left-0 w-1 rounded-r bg-cyrcle-poppy"></span>
+    <app-icon [name]="menu.icon" [size]="26"></app-icon>
+    <span>{{ menu.label }}</span>
+  </a>
 </aside>

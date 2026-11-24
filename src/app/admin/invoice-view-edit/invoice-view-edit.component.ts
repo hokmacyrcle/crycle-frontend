@@ -1047,7 +1047,7 @@ getAttachmentUrl(attachment: any): string {
   }
 
   // Construct the full URL using the base API URL
-  const baseUrl = 'https://absdev-api.hokma.xyz/public'; // Update this if using environment variables
+  const baseUrl = 'https://cyrcle-api.hokma.co.in'; // Update this if using environment variables
   const fullUrl = `${baseUrl}/${attachment.path}`;
   console.log('Constructed URL:', fullUrl);
   return fullUrl;

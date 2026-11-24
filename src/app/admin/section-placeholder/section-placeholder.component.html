@@ -1,0 +1,26 @@
+<div class="mx-auto max-w-3xl">
+  <h1 class="mb-1 text-[26px] font-normal text-cyrcle-navy">{{ title }}</h1>
+  <p class="mb-5 text-[15px] text-[#3C4663]">{{ blurb }}</p>
+
+  <div class="cy-card">
+    <div class="mb-4 flex items-center gap-3">
+      <span class="flex h-11 w-11 items-center justify-center rounded-full bg-[#F6F4EC] text-cyrcle-navy"><app-icon [name]="icon" [size]="24"></app-icon></span>
+      <div>
+        <div class="text-base font-extrabold text-cyrcle-navy">Being set up</div>
+        <div class="text-[13px] text-[#5B6478]">Nothing to show yet. No sample data is displayed.</div>
+      </div>
+    </div>
+
+    <div class="mb-2 text-[13px] font-bold uppercase tracking-wide text-[#5B6478]">What you will be able to do</div>
+    <ul class="m-0 list-none space-y-2.5 p-0">
+      <li *ngFor="let p of planned" class="flex items-start gap-3 text-[15px] text-cyrcle-navy">
+        <span class="mt-0.5 shrink-0 text-cyrcle-midnight"><app-icon name="check" [size]="18"></app-icon></span>
+        <span>{{ p }}</span>
+      </li>
+    </ul>
+
+    <div class="mt-6">
+      <a routerLink="/admin/sales" class="cy-btn-primary">Go to Sales</a>
+    </div>
+  </div>
+</div>

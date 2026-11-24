@@ -1,0 +1,109 @@
+<div class="mx-auto max-w-3xl text-cyrcle-navy">
+  <a routerLink="/admin/Banktransactions" class="inline-flex min-h-[40px] items-center gap-1.5 text-sm font-bold underline"><app-icon name="arrow-left" [size]="18"></app-icon>Banking</a>
+  <h1 class="m-0 mt-1 text-[28px] font-extrabold leading-tight">Import statement</h1>
+  <p class="m-0 mt-1 text-sm text-[#3C4663]">Export your statement from your bank as a CSV file, then choose it here. You match the columns on the next step, so most bank files work as they are. Lines you have already imported are skipped.</p>
+
+  <div *ngIf="error" class="cy-card mt-4 text-sm" role="alert"><span class="font-bold">There was a problem.</span> {{ error }}</div>
+
+  <ng-container *ngIf="!result">
+    <section class="cy-card mt-4">
+      <label for="acc" class="cy-label">Import into</label>
+      <select id="acc" class="cy-input" [ngModel]="accountId || null" (ngModelChange)="pick($event)" name="acc" [disabled]="busy">
+        <option [ngValue]="null">Choose an account</option>
+        <option *ngFor="let a of accounts" [ngValue]="a.id">{{ a.name }}</option>
+      </select>
+      <div *ngIf="!accounts.length && !error" class="mt-2 text-[13px] text-[#5B6478]">Add a bank account first. <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="font-bold underline">Add account</a></div>
+
+      <label for="csv" class="cy-label mt-4">CSV file</label>
+      <input id="csv" type="file" accept=".csv,text/csv,text/plain" class="cy-input" (change)="chooseFile($event)" [disabled]="busy || !accountId">
+      <div *ngIf="busy && !preview" class="mt-2 text-sm text-[#5B6478]">Reading the file…</div>
+
+      <div class="mt-4 rounded-[14px] bg-[#F6F4EC] p-4 text-[13px] leading-relaxed text-[#3C4663]">
+        <div class="font-bold text-cyrcle-navy">Not sure what the file should look like?</div>
+        <div>A statement needs a date, a description and an amount. Money in is positive and money out is negative, or use separate money out and money in columns. Dates like 31/12/2026 or 2026-12-31 both work.</div>
+        <div class="mt-2 flex flex-wrap gap-x-5">
+          <button type="button" class="min-h-[36px] font-bold underline" (click)="sample('one-amount')">Download sample: one amount column</button>
+          <button type="button" class="min-h-[36px] font-bold underline" (click)="sample('two-columns')">Download sample: money out and money in</button>
+        </div>
+      </div>
+    </section>
+
+    <ng-container *ngIf="preview">
+      <section class="cy-card mt-4 flex flex-col gap-4">
+        <div class="text-lg font-extrabold" role="heading" aria-level="2">Check the columns</div>
+        <div class="text-sm text-[#3C4663]">We found {{ preview.rows }} lines. Make sure each column is matched correctly.</div>
+
+        <label class="flex min-h-[40px] items-center gap-2 text-sm font-bold"><input type="checkbox" [(ngModel)]="hasHeader" name="hh"> The first line is a heading row</label>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="m-date" class="cy-label">Date</label>
+            <select id="m-date" class="cy-input" [(ngModel)]="map.date" name="date"><option [ngValue]="null">Choose a column</option><option *ngFor="let h of preview.headers; let i = index" [ngValue]="i">{{ h }}</option></select>
+          </div>
+          <div>
+            <label for="m-desc" class="cy-label">Description</label>
+            <select id="m-desc" class="cy-input" [(ngModel)]="map.description" name="description"><option [ngValue]="null">Choose a column</option><option *ngFor="let h of preview.headers; let i = index" [ngValue]="i">{{ h }}</option></select>
+          </div>
+        </div>
+
+        <fieldset class="m-0 border-0 p-0">
+          <legend class="cy-label">How does your bank show amounts?</legend>
+          <label class="mr-5 inline-flex min-h-[40px] items-center gap-2 text-sm"><input type="radio" name="split" [value]="false" [(ngModel)]="split"> One amount column</label>
+          <label class="inline-flex min-h-[40px] items-center gap-2 text-sm"><input type="radio" name="split" [value]="true" [(ngModel)]="split"> Separate money out and money in columns</label>
+        </fieldset>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div *ngIf="!split">
+            <label for="m-amt" class="cy-label">Amount</label>
+            <select id="m-amt" class="cy-input" [(ngModel)]="map.amount" name="amount"><option [ngValue]="null">Choose a column</option><option *ngFor="let h of preview.headers; let i = index" [ngValue]="i">{{ h }}</option></select>
+          </div>
+          <ng-container *ngIf="split">
+            <div>
+              <label for="m-deb" class="cy-label">Money out (debit)</label>
+              <select id="m-deb" class="cy-input" [(ngModel)]="map.debit" name="debit"><option [ngValue]="null">Choose a column</option><option *ngFor="let h of preview.headers; let i = index" [ngValue]="i">{{ h }}</option></select>
+            </div>
+            <div>
+              <label for="m-cre" class="cy-label">Money in (credit)</label>
+              <select id="m-cre" class="cy-input" [(ngModel)]="map.credit" name="credit"><option [ngValue]="null">Choose a column</option><option *ngFor="let h of preview.headers; let i = index" [ngValue]="i">{{ h }}</option></select>
+            </div>
+          </ng-container>
+          <div>
+            <label for="m-bal" class="cy-label">Balance <span class="font-normal text-[#5B6478]">(optional)</span></label>
+            <select id="m-bal" class="cy-input" [(ngModel)]="map.balance" name="balance"><option [ngValue]="null">Not in the file</option><option *ngFor="let h of preview.headers; let i = index" [ngValue]="i">{{ h }}</option></select>
+          </div>
+        </div>
+
+        <label *ngIf="!split" class="flex min-h-[40px] items-start gap-2 text-sm"><input type="checkbox" class="mt-1" [(ngModel)]="outflowPositive" name="op">
+          <span><span class="font-bold">Money out is shown as a positive number</span><br><span class="text-[13px] text-[#5B6478]">Tick this if purchases appear as 45.00 rather than -45.00. This is usual for credit cards.</span></span></label>
+      </section>
+
+      <section class="mt-4 overflow-x-auto rounded-[20px] bg-white p-4" aria-label="First lines of the file">
+        <div class="mb-2 text-sm font-bold">First lines of your file</div>
+        <table class="w-full border-collapse text-left text-[13px]">
+          <thead><tr><th *ngFor="let h of preview.headers" class="whitespace-nowrap border-b border-[#B9B39F] px-2 py-1.5 font-bold">{{ h }}</th></tr></thead>
+          <tbody><tr *ngFor="let row of preview.sample"><td *ngFor="let c of row" class="whitespace-nowrap px-2 py-1.5">{{ c }}</td></tr></tbody>
+        </table>
+      </section>
+
+      <div class="mt-4 flex gap-2.5">
+        <button type="button" class="cy-btn-primary" (click)="import()" [disabled]="!ready || busy">{{ busy ? 'Importing…' : 'Import ' + preview.rows + ' lines' }}</button>
+        <a routerLink="/admin/Banktransactions" class="cy-btn-secondary">Cancel</a>
+      </div>
+      <div *ngIf="!ready" class="mt-2 text-[13px] text-[#5B6478]">Choose the date, description and amount columns to continue.</div>
+    </ng-container>
+  </ng-container>
+
+  <section *ngIf="result" class="cy-card mt-4 flex flex-col gap-3">
+    <div class="text-lg font-extrabold" role="heading" aria-level="2">Import finished</div>
+    <ul class="m-0 list-none p-0 text-sm">
+      <li><span class="font-bold">{{ result.imported }}</span> new transaction{{ result.imported === 1 ? '' : 's' }} added</li>
+      <li><span class="font-bold">{{ result.skipped }}</span> already there and skipped</li>
+      <li *ngIf="result.unreadable"><span class="font-bold">{{ result.unreadable }}</span> line{{ result.unreadable === 1 ? '' : 's' }} could not be read</li>
+    </ul>
+    <ul *ngIf="result.problems.length" class="m-0 pl-5 text-[13px] text-[#5B6478]"><li *ngFor="let p of result.problems">{{ p }}</li></ul>
+    <div class="flex flex-wrap gap-2.5">
+      <button type="button" class="cy-btn-primary" (click)="done()">See transactions</button>
+      <button type="button" class="cy-btn-secondary" (click)="undo()">Undo this import</button>
+    </div>
+  </section>
+</div>

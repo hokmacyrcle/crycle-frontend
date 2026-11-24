@@ -1,0 +1,131 @@
+<div class="text-cyrcle-navy">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex gap-2" role="tablist" aria-label="Account status">
+      <button type="button" role="tab" class="min-h-[40px] rounded-full px-4 text-sm font-bold" [attr.aria-selected]="!showArchived"
+              [ngClass]="!showArchived ? 'bg-cyrcle-navy text-white' : 'bg-white'" (click)="showArchived = false">Active <span class="font-semibold opacity-80">{{ counts.active }}</span></button>
+      <button type="button" role="tab" class="min-h-[40px] rounded-full px-4 text-sm font-bold" [attr.aria-selected]="showArchived"
+              [ngClass]="showArchived ? 'bg-cyrcle-navy text-white' : 'bg-white'" (click)="showArchived = true">Archived <span class="font-semibold opacity-80">{{ counts.archived }}</span></button>
+    </div>
+    <button type="button" class="cy-btn-primary" (click)="openAdd()"><app-icon name="plus" [size]="18"></app-icon>New account</button>
+  </div>
+
+  <form class="mt-3 flex flex-wrap items-end gap-2.5" (submit)="$event.preventDefault()" role="search">
+    <label class="min-w-[180px] flex-1 sm:max-w-xs"><span class="sr-only">Search accounts</span>
+      <input type="search" name="q" class="cy-input" placeholder="Search name, code or type" [(ngModel)]="search"></label>
+    <label><span class="sr-only">Type</span>
+      <select name="type" class="cy-input !w-auto" [(ngModel)]="typeFilter">
+        <option value="">All types</option>
+        <option *ngFor="let t of types" [value]="t.key">{{ t.label }}</option>
+      </select></label>
+    <button *ngIf="hasFilter" type="button" class="min-h-[40px] text-sm font-bold underline" (click)="clearFilters()">Clear</button>
+  </form>
+
+  <!-- Add / edit -->
+  <form *ngIf="formOpen" class="cy-card mt-4 flex flex-col gap-4" (ngSubmit)="save()" novalidate autocomplete="off" aria-label="Account details">
+    <div role="heading" aria-level="2" class="text-lg font-extrabold">{{ editing ? 'Edit account' : 'New account' }}</div>
+    <div *ngIf="lockedType" class="rounded-[12px] bg-[#E6F2EC] px-3.5 py-2.5 text-[13px] leading-snug" role="status">This is a standard account that Cyrcle needs, so its type and detail type are fixed.</div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label for="ct" class="cy-label">Type</label>
+        <select id="ct" name="type" class="cy-input" [class.invalid]="err('type')" [(ngModel)]="m.type" (ngModelChange)="onType()" [disabled]="lockedType">
+          <option *ngFor="let t of types" [value]="t.key">{{ t.label }}</option>
+        </select>
+        <div class="cy-error" *ngIf="err('type')">{{ err('type') }}</div>
+      </div>
+      <div>
+        <label for="cd" class="cy-label">Detail type</label>
+        <select id="cd" name="detail" class="cy-input" [class.invalid]="err('detail')" [(ngModel)]="m.detail" [disabled]="lockedType">
+          <option *ngFor="let d of detailsFor(m.type)" [value]="d">{{ d }}</option>
+        </select>
+        <div class="cy-error" *ngIf="err('detail')">{{ err('detail') }}</div>
+      </div>
+      <div>
+        <label for="cn" class="cy-label">Account name</label>
+        <input id="cn" name="name" type="text" class="cy-input" [class.invalid]="err('name')" maxlength="150" [(ngModel)]="m.name" (ngModelChange)="fieldErrors['name'] = ''">
+        <div class="cy-error" *ngIf="err('name')">{{ err('name') }}</div>
+      </div>
+      <div>
+        <label for="cc" class="cy-label">Code <span class="font-normal text-[#5B6478]">(optional)</span></label>
+        <input id="cc" name="code" type="text" class="cy-input" [class.invalid]="err('code')" maxlength="10" placeholder="e.g. 655" [(ngModel)]="m.code" (ngModelChange)="fieldErrors['code'] = ''">
+        <div class="cy-error" *ngIf="err('code')">{{ err('code') }}</div>
+      </div>
+      <div>
+        <label for="cg" class="cy-label">GST code</label>
+        <select id="cg" name="gst_code" class="cy-input" [class.invalid]="err('gst_code')" [(ngModel)]="m.gst_code">
+          <option *ngFor="let g of gstCodes" [value]="g.key">{{ g.label }}</option>
+        </select>
+        <div class="cy-error" *ngIf="err('gst_code')">{{ err('gst_code') }}</div>
+      </div>
+      <div *ngIf="!hasSubs">
+        <label for="cp" class="cy-label">Sub-account of <span class="font-normal text-[#5B6478]">(optional)</span></label>
+        <select id="cp" name="parent_id" class="cy-input" [class.invalid]="err('parent_id')" [(ngModel)]="m.parent_id">
+          <option value="">None, this is a main account</option>
+          <option *ngFor="let p of parents" [value]="p.id">{{ p.code ? p.code + ' · ' : '' }}{{ p.name }}</option>
+        </select>
+        <div class="cy-error" *ngIf="err('parent_id')">{{ err('parent_id') }}</div>
+      </div>
+    </div>
+    <div>
+      <label for="cx" class="cy-label">Description <span class="font-normal text-[#5B6478]">(optional)</span></label>
+      <input id="cx" name="description" type="text" class="cy-input" [class.invalid]="err('description')" maxlength="255" [(ngModel)]="m.description">
+      <div class="cy-error" *ngIf="err('description')">{{ err('description') }}</div>
+    </div>
+    <div class="cy-error" *ngIf="formError && !fieldErrors['name'] && !fieldErrors['code'] && !fieldErrors['type'] && !fieldErrors['detail'] && !fieldErrors['gst_code'] && !fieldErrors['parent_id'] && !fieldErrors['description']">{{ formError }}</div>
+    <div class="flex gap-2.5">
+      <button type="submit" class="cy-btn-primary" [disabled]="saving">{{ saving ? 'Saving…' : 'Save account' }}</button>
+      <button type="button" class="cy-btn-secondary" (click)="formOpen = false">Cancel</button>
+    </div>
+  </form>
+
+  <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
+    <div class="font-bold">We could not load your chart of accounts</div>
+    <div class="text-sm text-[#3C4663]">{{ error }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="load()">Try again</button>
+  </div>
+
+  <div *ngIf="loading && !accounts.length && !error" class="mt-5 text-sm text-[#5B6478]">Loading…</div>
+
+  <div *ngIf="!loading && !error && !groups.length" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">{{ hasFilter ? 'No accounts match' : showArchived ? 'No archived accounts' : 'No accounts' }}</div>
+    <div *ngIf="hasFilter" class="text-[13px] text-[#3C4663]">Try a different search or type.</div>
+  </div>
+
+  <section *ngFor="let g of groups" class="mt-4 overflow-hidden rounded-[20px] bg-white" [attr.aria-label]="g.label">
+    <div class="flex items-center justify-between border-b border-cyrcle-pearl bg-[#F1F4F7] px-4 py-2.5">
+      <div role="heading" aria-level="2" class="text-[13px] font-extrabold uppercase tracking-wide text-[#3C4663]">{{ g.label }}</div>
+      <span class="text-[12px] text-[#5B6478]">{{ g.rows.length }}</span>
+    </div>
+    <div *ngFor="let r of g.rows" class="border-b border-cyrcle-pearl last:border-0">
+      <!-- phone -->
+      <div class="px-4 py-3 md:hidden" [class.pl-9]="r.sub">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-[15px] font-bold [overflow-wrap:anywhere]">{{ r.a.code ? r.a.code + ' · ' : '' }}{{ r.a.name }}</div>
+            <div class="text-[13px] text-[#5B6478]">{{ r.a.detail }} · {{ r.a.gst_label }}</div>
+          </div>
+          <span *ngIf="r.a.locked" class="shrink-0 rounded-md bg-[#E6F2EC] px-1.5 text-[12px] font-bold">Standard</span>
+        </div>
+        <div class="mt-1 flex gap-5 text-[13px] font-bold text-cyrcle-midnight">
+          <button *ngIf="r.a.active" type="button" class="min-h-[36px] underline" (click)="openEdit(r.a)">Edit</button>
+          <button *ngIf="r.a.active && !r.a.locked" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === r.a.id" (click)="archive(r.a)">Archive</button>
+          <button *ngIf="!r.a.active" type="button" class="min-h-[36px] underline disabled:opacity-50" [disabled]="busyId === r.a.id" (click)="restore(r.a)">Restore</button>
+        </div>
+      </div>
+      <!-- desktop -->
+      <div class="hidden grid-cols-[70px_1fr_150px_250px_140px] items-center gap-3 px-4 py-3 md:grid">
+        <div class="text-sm text-[#5B6478]">{{ r.a.code || '—' }}</div>
+        <div class="min-w-0" [class.pl-6]="r.sub">
+          <div class="truncate text-[15px] font-bold" [title]="r.a.name">{{ r.a.name }}<span *ngIf="r.a.locked" class="ml-2 rounded-md bg-[#E6F2EC] px-1.5 text-[12px] font-bold">Standard</span></div>
+          <div *ngIf="r.a.description" class="truncate text-[12px] text-[#5B6478]" [title]="r.a.description">{{ r.a.description }}</div>
+        </div>
+        <div class="truncate text-sm text-[#5B6478]">{{ r.a.detail }}</div>
+        <div class="truncate text-sm text-[#5B6478]">{{ r.a.gst_label }}</div>
+        <div class="flex justify-end gap-3 text-[13px] font-bold text-cyrcle-midnight">
+          <button *ngIf="r.a.active" type="button" class="underline" [attr.aria-label]="'Edit ' + r.a.name" (click)="openEdit(r.a)">Edit</button>
+          <button *ngIf="r.a.active && !r.a.locked" type="button" class="underline disabled:opacity-50" [disabled]="busyId === r.a.id" [attr.aria-label]="'Archive ' + r.a.name" (click)="archive(r.a)">Archive</button>
+          <button *ngIf="!r.a.active" type="button" class="underline disabled:opacity-50" [disabled]="busyId === r.a.id" [attr.aria-label]="'Restore ' + r.a.name" (click)="restore(r.a)">Restore</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

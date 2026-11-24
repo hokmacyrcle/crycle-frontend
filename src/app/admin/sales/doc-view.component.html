@@ -1,0 +1,276 @@
+<div class="mx-auto max-w-4xl text-cyrcle-navy">
+
+  <div class="print:hidden">
+    <button type="button" (click)="back()" class="inline-flex min-h-[40px] items-center gap-1.5 text-sm font-bold underline">
+      <app-icon name="arrow-left" [size]="18"></app-icon>Back to {{ noun }}s
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="mt-4 text-sm text-[#5B6478]">Loading…</div>
+  <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3 print:hidden">
+    <div class="font-bold">We could not open this {{ noun }}</div>
+    <div class="text-sm text-[#3C4663]">{{ error }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="back()">Go back</button>
+  </div>
+
+  <ng-container *ngIf="doc && calc">
+
+    <!-- Title and actions -->
+    <div class="mt-1 flex flex-col gap-3 print:hidden sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 class="m-0 text-[28px] font-extrabold leading-tight">{{ isInvoice ? 'Invoice' : 'Quote' }} {{ doc.number }}</h1>
+        <span class="cy-pill" [ngClass]="'cy-pill-' + doc.status">{{ label[doc.status] }}</span>
+      </div>
+
+      <div class="relative flex flex-wrap items-center gap-2">
+        <!-- invoice -->
+        <ng-container *ngIf="isInvoice">
+          <button *ngIf="doc.can['issue']" type="button" class="cy-btn-primary" (click)="issue()" [disabled]="busy"><app-icon name="send" [size]="18"></app-icon>Issue invoice</button>
+          <button *ngIf="doc.can['pay']" type="button" class="cy-btn-primary" (click)="openPay()" [disabled]="busy"><app-icon name="banknote" [size]="18"></app-icon>Record payment</button>
+        </ng-container>
+        <!-- quote -->
+        <ng-container *ngIf="!isInvoice">
+          <button *ngIf="doc.can['send']" type="button" class="cy-btn-primary" (click)="setStatus('sent')" [disabled]="busy"><app-icon name="send" [size]="18"></app-icon>Mark as sent</button>
+          <button *ngIf="doc.can['accept']" type="button" class="cy-btn-primary" (click)="setStatus('accepted')" [disabled]="busy"><app-icon name="check" [size]="18"></app-icon>Mark as accepted</button>
+          <button *ngIf="doc.can['convert'] && doc.status === 'accepted'" type="button" class="cy-btn-primary" (click)="convert()" [disabled]="busy"><app-icon name="convert" [size]="18"></app-icon>Create invoice</button>
+          <a *ngIf="doc.status === 'invoiced' && doc.invoice_id" [routerLink]="['/admin/sales/invoices', doc.invoice_id]" class="cy-btn-primary">View invoice</a>
+        </ng-container>
+
+        <button *ngIf="doc.can['remind']" type="button" class="cy-btn-primary" (click)="openRemind()" [disabled]="busy"><app-icon name="send" [size]="18"></app-icon>Send reminder</button>
+        <button *ngIf="isInvoice && doc.status !== 'void'" type="button" class="cy-btn-secondary" (click)="openRepeat()" [disabled]="busy"><app-icon name="clock" [size]="18"></app-icon>Repeat</button>
+        <button *ngIf="doc.can['edit']" type="button" class="cy-btn-secondary" (click)="edit()" [disabled]="busy"><app-icon name="edit" [size]="18"></app-icon>Edit</button>
+        <button type="button" class="cy-btn-secondary" (click)="print()"><app-icon name="printer" [size]="18"></app-icon>Print or save PDF</button>
+
+        <!-- more -->
+        <ng-container *ngIf="doc.can['delete'] || doc.can['void'] || doc.can['decline'] || (doc.can['convert'] && doc.status !== 'accepted')">
+          <button type="button" class="cy-icon-btn border-[1.5px] border-cyrcle-navy" (click)="menuOpen = !menuOpen" aria-label="More actions" [attr.aria-expanded]="menuOpen"><app-icon name="more" [size]="20"></app-icon></button>
+          <div *ngIf="menuOpen" class="fixed inset-0 z-40" (click)="menuOpen = false"></div>
+          <div *ngIf="menuOpen" class="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-[16px] bg-white py-1 shadow-lg ring-1 ring-black/10" role="menu">
+            <button *ngIf="!isInvoice && doc.can['convert'] && doc.status !== 'accepted'" type="button" role="menuitem" class="flex min-h-[44px] w-full items-center gap-3 px-4 text-left text-sm font-bold hover:bg-[#F6F4EC]" (click)="convert()"><app-icon name="convert" [size]="18"></app-icon>Create invoice</button>
+            <button *ngIf="!isInvoice && doc.can['decline']" type="button" role="menuitem" class="flex min-h-[44px] w-full items-center gap-3 px-4 text-left text-sm font-bold hover:bg-[#F6F4EC]" (click)="setStatus('declined'); menuOpen = false"><app-icon name="x" [size]="18"></app-icon>Mark as declined</button>
+            <button *ngIf="isInvoice && doc.can['void']" type="button" role="menuitem" class="flex min-h-[44px] w-full items-center gap-3 px-4 text-left text-sm font-bold text-red-700 hover:bg-red-50" (click)="voidInvoice()"><app-icon name="ban" [size]="18"></app-icon>Void invoice</button>
+            <button *ngIf="doc.can['delete']" type="button" role="menuitem" class="flex min-h-[44px] w-full items-center gap-3 px-4 text-left text-sm font-bold text-red-700 hover:bg-red-50" (click)="deleteDraft()"><app-icon name="trash" [size]="18"></app-icon>Delete draft</button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Helpful notes (screen only) -->
+    <div *ngIf="doc.status === 'draft'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-white px-4 py-3 text-sm print:hidden">
+      <app-icon name="info" [size]="20"></app-icon>
+      <span><ng-container *ngIf="doc.recurring">Created automatically by a repeat schedule. Check the dates and amounts, then issue it. </ng-container>This is a draft. {{ isInvoice ? 'Issue it when it is ready, and it can then be paid.' : 'Mark it as sent when you give it to the customer.' }}</span>
+    </div>
+    <div *ngIf="doc.status === 'overdue' && doc.last_reminder" class="mt-4 flex items-start gap-3 rounded-[16px] bg-white px-4 py-3 text-sm print:hidden">
+      <app-icon name="info" [size]="20"></app-icon><span>Last reminder recorded on {{ doc.last_reminder | auDate }}.</span>
+    </div>
+    <div *ngIf="doc.status === 'expired'" class="mt-4 flex items-start gap-3 rounded-[16px] bg-[#FBEBC5] px-4 py-3 text-sm font-bold text-[#5C3F00] print:hidden">
+      <app-icon name="clock" [size]="20"></app-icon><span>This quote passed its valid-until date. You can still mark it as accepted or create an invoice.</span>
+    </div>
+
+    <!-- The document -->
+    <article class="mt-4 rounded-[20px] bg-white p-5 sm:p-8 print:mt-0 print:rounded-none print:p-0" [attr.aria-label]="doc.title + ' ' + doc.number">
+      <header class="flex flex-col gap-5 sm:flex-row sm:justify-between">
+        <div>
+          <div class="text-[20px] font-extrabold leading-tight">{{ doc.seller.name }}</div>
+          <div *ngIf="doc.seller.abn" class="mt-1 text-sm">ABN {{ doc.seller.abn | abn }}</div>
+          <div *ngFor="let a of doc.seller.address" class="text-sm text-[#3C4663]">{{ a }}</div>
+        </div>
+        <div class="sm:text-right">
+          <div class="text-[28px] font-extrabold leading-tight">{{ doc.title }}</div>
+          <div class="mt-1 text-sm font-bold">{{ doc.number }}</div>
+        </div>
+      </header>
+
+      <div class="mt-7 grid gap-6 sm:grid-cols-2">
+        <div>
+          <div class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">{{ isInvoice ? 'Bill to' : 'Prepared for' }}</div>
+          <div *ngIf="doc.customer" class="mt-1">
+            <div class="text-[15px] font-bold">{{ doc.customer.name }}</div>
+            <div *ngIf="doc.customer.abn" class="text-sm">ABN {{ doc.customer.abn | abn }}</div>
+            <div *ngFor="let a of doc.customer.address" class="text-sm text-[#3C4663]">{{ a }}</div>
+            <div *ngIf="doc.customer.email" class="text-sm text-[#3C4663]">{{ doc.customer.email }}</div>
+          </div>
+        </div>
+        <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 self-start text-sm sm:justify-self-end">
+          <dt class="font-bold">{{ isInvoice ? 'Invoice date' : 'Quote date' }}</dt><dd class="m-0">{{ doc.issue_date | auDate }}</dd>
+          <ng-container *ngIf="isInvoice"><dt class="font-bold">Due date</dt><dd class="m-0">{{ doc.due_date | auDate }}</dd></ng-container>
+          <ng-container *ngIf="!isInvoice"><dt class="font-bold">Valid until</dt><dd class="m-0">{{ doc.expiry_date | auDate }}</dd></ng-container>
+          <ng-container *ngIf="doc.reference"><dt class="font-bold">Reference</dt><dd class="m-0">{{ doc.reference }}</dd></ng-container>
+        </dl>
+      </div>
+
+      <div class="mt-7 overflow-x-auto">
+        <table class="w-full min-w-[480px] border-collapse text-sm">
+          <thead>
+            <tr class="border-b-2 border-cyrcle-navy text-left text-[12px] font-bold uppercase tracking-wide">
+              <th class="py-2 pr-3 font-bold">Description</th>
+              <th class="px-3 py-2 text-right font-bold">Qty</th>
+              <th class="px-3 py-2 text-right font-bold">Price</th>
+              <th *ngIf="showsGst" class="px-3 py-2 text-right font-bold">GST</th>
+              <th class="py-2 pl-3 text-right font-bold">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of doc.lines; let i = index" class="border-b border-cyrcle-pearl align-top">
+              <td class="py-2.5 pr-3">{{ l.description }}</td>
+              <td class="px-3 py-2.5 text-right">{{ l.quantity | number:'1.0-2' }}</td>
+              <td class="px-3 py-2.5 text-right">{{ l.rate | aud }}</td>
+              <td *ngIf="showsGst" class="px-3 py-2.5 text-right">{{ l.gst_rate > 0 ? l.gst_rate + '%' : 'Free' }}</td>
+              <td class="py-2.5 pl-3 text-right font-bold">{{ calc.lines[i].entered | aud }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="showsGst" class="mt-2 text-[12px] text-[#5B6478]">Amounts are shown {{ doc.amounts_are === 'inclusive' ? 'including' : 'excluding' }} GST.</p>
+
+      <dl class="m-0 ml-auto mt-4 flex max-w-xs flex-col gap-1.5 text-sm">
+        <div class="flex justify-between"><dt>Subtotal{{ doc.amounts_are === 'inclusive' && showsGst ? ' (including GST)' : '' }}</dt><dd class="m-0 font-bold">{{ calc.gross | aud }}</dd></div>
+        <div class="flex justify-between" *ngIf="calc.discount > 0"><dt>Discount</dt><dd class="m-0 font-bold">−{{ calc.discount | aud }}</dd></div>
+        <div class="flex justify-between" *ngIf="showsGst && doc.amounts_are === 'exclusive'"><dt>GST</dt><dd class="m-0 font-bold">{{ calc.gst | aud }}</dd></div>
+        <div class="flex justify-between border-t-2 border-cyrcle-navy pt-2 text-[17px]"><dt class="font-extrabold">Total AUD</dt><dd class="m-0 font-extrabold">{{ calc.total | aud }}</dd></div>
+        <div class="flex justify-between text-[13px] text-[#3C4663]" *ngIf="showsGst && doc.amounts_are === 'inclusive'"><dt>Total includes GST of</dt><dd class="m-0 font-bold">{{ calc.gst | aud }}</dd></div>
+        <ng-container *ngIf="isInvoice && (doc.totals.paid ?? 0) > 0">
+          <div class="flex justify-between"><dt>Amount paid</dt><dd class="m-0 font-bold">−{{ doc.totals.paid | aud }}</dd></div>
+          <div class="flex justify-between text-[17px]"><dt class="font-extrabold">Amount due</dt><dd class="m-0 font-extrabold">{{ doc.totals.amount_due | aud }}</dd></div>
+        </ng-container>
+      </dl>
+
+      <!-- How to pay -->
+      <section *ngIf="isInvoice && doc.status !== 'void' && doc.status !== 'paid'" class="mt-7 rounded-[16px] bg-[#F6F4EC] p-4 text-sm print:border print:border-gray-300 print:bg-white">
+        <div class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">How to pay</div>
+        <ng-container *ngIf="doc.seller.bank">
+          <dl class="m-0 mt-2 grid grid-cols-[auto_1fr] gap-x-5 gap-y-1">
+            <dt class="font-bold">Account name</dt><dd class="m-0">{{ doc.seller.bank.account_name }}</dd>
+            <dt class="font-bold">BSB</dt><dd class="m-0">{{ doc.seller.bank.bsb }}</dd>
+            <dt class="font-bold">Account number</dt><dd class="m-0">{{ doc.seller.bank.account_number }}</dd>
+            <dt class="font-bold">Reference</dt><dd class="m-0">{{ doc.number }}</dd>
+          </dl>
+        </ng-container>
+        <div *ngIf="!doc.seller.bank" class="mt-1 print:hidden">
+          No bank details yet, so customers cannot see how to pay.
+          <a [routerLink]="editBusiness" class="font-bold underline">Add bank details</a>
+        </div>
+      </section>
+
+      <section *ngIf="doc.notes" class="mt-6 text-sm">
+        <div class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Notes</div>
+        <p class="m-0 mt-1 whitespace-pre-line">{{ doc.notes }}</p>
+      </section>
+      <section *ngIf="!isInvoice && doc.terms" class="mt-5 text-sm">
+        <div class="text-[12px] font-bold uppercase tracking-wide text-[#5B6478]">Terms and conditions</div>
+        <p class="m-0 mt-1 whitespace-pre-line">{{ doc.terms }}</p>
+      </section>
+      <p *ngIf="!isInvoice" class="mb-0 mt-6 text-sm font-bold">This quote is valid until {{ doc.expiry_date | auDate }}.</p>
+    </article>
+
+    <!-- Payments (screen only) -->
+    <section *ngIf="isInvoice && doc.payments?.length" class="cy-card mt-5 print:hidden" aria-labelledby="pay-h">
+      <h2 id="pay-h" class="m-0 text-base font-extrabold">Payments received</h2>
+      <ul class="m-0 mt-2 list-none p-0">
+        <li *ngFor="let p of doc.payments" class="flex items-center gap-3 border-b border-cyrcle-pearl py-3 last:border-0">
+          <div class="min-w-0 flex-1">
+            <div class="text-[15px] font-bold">{{ p.amount | aud }}</div>
+            <div class="text-[13px] text-[#5B6478]">{{ p.date | auDate }} · {{ p.method }}<span *ngIf="p.reference"> · {{ p.reference }}</span></div>
+          </div>
+          <button type="button" class="cy-icon-btn" (click)="removePayment(p)" aria-label="Remove this payment"><app-icon name="trash" [size]="18"></app-icon></button>
+        </li>
+      </ul>
+    </section>
+  </ng-container>
+
+  <!-- Record payment -->
+  <div *ngIf="payOpen && doc" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 sm:items-center print:hidden" (click)="payOpen = false">
+    <form class="w-full max-w-md rounded-t-3xl bg-white p-5 sm:rounded-3xl" (click)="$event.stopPropagation()" (ngSubmit)="submitPay()" novalidate
+          role="dialog" aria-modal="true" aria-labelledby="pay-title">
+      <h2 id="pay-title" class="m-0 text-xl font-extrabold">Record payment</h2>
+      <p class="mb-0 mt-1 text-sm text-[#3C4663]">{{ doc.number }} · {{ doc.totals.amount_due | aud }} still owing</p>
+
+      <div class="mt-4 flex flex-col gap-4">
+        <div>
+          <label for="pay-amount" class="cy-label">Amount received</label>
+          <input id="pay-amount" name="amount" type="number" inputmode="decimal" min="0" step="0.01" class="cy-input" [class.invalid]="payErrors['amount']" [(ngModel)]="pay.amount">
+          <div class="cy-error" *ngIf="payErrors['amount']">{{ payErrors['amount'] }}</div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="pay-date" class="cy-label">Date received</label>
+            <input id="pay-date" name="date" type="date" [max]="maxDate" class="cy-input" [class.invalid]="payErrors['date']" [(ngModel)]="pay.date">
+            <div class="cy-error" *ngIf="payErrors['date']">{{ payErrors['date'] }}</div>
+          </div>
+          <div>
+            <label for="pay-method" class="cy-label">How was it paid?</label>
+            <select id="pay-method" name="method" class="cy-input" [(ngModel)]="pay.method">
+              <option *ngFor="let m of methods" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="pay-ref" class="cy-label">Reference <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="pay-ref" name="reference" type="text" maxlength="100" class="cy-input" [(ngModel)]="pay.reference">
+        </div>
+        <div *ngIf="payBanner" class="rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ payBanner }}</div>
+      </div>
+
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="payOpen = false" [disabled]="busy">Cancel</button>
+        <button type="submit" class="cy-btn-primary" [disabled]="busy">{{ busy ? 'Saving…' : 'Record payment' }}</button>
+      </div>
+    </form>
+  </div>
+  <!-- Overdue reminder -->
+  <div *ngIf="remindOpen && doc && remind" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 sm:items-center print:hidden" (click)="remindOpen = false">
+    <form class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 sm:rounded-3xl" (click)="$event.stopPropagation()" novalidate
+          role="dialog" aria-modal="true" aria-labelledby="rem-title">
+      <h2 id="rem-title" class="m-0 text-xl font-extrabold">Send a reminder</h2>
+      <p class="mb-0 mt-1 text-sm text-[#3C4663]">{{ doc.number }} is {{ remind.days_overdue }} day{{ remind.days_overdue === 1 ? '' : 's' }} overdue. Edit the message if you like, then send it from your own email. We keep a record that it went out.</p>
+      <div class="mt-4 flex flex-col gap-4">
+        <div class="text-sm"><span class="font-bold">To:</span> {{ remind.to || 'No email address saved for this customer. You can add one on the customer, or copy the message.' }}</div>
+        <div>
+          <label for="rem-subject" class="cy-label">Subject</label>
+          <input id="rem-subject" name="subject" type="text" maxlength="200" class="cy-input" [class.invalid]="remindErrors['subject']" [(ngModel)]="remindForm.subject">
+          <div class="cy-error" *ngIf="remindErrors['subject']">{{ remindErrors['subject'] }}</div>
+        </div>
+        <div>
+          <label for="rem-body" class="cy-label">Message</label>
+          <textarea id="rem-body" name="body" rows="12" class="cy-input" [class.invalid]="remindErrors['body']" [(ngModel)]="remindForm.body"></textarea>
+          <div class="cy-error" *ngIf="remindErrors['body']">{{ remindErrors['body'] }}</div>
+        </div>
+        <div *ngIf="remind.history.length" class="text-[13px] text-[#5B6478]">Earlier reminders: {{ remind.history.length }}, the last on {{ remind.history[0].date | auDate }}.</div>
+        <div *ngIf="remindBanner" class="rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ remindBanner }}</div>
+      </div>
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="remindOpen = false" [disabled]="busy">Cancel</button>
+        <button type="button" class="cy-btn-secondary" (click)="copyReminder()" [disabled]="busy">Copy message</button>
+        <button type="button" class="cy-btn-primary" (click)="openInEmailApp()" [disabled]="busy">Open in my email app</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Repeat this invoice -->
+  <div *ngIf="repeatOpen && doc" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 sm:items-center print:hidden" (click)="repeatOpen = false">
+    <form class="w-full max-w-md rounded-t-3xl bg-white p-5 sm:rounded-3xl" (click)="$event.stopPropagation()" (ngSubmit)="submitRepeat()" novalidate
+          role="dialog" aria-modal="true" aria-labelledby="rep-title">
+      <h2 id="rep-title" class="m-0 text-xl font-extrabold">Repeat this invoice</h2>
+      <p class="mb-0 mt-1 text-sm text-[#3C4663]">A draft copy of {{ doc.number }} is created on each date. You check and issue it, nothing is sent automatically.</p>
+      <div class="mt-4 flex flex-col gap-4">
+        <div>
+          <label for="rep-freq" class="cy-label">How often</label>
+          <select id="rep-freq" name="frequency" class="cy-input" [class.invalid]="repeatErrors['frequency']" [(ngModel)]="repeat.frequency">
+            <option *ngFor="let f of frequencies" [value]="f.key">{{ f.label }}</option>
+          </select>
+          <div class="cy-error" *ngIf="repeatErrors['frequency']">{{ repeatErrors['frequency'] }}</div>
+        </div>
+        <div>
+          <label for="rep-end" class="cy-label">Stop after <span class="font-normal text-[#5B6478]">(optional)</span></label>
+          <input id="rep-end" name="end_date" type="date" class="cy-input" [class.invalid]="repeatErrors['end_date']" [(ngModel)]="repeat.end_date">
+          <div class="cy-error" *ngIf="repeatErrors['end_date']">{{ repeatErrors['end_date'] }}</div>
+        </div>
+        <div *ngIf="repeatBanner" class="rounded-[14px] bg-[#FADBD8] px-4 py-3 text-sm font-bold text-[#9B1C1C]" role="alert">{{ repeatBanner }}</div>
+      </div>
+      <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <button type="button" class="cy-btn-secondary" (click)="repeatOpen = false" [disabled]="busy">Cancel</button>
+        <button type="submit" class="cy-btn-primary" [disabled]="busy">{{ busy ? 'Saving…' : 'Set up repeat' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="text-cyrcle-navy">
+  <p class="m-0 text-sm text-[#3C4663]">Invoices that repeat. Each time one is due, a draft is created for you to check and issue. Nothing is sent to your customer automatically. To add one, open an invoice and choose Repeat.</p>
+
+  <div *ngIf="error" class="cy-card mt-4 flex flex-col gap-3">
+    <div class="font-bold">We could not load your repeating invoices</div>
+    <div class="text-sm text-[#3C4663]">{{ error }}</div>
+    <button type="button" class="cy-btn-secondary self-start" (click)="load()">Try again</button>
+  </div>
+
+  <div *ngIf="loading && !rows.length && !error" class="mt-5 text-sm text-[#5B6478]">Loading…</div>
+
+  <div *ngIf="!loading && !error && !rows.length" class="mt-5 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">No repeating invoices yet</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]">Open an invoice you send every week or month and choose Repeat. A draft will be ready each time it is due.</div>
+    <a routerLink="/admin/sales/invoices" class="cy-btn-primary mt-1 self-start">Go to invoices</a>
+  </div>
+
+  <ul *ngIf="rows.length" class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0" [class.opacity-60]="loading">
+    <li *ngFor="let r of rows" class="rounded-[20px] bg-white p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="truncate text-[15px] font-bold">{{ r.customer || 'Customer' }}</div>
+          <div class="text-[13px] text-[#5B6478]">Copy of <a [routerLink]="['/admin/sales/invoices', r.source_invoice_id]" class="underline">{{ r.source_number }}</a> · {{ r.frequency_label }}</div>
+        </div>
+        <div class="shrink-0 text-right text-[15px] font-extrabold">{{ r.amount | aud }}</div>
+      </div>
+      <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
+        <span class="cy-pill" [ngClass]="r.active ? 'cy-pill-awaiting' : 'cy-pill-draft'">{{ r.active ? 'Next draft ' + (r.next_date | auDate) : 'Paused' }}</span>
+        <span *ngIf="r.end_date" class="text-[#5B6478]">Stops after {{ r.end_date | auDate }}</span>
+        <span class="text-[#5B6478]">{{ r.drafts_created }} created so far</span>
+      </div>
+      <div class="mt-1 flex flex-wrap gap-x-5 text-[13px] font-bold text-cyrcle-midnight">
+        <button type="button" class="min-h-[36px] underline disabled:opacity-50" (click)="toggle(r)" [disabled]="busyId === r.id">{{ r.active ? 'Pause' : 'Resume' }}</button>
+        <button type="button" class="min-h-[36px] underline disabled:opacity-50" (click)="stop(r)" [disabled]="busyId === r.id">Stop repeat</button>
+      </div>
+    </li>
+  </ul>
+</div>

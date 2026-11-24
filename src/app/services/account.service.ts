@@ -13,6 +13,8 @@ interface RegisterData {
   country_code: string;
   password: string;
   password_confirmation: string;
+  middle_name?: string;
+  marketing_opt_in?: boolean;
 }
 
 @Injectable({
@@ -49,12 +51,41 @@ export class AccountService {
       phone: data.phone,
       country_code: data.country_code,
       password: data.password,
-      password_confirmation: data.password_confirmation
+      password_confirmation: data.password_confirmation,
+      middle_name: data.middle_name || null,
+      marketing_opt_in: !!data.marketing_opt_in
     };
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.httpClient.post(baseUrl + '/register', body, { headers });
   }
-  // Logout API
+  // Firm sign-up steps 2-4 and status (use the token saved after register)
+  private authHeaders(): HttpHeaders {
+    const token = localStorage.getItem('access_token');
+    const tokenType = localStorage.getItem('token_type') || 'Bearer';
+    return new HttpHeaders({ Authorization: `${tokenType} ${token}`, Accept: 'application/json' });
+  }
+  sendEmailCode(): Observable<any> {
+    return this.httpClient.post(baseUrl + '/email/send-code', {}, { headers: this.authHeaders() });
+  }
+  verifyEmailCode(code: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/email/verify', { code }, { headers: this.authHeaders() });
+  }
+  registerFirm(data: any): Observable<any> {
+    return this.httpClient.post(baseUrl + '/firm/register', data, { headers: this.authHeaders() });
+  }
+  forgotSendOtp(email: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/forgot-password/send-otp', { email });
+  }
+  forgotVerifyOtp(email: string, otp: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/forgot-password/verify-otp', { email, otp });
+  }
+  forgotReset(email: string, password: string, password_confirmation: string): Observable<any> {
+    return this.httpClient.post(baseUrl + '/forgot-password/reset', { email, password, password_confirmation });
+  }
+  me(): Observable<any> {
+    return this.httpClient.get(baseUrl + '/me', { headers: this.authHeaders() });
+  }
+
   // Logout API
   logout(): Observable<any> {
     const token = localStorage.getItem('access_token');

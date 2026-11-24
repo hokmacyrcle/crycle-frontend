@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AccountService } from 'src/app/services/account.service';
 import { AlertService } from 'src/app/services/alert.service';
+import { toAppRole, EMPLOYEE_HOME, EMPLOYER_HOME } from '../../core/roles';
 
 @Component({
   selector: 'app-login',
@@ -72,7 +73,7 @@ export class LoginComponent implements OnInit {
   //       this.loading = false;
   //     },
   //     (error) => {
-  //       this.alertservice.DangerSwalnew('', error.error.message);
+  //       this.alertservice.DangerSwalnew('Could not log in', error?.error?.message || 'Please check your details and try again.');
   //       console.log(error.error.message);
   //       console.error('Login error', error.message);
   //       this.loading = false;
@@ -93,7 +94,6 @@ export class LoginComponent implements OnInit {
       (res) => {
         this.apiresponse = res;
         if (res.status === true) {
-          this.alertservice.successSwalnew('', res.message);
           console.log('access_token: ' + JSON.stringify(res));
           localStorage.setItem('login_response', JSON.stringify(res)); // Store full response
           localStorage.setItem('token_type', res.data.token_type);
@@ -103,29 +103,22 @@ export class LoginComponent implements OnInit {
           const fullToken = `${res.data.token_type} ${res.data.access_token}`;
           localStorage.setItem('full_token', fullToken);
 
-          // Navigate to company selection if companies exist, else to dashboard
-          if (res.data.companies && res.data.companies.length > 0) {
+          // Firm waiting for approval
+          if (res.data.firm_status === 'pending' || res.data.firm_status === 'rejected') {
+            this.router.navigate(['/pending']);
+          } else if (res.data.companies && res.data.companies.length > 0) {
             this.router.navigate(['/company-selection']);
           } else {
-            switch (res.data.user.role) {
-              case 'admin':
-                this.router.navigate(['/admin/Dashboard']);
-                break;
-              case 'contact':
-                this.router.navigate(['/admin/AllPages']);
-                break;
-              default:
-                this.router.navigate(['/admin/Dashboard']);
-            }
+            this.router.navigate([toAppRole(res.data.user.role) === 'employee' ? EMPLOYEE_HOME : EMPLOYER_HOME]);
           }
           this.loading = false;
         } else {
-          this.alertservice.successSwalnew('', res.message);
+          this.alertservice.DangerSwalnew('Could not log in', res.message);
           this.loading = false;
         }
       },
       (error) => {
-        this.alertservice.DangerSwalnew('', error.error.message);
+        this.alertservice.DangerSwalnew('Could not log in', error?.error?.message || 'Please check your details and try again.');
         console.error('Login error', error.error.message);
         this.loading = false;
       }

@@ -1,0 +1,122 @@
+<div class="text-cyrcle-navy">
+  <div *ngIf="loadingAccounts" class="text-sm text-[#5B6478]">Loading…</div>
+
+  <div *ngIf="!loadingAccounts && !accounts.length" class="flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+    <div class="text-base font-bold">No bank accounts to reconcile</div>
+    <div class="text-[13px] leading-snug text-[#3C4663]">Add an account and bring in its transactions first.</div>
+    <a routerLink="/admin/Banktransactions/accounts" [queryParams]="{ add: 1 }" class="cy-btn-primary mt-1 self-start">Add account</a>
+  </div>
+
+  <!-- Step 1 -->
+  <ng-container *ngIf="!loadingAccounts && accounts.length && step === 'setup'">
+    <form class="cy-card flex flex-col gap-4" (ngSubmit)="start()" novalidate autocomplete="off" aria-label="Statement details">
+      <div role="heading" aria-level="2" class="text-lg font-extrabold">Reconcile an account</div>
+      <p class="m-0 text-[13px] leading-snug text-[#3C4663]">Have your bank statement open. Enter its end date and closing balance, then tick the transactions that appear on it until the difference is zero.</p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="ra" class="cy-label">Account</label>
+          <select id="ra" name="account" class="cy-input" [class.invalid]="err('account')" [(ngModel)]="accountId" (ngModelChange)="onAccount()">
+            <option value="">Choose an account</option>
+            <option *ngFor="let a of accounts" [value]="a.id">{{ a.name }}</option>
+          </select>
+          <div class="cy-error" *ngIf="err('account')">{{ err('account') }}</div>
+        </div>
+        <div>
+          <label for="re" class="cy-label">Statement end date</label>
+          <input id="re" name="end" type="date" class="cy-input" [class.invalid]="err('end') || err('statement_end')" [(ngModel)]="f.end" (ngModelChange)="fieldErrors['end'] = ''">
+          <div class="cy-error" *ngIf="err('end') || err('statement_end')">{{ err('end') || err('statement_end') }}</div>
+        </div>
+        <div>
+          <label for="rc" class="cy-label">Statement closing balance</label>
+          <input id="rc" name="closing" type="number" step="0.01" inputmode="decimal" class="cy-input" [class.invalid]="err('closing')" [(ngModel)]="f.closing" (ngModelChange)="fieldErrors['closing'] = ''">
+          <div *ngIf="isCard" class="mt-1 text-[12px] text-[#5B6478]">For a credit card, enter what you owe as a negative number, for example -540.20.</div>
+          <div class="cy-error" *ngIf="err('closing')">{{ err('closing') }}</div>
+        </div>
+        <div *ngIf="info && !hasPrevious">
+          <label for="ro" class="cy-label">Statement opening balance</label>
+          <input id="ro" name="opening" type="number" step="0.01" inputmode="decimal" class="cy-input" [class.invalid]="err('opening')" [(ngModel)]="f.opening" (ngModelChange)="fieldErrors['opening'] = ''">
+          <div class="mt-1 text-[12px] text-[#5B6478]">Only needed the first time. After that it carries over from your last reconciliation.</div>
+          <div class="cy-error" *ngIf="err('opening')">{{ err('opening') }}</div>
+        </div>
+        <div *ngIf="hasPrevious" class="rounded-[12px] bg-[#E6F2EC] px-3.5 py-2.5 text-[13px] leading-snug sm:self-end" role="status">
+          Opening balance <b>{{ money(info!.opening_balance! * 100) }}</b> carries over from your last reconciliation, ended {{ info!.last_statement_end | auDate }}.
+        </div>
+      </div>
+      <div class="cy-error" *ngIf="formError">{{ formError }}</div>
+      <div><button type="submit" class="cy-btn-primary" [disabled]="starting || loadingInfo">{{ starting ? 'Loading…' : 'Start reconciling' }}</button></div>
+    </form>
+
+    <section *ngIf="info && info.history.length" class="mt-5 overflow-hidden rounded-[20px] bg-white" aria-label="Past reconciliations">
+      <div class="border-b border-cyrcle-pearl bg-[#F1F4F7] px-4 py-2.5">
+        <div role="heading" aria-level="2" class="text-[13px] font-extrabold uppercase tracking-wide text-[#3C4663]">Past reconciliations · {{ accountName }}</div>
+      </div>
+      <div *ngFor="let h of info.history" class="flex flex-wrap items-center justify-between gap-3 border-b border-cyrcle-pearl px-4 py-3 last:border-0">
+        <div class="min-w-0">
+          <div class="text-[15px] font-bold">Statement to {{ h.statement_end | auDate }}</div>
+          <div class="text-[13px] text-[#5B6478]">{{ h.line_count }} transaction{{ h.line_count === 1 ? '' : 's' }} · closing {{ h.closing_balance | aud }}<span *ngIf="h.finished_by"> · {{ h.finished_by }}</span></div>
+        </div>
+        <button *ngIf="h.can_undo" type="button" class="min-h-[36px] text-[13px] font-bold underline disabled:opacity-50" [disabled]="busyId === h.id" (click)="undo(h.id)">Undo</button>
+      </div>
+    </section>
+  </ng-container>
+
+  <!-- Step 2 -->
+  <ng-container *ngIf="step === 'working'">
+    <div class="flex items-center justify-between gap-3">
+      <div role="heading" aria-level="2" class="text-lg font-extrabold">{{ accountName }} · statement to {{ f.end | auDate }}</div>
+      <button type="button" class="text-sm font-bold underline" (click)="back()">Back</button>
+    </div>
+
+    <div class="sticky top-0 z-10 mt-3 grid grid-cols-2 gap-2 rounded-[16px] bg-white p-3 shadow-sm sm:grid-cols-4" role="status" aria-live="polite">
+      <div><div class="text-[12px] font-bold text-[#5B6478]">Opening balance</div><div class="text-[16px] font-extrabold">{{ money(openingCents) }}</div></div>
+      <div><div class="text-[12px] font-bold text-[#5B6478]">Ticked ({{ ticked.size }})</div><div class="text-[16px] font-extrabold">{{ money(tickedCents) }}</div></div>
+      <div><div class="text-[12px] font-bold text-[#5B6478]">Statement closing</div><div class="text-[16px] font-extrabold">{{ money(closingCents) }}</div></div>
+      <div><div class="text-[12px] font-bold text-[#5B6478]">Difference</div>
+        <div class="text-[16px] font-extrabold" [ngClass]="balanced ? 'text-[#1F7A4D]' : 'text-[#B42318]'">{{ money(diffCents) }}</div></div>
+    </div>
+
+    <div *ngIf="truncated" class="mt-3 rounded-[12px] bg-[#FBEFD5] px-3.5 py-2.5 text-[13px] leading-snug" role="status">There are more than 1,000 transactions up to this date, so only the oldest 1,000 are shown. Reconcile an earlier statement first.</div>
+
+    <div *ngIf="!lines.length" class="mt-4 flex flex-col gap-2 rounded-[20px] border-2 border-dashed border-[#B9B39F] p-5">
+      <div class="text-base font-bold">No transactions to tick</div>
+      <div class="text-[13px] leading-snug text-[#3C4663]">There are no unreconciled transactions up to this date. If your statement had activity, import it first.</div>
+    </div>
+
+    <div *ngIf="lines.length" class="mt-3 overflow-hidden rounded-[20px] bg-white">
+      <div class="hidden grid-cols-[28px_100px_1fr_110px_110px] items-center gap-3 border-b border-cyrcle-pearl bg-[#F1F4F7] px-4 py-3 text-[12px] font-bold uppercase tracking-wide text-[#5B6478] md:grid">
+        <input type="checkbox" class="h-4 w-4" aria-label="Tick all" [checked]="allTicked" (change)="toggleAll($any($event.target).checked)">
+        <div>Date</div><div>Bank description</div><div class="text-right">Spent</div><div class="text-right">Received</div>
+      </div>
+      <label class="flex items-center gap-3 border-b border-cyrcle-pearl px-4 py-3 text-sm font-bold md:hidden">
+        <input type="checkbox" class="h-5 w-5" [checked]="allTicked" (change)="toggleAll($any($event.target).checked)"> Tick all
+      </label>
+      <label *ngFor="let l of lines" class="flex cursor-pointer items-start gap-3 border-b border-cyrcle-pearl px-4 py-3 last:border-0 md:grid md:grid-cols-[28px_100px_1fr_110px_110px] md:items-center"
+             [class.bg-[#F2F8F5]]="ticked.has(l.id)">
+        <input type="checkbox" class="mt-1 h-5 w-5 shrink-0 md:mt-0 md:h-4 md:w-4" [attr.aria-label]="'Tick ' + l.description" [checked]="ticked.has(l.id)" (change)="toggle(l, $any($event.target).checked)">
+        <div class="hidden text-sm md:block">{{ l.date | auDate }}</div>
+        <div class="min-w-0 flex-1 md:flex-none">
+          <div class="text-[15px] font-bold [overflow-wrap:anywhere] md:truncate">{{ l.description }}</div>
+          <div class="text-[13px] text-[#5B6478] md:hidden">{{ l.date | auDate }}</div>
+        </div>
+        <div class="shrink-0 text-right text-[15px] font-semibold md:hidden" [class.text-[#1F7A4D]]="l.amount > 0">{{ l.amount | aud }}</div>
+        <div class="hidden text-right text-[15px] font-semibold md:block">{{ l.amount < 0 ? (-l.amount | aud) : '' }}</div>
+        <div class="hidden text-right text-[15px] font-semibold text-[#1F7A4D] md:block">{{ l.amount > 0 ? (l.amount | aud) : '' }}</div>
+      </label>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <button type="button" class="cy-btn-primary" [disabled]="!balanced || finishing" (click)="finish()">{{ finishing ? 'Finishing…' : 'Finish reconciling' }}</button>
+      <span *ngIf="!balanced" class="text-[13px] text-[#5B6478]">The difference must be $0.00 to finish.</span>
+    </div>
+  </ng-container>
+
+  <!-- Step 3 -->
+  <div *ngIf="step === 'done'" class="cy-card flex flex-col gap-3" role="status">
+    <div role="heading" aria-level="2" class="text-lg font-extrabold">Reconciled</div>
+    <div class="text-sm text-[#3C4663]">{{ doneMessage }}</div>
+    <div class="flex gap-2.5">
+      <button type="button" class="cy-btn-primary" (click)="again()">Reconcile another statement</button>
+      <a routerLink="/admin/Banktransactions/transactions" class="cy-btn-secondary">Back to transactions</a>
+    </div>
+  </div>
+</div>

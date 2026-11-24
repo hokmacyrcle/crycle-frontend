@@ -4,6 +4,8 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { SessionService } from '../core/session.service';
+import { MenuItem, moreMenu, tabMenu } from '../core/menu';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import {
@@ -100,10 +102,35 @@ export class AdminComponent {
     { id: 'contacts', label: 'Contacts' },
   ];
 
+  // Bottom tabs on phones, chosen by role and context. Employees only get routes the roleGuard allows.
+  tabs: { label: string; icon: string; route: string }[] = [];
+  more: MenuItem[] = [];
+  showMore = false;
+
+  private buildTabs() {
+    if (this.session.role === 'employee') {
+      return [{ label: 'Home', icon: 'home', route: '/admin/my-home' }];
+    }
+    const ctx = this.session.context;
+    const tabs: { label: string; icon: string; route: string }[] = tabMenu(ctx).map(m => ({ label: m.label, icon: m.icon, route: m.route }));
+    this.more = moreMenu(ctx);
+    if (this.more.length) {
+      // "More" is a button, not a route; the template renders it separately
+    }
+    return tabs;
+  }
+
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
   constructor(
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    public session: SessionService
   ) {
+    this.tabs = this.buildTabs(); // built once: a getter returning a new array every change-detection loops with routerLinkActive
     // Set up debounced search
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))

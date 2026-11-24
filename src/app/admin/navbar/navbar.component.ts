@@ -1,5 +1,6 @@
 import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { Router } from '@angular/router';
+import { SessionService } from 'src/app/core/session.service';
 import { AccountService } from 'src/app/services/account.service';
 import Swal from 'sweetalert2';
 
@@ -12,9 +13,16 @@ export class NavbarComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
   constructor(
     private accountService: AccountService,
-    private router: Router
+    private router: Router,
+    public session: SessionService
   ) { }
   showDropdown = false;
+
+  /** Two letters for the round avatar, from the signed-in name. */
+  get initials(): string {
+    const parts = (this.session.userName || '').trim().split(/\s+/).filter(Boolean);
+    return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() || 'U';
+  }
 
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
@@ -35,15 +43,10 @@ logout() {
     text: 'Do you want to log out?',
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#1976d2',
-    cancelButtonColor: '#d32f2f',
+    
     confirmButtonText: 'Yes, log out!',
     cancelButtonText: 'Cancel',
-    customClass: {
-      popup: 'mat-elevation-z8',
-      confirmButton: 'mat-button mat-raised-button mat-primary',
-      cancelButton: 'mat-button mat-raised-button mat-warn'
-    }
+    reverseButtons: true
   }).then((result) => {
     if (result.isConfirmed) {
       this.accountService.logout().subscribe({
