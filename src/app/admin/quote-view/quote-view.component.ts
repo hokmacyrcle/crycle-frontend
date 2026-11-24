@@ -55,7 +55,7 @@ export class QuoteViewComponent implements OnInit {
               );
             } else if (attachment.path) {
               // Handle URL-based attachment
-              const baseUrl = 'https://absdev-api.hokma.xyz';
+              const baseUrl = 'https://cyrcle-api.hokma.co.in';
               return this.sanitizer.bypassSecurityTrustUrl(
                 `${baseUrl}/public/${attachment.path}`
               );
